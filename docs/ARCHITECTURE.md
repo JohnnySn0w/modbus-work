@@ -48,17 +48,17 @@ Golden configurations default to exact-firmware compatibility. A GUI must block 
 
 ## 3. Technician workflow
 
-The technician-facing application orchestrates profiles and adapters through a guarded commissioning sequence:
+The technician-facing application is primarily a guarded auto-configuration tool, not merely a monitoring dashboard. It orchestrates profiles and adapters through a plug-in, select, program, and prove commissioning sequence:
 
 1. detect laptop interfaces and connected bridge hardware;
 2. show model-specific wiring and connector checks;
-3. identify or select the connected instrument;
+3. identify the connected instrument where safe, or let the technician select an approved pre-made profile;
 4. back up the bridge before any write;
 5. verify direct, read-only Modbus communications;
 6. preview engineering values and status;
-7. select required device measurements;
+7. select required device measurements and preview the complete programming diff;
 8. compile and display the bridge configuration diff;
-9. import/write only after confirmation;
+9. program supported device settings and import the bridge table only after confirmation;
 10. read back and require local validation;
 11. verify LoRaWAN join and uplink;
 12. validate raw payload decoding in Loriot;
@@ -67,6 +67,8 @@ The technician-facing application orchestrates profiles and adapters through a g
 For the initial Modbus device POC phase, step 12 ends at validated Loriot raw-payload decoding. Existing infrastructure normally handles downstream DSP routing after Loriot; that routing is outside this project's present scope and will be revisited only after multiple device profiles and the generic configuration model have been proven.
 
 Normal mode should avoid register arithmetic and protocol jargon. Expert mode should expose raw frames, PDU versus manual addresses, decoding order, timing, and diagnostic logs.
+
+The product succeeds when an operations technician can connect known hardware, select an approved configuration, safely program it, and prove live engineering values without interpreting Modbus registers. DSP handoff is the final downstream documentation section after local and Loriot validation.
 
 ## Core rule
 

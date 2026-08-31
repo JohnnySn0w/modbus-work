@@ -1,6 +1,8 @@
 # Modbus bridge configurator
 
-This repository contains the device profiles, bridge configurations, validation evidence, and first technician-facing GUI for configuring Polygon ExactAire-E5 / Synetica ENL-MOD-32 LoRaWAN Modbus bridges.
+This repository contains the device profiles, bridge configurations, validation evidence, and technician-facing auto-configuration GUI for Polygon ExactAire-E5 / Synetica ENL-MOD-32 LoRaWAN Modbus bridges.
+
+The intended operator experience is: **plug in the hardware, select an approved pre-made configuration, let the tool program it safely, and confirm real data before the unit leaves the bench.**
 
 The current scope is intentionally limited to three instruments:
 
@@ -65,6 +67,24 @@ Features currently implemented:
 
 The DPT146 values shown in the initial GUI are explicitly labeled as the latest validated bench readings. Live polling will be added behind the transport layer so the UI never becomes the owner of Modbus register logic.
 
+## Target technician workflow
+
+The GUI is evolving into a guarded auto-configuration tool. Its normal workflow will be:
+
+1. **Plug in** — detect the bridge USB interface, direct RS-485 adapter, and any safely identifiable instrument.
+2. **Inspect** — show the connected-device diagram, exact ports, model/firmware information, and wiring help.
+3. **Choose** — select an approved pre-made device configuration. Normal users should not enter register numbers.
+4. **Back up** — capture bridge settings, point table, firmware identity, LoRaWAN recovery values, and readable device configuration.
+5. **Preflight** — compare the selected profile with bridge firmware, device identity, serial settings, point capacity, and installation inputs.
+6. **Preview** — show proposed changes in plain language, with an expert view for raw details.
+7. **Program** — apply supported device settings and import the bridge table only after confirmation.
+8. **Read back** — reread the programmed state and require a reviewed match.
+9. **Confirm data** — display live engineering values, status, and plausible-range checks.
+10. **Validate Loriot** — confirm join, uplink, and correctly decoded raw payload.
+11. **Export** — produce the clone package and a simple commissioning record.
+
+Writes remain profile-driven and safety-classified. Installation settings may be offered through guarded forms; calibration controls remain expert-only; destructive or undocumented writes remain blocked.
+
 ### Run on Windows
 
 Install Python 3.11 or newer, then from the repository root:
@@ -103,3 +123,19 @@ PROJECT.md                   Full project record
 - Require readback after import.
 - Treat calibration registers as expert-only operations.
 - Do not promote documentation-only profiles until physical hardware and Loriot payloads are validated.
+
+## DSP how-to
+
+This will be the final stage of the technician documentation after the Modbus auto-configuration workflow is complete and proven across the three active devices.
+
+Planned contents:
+
+1. Locate the commissioned device in Loriot by DevEUI.
+2. Confirm uplink port, interval, frame counter progression, and payload length.
+3. Apply or verify the firmware-specific payload decoder.
+4. Confirm that every point index maps to the intended measurement and unit.
+5. Follow the organization's existing Loriot-to-DSP routing procedure.
+6. Verify destination field names, units, precision, timestamps, and alarm semantics.
+7. Save evidence in the commissioning package.
+
+DSP routing is not implemented by this repository today. This section remains deliberately last so bridge programming and live Modbus/Loriot validation do not require DSP-domain access.

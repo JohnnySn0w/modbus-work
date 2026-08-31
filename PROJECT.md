@@ -11,6 +11,8 @@ Build a Windows desktop application and repeatable commissioning process that le
 5. validate LoRa transmission; and
 6. save an auditable configuration/report for shipment and downstream DSP integration.
 
+The governing product workflow is **plug in → identify → select an approved pre-made configuration → back up → preview → program → read back → confirm live data → validate Loriot → export**. The GUI is an auto-configuration tool first; dashboards and downstream DSP work are secondary.
+
 The first working target is a Vaisala DPT146 connected as a Modbus RTU slave to channel 1 of a Polygon-branded LoRa Modbus master bridge. The longer-term target is a profile-driven tool that supports every product in the device backlog without adding one-off GUI code for each model.
 
 ### Current scope boundary

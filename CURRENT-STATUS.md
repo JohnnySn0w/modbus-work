@@ -164,10 +164,13 @@ It is required again when:
 Without hardware:
 
 1. Implement the profile loader and validation rules.
-2. Implement ENL-MOD-32 TSV compile/import preview and deletion/rollback generation.
-3. Add replay fixtures for DPT146 local readings and Loriot payloads.
-4. Scaffold the technician GUI around Connect, Snapshot, Select Device, Preview, Compile, Validate, and Export.
-5. Keep writes disabled by default and require backup/diff/confirmation/readback.
+2. Turn pre-made selection into a guarded programming workflow: Preflight, Preview, Confirm, Program, Read Back, and Validate.
+3. Implement ENL-MOD-32 TSV compilation/import plus deletion and rollback generation behind the GUI.
+4. Add safe device-configuration writers only for fields classified as installation settings.
+5. Add replay fixtures for DPT146 local readings and Loriot payloads.
+6. Add live engineering-value confirmation and a commissioning pass/fail export.
+7. Keep writes disabled by default and require backup, diff, confirmation, readback, and recovery evidence.
+8. Add the final DSP how-to only after the Modbus and Loriot workflow is proven for all three active devices.
 
 When HMD65 or WND-M1-MB hardware arrives:
 
