@@ -1,0 +1,102 @@
+# Modbus bridge configurator
+
+This repository contains the device profiles, bridge configurations, validation evidence, and first technician-facing GUI for configuring Polygon ExactAire-E5 / Synetica ENL-MOD-32 LoRaWAN Modbus bridges.
+
+The current scope is intentionally limited to three instruments:
+
+- **Vaisala DPT146** — golden configuration, validated locally through Modbus, through the bridge, and as a decoded Loriot uplink.
+- **Vaisala HMD65** — documentation-derived test configuration awaiting physical hardware.
+- **Continental Control Systems WND-M1-MB** — documentation-derived test configuration for the WattNode Module for Modbus, awaiting physical hardware.
+
+Start with [CURRENT-STATUS.md](CURRENT-STATUS.md) for the complete bench handoff and current state.
+
+## Architectural strokes
+
+The system is split into three layers so new devices and future bridge firmware do not require one-off screens:
+
+1. **Device profiles** describe an instrument independently of the bridge: identity, serial settings, safe detection, registers, decoding, units, status values, installation inputs, and write hazards.
+2. **Bridge adapters** compile selected profile points into a firmware-specific bridge configuration. The ENL-MOD-32 adapter owns its eight-column TSV format, address behavior, word-order codes, capacity, backup, delete, import, readback, and rollback rules.
+3. **Technician workflow** guides discovery, backup, device selection, read-only validation, configuration preview, guarded write/import, readback, Loriot validation, and export.
+
+The important boundary is that device-specific register logic does not live in GUI screens, and bridge import behavior does not live in device profiles. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [the profile lifecycle](artifacts/device-profiles/PROFILE-LIFECYCLE.md).
+
+## Component details
+
+### Bridge
+
+The validated bridge is a Polygon ExactAire-E5 white-label of the Synetica ENL-MOD-32, firmware 3.6. It supports 32 Modbus points and is configured through an STM32 USB virtual COM interface. Its tested bus settings are 19200 baud, 8 data bits, no parity, and 2 stop bits.
+
+Firmware 3.6 accepts tab-delimited rows with these columns:
+
+```text
+Item  ID  Reg  Addr  Data  Word  Mult  Read
+```
+
+Entering Slave ID `0` deletes an item. That deletion method, golden restoration, detailed readback, and reboot persistence have all been validated.
+
+### DPT146
+
+The DPT146's side-label `CH1` and `CH2` are analog channels. They do not correspond directly to physical connectors I and II. **Connector II is the RS-485/Modbus port.** The installed unit uses slave 1 at 19200 8N2. Its 32-bit values use low-word-first order, represented as `HL` by bridge firmware 3.6.
+
+### HMD65
+
+The prepared test profile contains eight metric float measurements and four status points. Address, protocol, bitrate, parity, and termination come from physical DIP switches. Float word order must be confirmed on hardware; `HH` is the first candidate and `HL` is the controlled fallback.
+
+### WND-M1-MB
+
+The target is specifically the **WND-M1-MB WattNode Module for Modbus**, not the Wide-Range meter. The candidate uses 12 native float measurements so current and power do not need integer scaling. CT ratings and electrical service mapping remain installation inputs.
+
+## GUI
+
+The desktop GUI uses Python's built-in Tk toolkit and keeps serial discovery separate from device definitions.
+
+Features currently implemented:
+
+- automatic serial-port discovery, with richer VID/PID identification when `pyserial` is installed;
+- recognition of the known ENL-MOD-32 USB interface and USB-COMi-TB bench adapter;
+- a connected-device diagram showing the serial interface and attached/configured instrument;
+- clean, clickable device cards with generated device illustrations;
+- detail pages with a top-left back arrow, connection information, readouts, device facts, and links to source artifacts;
+- HMD65 and WND-M1-MB cards clearly marked as ready-to-test rather than connected or validated;
+- automatic refresh every five seconds plus a manual refresh action.
+
+The DPT146 values shown in the initial GUI are explicitly labeled as the latest validated bench readings. Live polling will be added behind the transport layer so the UI never becomes the owner of Modbus register logic.
+
+### Run on Windows
+
+Install Python 3.11 or newer, then from the repository root:
+
+```powershell
+python -m pip install -r requirements.txt
+.\run_gui.ps1
+```
+
+Or run directly:
+
+```powershell
+python -m app.main
+```
+
+`pyserial` improves hardware names and VID/PID matching. The app has a Windows registry fallback and will still start without it.
+
+## Repository map
+
+```text
+app/                         GUI, device catalog, and hardware discovery
+artifacts/bridge-config/     Golden and documentation-derived bridge tables
+artifacts/device-profiles/   Profile lifecycle and machine-readable profiles
+docs/evidence/               Bench photographs and screenshots
+docs/reference/              Manufacturer manuals
+tools/                       Low-level bridge console and credential utilities
+CURRENT-STATUS.md            Current handoff and next work
+PROJECT.md                   Full project record
+```
+
+## Safety
+
+- Never attach the USB-COMi-TB as an active second master to the energized bridge bus.
+- Back up the bridge before writes.
+- Show a configuration diff before import.
+- Require readback after import.
+- Treat calibration registers as expert-only operations.
+- Do not promote documentation-only profiles until physical hardware and Loriot payloads are validated.
