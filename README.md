@@ -59,6 +59,9 @@ Features currently implemented:
 - detail pages with a top-left back arrow, connection information, readouts, device facts, and links to source artifacts;
 - HMD65 and WND-M1-MB cards clearly marked as ready-to-test rather than connected or validated;
 - automatic refresh every five seconds plus a manual refresh action.
+- one-click creation of a portable configuration backup ZIP containing the golden table, manifest, bridge settings, radio notes, and recovery credential record;
+- a basic pre-made configuration picker for DPT146, HMD65, and WND-M1-MB that copies a TSV for review without writing to hardware;
+- per-device Help dialogs containing short setup and troubleshooting guidance.
 
 The DPT146 values shown in the initial GUI are explicitly labeled as the latest validated bench readings. Live polling will be added behind the transport layer so the UI never becomes the owner of Modbus register logic.
 

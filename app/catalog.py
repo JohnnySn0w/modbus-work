@@ -28,6 +28,8 @@ class DeviceDefinition:
     facts: tuple[tuple[str, str], ...] = ()
     artifact: Path | None = None
     detect_tokens: tuple[str, ...] = field(default_factory=tuple)
+    help_setup: tuple[str, ...] = field(default_factory=tuple)
+    help_troubleshooting: tuple[str, ...] = field(default_factory=tuple)
 
 
 DEVICES: dict[str, DeviceDefinition] = {
@@ -53,6 +55,18 @@ DEVICES: dict[str, DeviceDefinition] = {
         ),
         artifact=ROOT / "artifacts/bridge-config/README.md",
         detect_tokens=("VID_0483&PID_5740", "STM32", "ENL-MOD-32"),
+        help_setup=(
+            "Power the bridge from 12–24 VDC; USB is configuration-only.",
+            "Connect the Modbus instrument to RS485 IN and keep only one active master on the bus.",
+            "Back up the existing table before selecting or importing a configuration.",
+            "After import, use Read All Data Points and require zero exceptions.",
+        ),
+        help_troubleshooting=(
+            "If no COM port appears, reconnect USB and refresh device discovery.",
+            "If all reads time out, check slave ID, serial format, common, and A/B polarity.",
+            "Implausible float values usually indicate the wrong PDU address or word order.",
+            "A row with Slave ID 0 deletes that item; restore from a backup or pre-made table.",
+        ),
     ),
     "dpt146": DeviceDefinition(
         key="dpt146",
@@ -77,6 +91,18 @@ DEVICES: dict[str, DeviceDefinition] = {
             ("Word order", "HL for 32-bit values"),
         ),
         artifact=ROOT / "artifacts/bridge-config/vaisala-dpt146-manifest.yaml",
+        help_setup=(
+            "Use physical connector II for RS-485/Modbus; CH1 and CH2 are analog-output labels.",
+            "The validated unit uses slave 1 at 19200 baud, 8N2.",
+            "Select the DPT146 golden table and verify all eight points before deployment.",
+            "Expected healthy values are fault 1, online 1, and error code 0.",
+        ),
+        help_troubleshooting=(
+            "No response: confirm connector II, supply power, common wiring, and slave ID 1.",
+            "Plausible but wrong readings: use zero-based PDU addresses and HL word order.",
+            "Do not connect COM3 as another active master while the bridge is energized.",
+            "If status is unhealthy, record raw status registers before changing configuration.",
+        ),
     ),
     "hmd65": DeviceDefinition(
         key="hmd65",
@@ -99,6 +125,18 @@ DEVICES: dict[str, DeviceDefinition] = {
             ("Open check", "Float word order"),
         ),
         artifact=ROOT / "artifacts/device-profiles/to-test/vaisala-hmd65.yaml",
+        help_setup=(
+            "Photograph the protocol, address, bitrate, parity, and termination DIP switches first.",
+            "Confirm Modbus RTU mode and change the TSV slave ID to match the address switches.",
+            "Start with 19200 8N1 only when the physical DIP positions select those settings.",
+            "Import the 12-point test table and perform read-only validation.",
+        ),
+        help_troubleshooting=(
+            "No response: verify Modbus mode rather than BACnet mode and confirm the DIP address.",
+            "Bad float values: test HH first, then HL without changing register addresses.",
+            "Status values should normally be zero; save non-zero bitmasks for diagnosis.",
+            "Do not perform calibration writes during initial commissioning.",
+        ),
     ),
     "wattnode": DeviceDefinition(
         key="wattnode",
@@ -121,6 +159,18 @@ DEVICES: dict[str, DeviceDefinition] = {
             ("CT scale", "Installation-specific"),
         ),
         artifact=ROOT / "artifacts/device-profiles/to-test/wattnode-wnd-m1-mb.yaml",
+        help_setup=(
+            "Confirm the label says WND-M1-MB and record firmware and factory option text.",
+            "Record service type, voltage mapping, and every CT rating before configuration.",
+            "Replace the placeholder slave ID and serial settings with the physical meter values.",
+            "Use the 12-point float table first to avoid integer current and power scaling.",
+        ),
+        help_troubleshooting=(
+            "No response: inspect front-label communication options and verify A−, B+, and common.",
+            "Wrong sign or phase: inspect CT direction and voltage-to-CT mapping before adjustment.",
+            "For a 250 A CT and CurrentIntScale 20000, integer resolution is 0.0125 A/count.",
+            "Do not guess gain or phase calibration values; preserve the meter's existing values.",
+        ),
     ),
     "adapter": DeviceDefinition(
         key="adapter",
@@ -137,6 +187,22 @@ DEVICES: dict[str, DeviceDefinition] = {
         ),
         artifact=ROOT / "docs/reference/usb-comi-tb-manual.pdf",
         detect_tokens=("USB-COMI", "USB COMI", "FTDI"),
+        help_setup=(
+            "Power down or isolate the bridge master before direct polling.",
+            "Connect D−, D+, and common according to the adapter terminal labels.",
+            "Set the adapter for two-wire RS-485 and match the instrument serial format.",
+        ),
+        help_troubleshooting=(
+            "If COM3 is absent, reconnect USB and inspect Windows Device Manager.",
+            "If reads time out, check A/B naming differences and common wiring.",
+            "Never diagnose by transmitting from both the bridge and adapter at once.",
+        ),
     ),
 }
 
+
+PREMADE_CONFIGS = {
+    "dpt146": ROOT / "artifacts/bridge-config/vaisala-dpt146-golden.tsv",
+    "hmd65": ROOT / "artifacts/bridge-config/hmd65-documentation-test.tsv",
+    "wattnode": ROOT / "artifacts/bridge-config/wattnode-wnd-m1-mb-documentation-test.tsv",
+}

@@ -1,16 +1,19 @@
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import tkinter as tk
+import zipfile
+from datetime import datetime
 from pathlib import Path
-from tkinter import font as tkfont
+from tkinter import filedialog, font as tkfont, messagebox
 
 try:
-    from .catalog import DEVICES, DeviceDefinition
+    from .catalog import DEVICES, PREMADE_CONFIGS, ROOT, DeviceDefinition
     from .discovery import PortInfo, classify_ports, discover_ports
 except ImportError:  # Direct script execution
-    from catalog import DEVICES, DeviceDefinition
+    from catalog import DEVICES, PREMADE_CONFIGS, ROOT, DeviceDefinition
     from discovery import PortInfo, classify_ports, discover_ports
 
 
@@ -108,6 +111,11 @@ class App(tk.Tk):
                   bg=SURFACE, fg=INK, activebackground=SOFT, relief="flat",
                   padx=16, pady=8, cursor="hand2",
                   highlightthickness=1, highlightbackground=OUTLINE).pack(side="right")
+
+        actions = tk.Frame(self, bg=BG)
+        actions.pack(fill="x", padx=42, pady=(8, 0))
+        self.action_button(actions, "Back up configuration", self.backup_configuration).pack(side="left")
+        self.action_button(actions, "Choose pre-made config", self.choose_configuration).pack(side="left", padx=10)
 
         tk.Label(self, text="Select a device to view its information and readouts.",
                  fg=MUTED, bg=BG).pack(anchor="w", padx=44)
@@ -213,6 +221,13 @@ class App(tk.Tk):
             widget.bind("<Button-1>", lambda _event, key=device.key: self.show_detail(key))
         return card
 
+    @staticmethod
+    def action_button(parent: tk.Widget, text: str, command) -> tk.Button:
+        return tk.Button(parent, text=text, command=command, bg=SURFACE, fg=INK,
+                         activebackground=SOFT, relief="flat", padx=16, pady=9,
+                         cursor="hand2", highlightthickness=1,
+                         highlightbackground=OUTLINE)
+
     def show_detail(self, key: str) -> None:
         self.active_key = key
         self.clear()
@@ -281,6 +296,23 @@ class App(tk.Tk):
                       bg=ACCENT, fg="white", activebackground="#315A82",
                       activeforeground="white", relief="flat", padx=14,
                       pady=10, cursor="hand2").pack(side="bottom", fill="x")
+        tk.Button(facts, text="Help: setup & troubleshooting",
+                  command=lambda: self.show_help(device), bg=SURFACE, fg=INK,
+                  activebackground=SOFT, relief="flat", padx=14, pady=10,
+                  cursor="hand2", highlightthickness=1,
+                  highlightbackground=OUTLINE).pack(side="bottom", fill="x", pady=(0, 10))
+
+        if key == "bridge":
+            tk.Button(facts, text="Choose pre-made config",
+                      command=self.choose_configuration, bg=SURFACE, fg=INK,
+                      activebackground=SOFT, relief="flat", padx=14, pady=10,
+                      cursor="hand2", highlightthickness=1,
+                      highlightbackground=OUTLINE).pack(side="bottom", fill="x", pady=(0, 10))
+            tk.Button(facts, text="Back up configuration",
+                      command=self.backup_configuration, bg=SURFACE, fg=INK,
+                      activebackground=SOFT, relief="flat", padx=14, pady=10,
+                      cursor="hand2", highlightthickness=1,
+                      highlightbackground=OUTLINE).pack(side="bottom", fill="x", pady=(0, 10))
 
     def connection_status(self, key: str) -> str:
         if key in self.classified:
@@ -291,6 +323,124 @@ class App(tk.Tk):
         if key in ("hmd65", "wattnode"):
             return "Profile prepared · physical hardware not detected"
         return "Not currently detected · showing saved project information"
+
+    def backup_configuration(self) -> None:
+        stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        destination = filedialog.asksaveasfilename(
+            parent=self,
+            title="Save configuration backup",
+            defaultextension=".zip",
+            initialfile=f"enl-mod-32-backup-{stamp}.zip",
+            filetypes=[("ZIP archive", "*.zip")],
+        )
+        if not destination:
+            return
+        files = [
+            ROOT / "artifacts/bridge-config/vaisala-dpt146-golden.tsv",
+            ROOT / "artifacts/bridge-config/vaisala-dpt146-manifest.yaml",
+            ROOT / "artifacts/bridge-config/vaisala-dpt146-bridge-settings.md",
+            ROOT / "artifacts/bridge-config/enl-mod-32-lorawan-status.md",
+            ROOT / ".secrets/polygon-enl-mod-32-lorawan.env",
+        ]
+        try:
+            with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as archive:
+                for path in files:
+                    if path.exists():
+                        archive.write(path, path.relative_to(ROOT))
+            messagebox.showinfo(
+                "Backup created",
+                "Saved the known-good bridge configuration, settings, manifest, and recovery credentials.",
+                parent=self,
+            )
+        except OSError as exc:
+            messagebox.showerror("Backup failed", str(exc), parent=self)
+
+    def choose_configuration(self) -> None:
+        dialog = tk.Toplevel(self)
+        dialog.title("Choose pre-made configuration")
+        dialog.geometry("560x430")
+        dialog.resizable(False, False)
+        dialog.configure(bg=BG)
+        dialog.transient(self)
+        dialog.grab_set()
+        tk.Label(dialog, text="Choose a pre-made configuration",
+                 font=("Segoe UI", 19, "bold"), fg=INK, bg=BG).pack(anchor="w", padx=28, pady=(24, 4))
+        tk.Label(dialog, text="This copies a TSV for review; it does not write to the bridge.",
+                 fg=MUTED, bg=BG).pack(anchor="w", padx=28, pady=(0, 16))
+        selected = tk.StringVar(value="dpt146")
+        for key in ("dpt146", "hmd65", "wattnode"):
+            device = DEVICES[key]
+            row = tk.Frame(dialog, bg=SURFACE, padx=14, pady=10,
+                           highlightthickness=1, highlightbackground=OUTLINE)
+            row.pack(fill="x", padx=28, pady=5)
+            tk.Radiobutton(row, variable=selected, value=key, bg=SURFACE,
+                           activebackground=SURFACE, selectcolor=SURFACE).pack(side="left")
+            labels = tk.Frame(row, bg=SURFACE)
+            labels.pack(side="left", padx=8)
+            tk.Label(labels, text=device.name, font=self.title_font,
+                     fg=INK, bg=SURFACE).pack(anchor="w")
+            tk.Label(labels, text=device.status, fg=device.color,
+                     bg=SURFACE).pack(anchor="w")
+
+        buttons = tk.Frame(dialog, bg=BG)
+        buttons.pack(side="bottom", fill="x", padx=28, pady=24)
+        tk.Button(buttons, text="Cancel", command=dialog.destroy,
+                  bg=SURFACE, fg=INK, relief="flat", padx=18, pady=9,
+                  highlightthickness=1, highlightbackground=OUTLINE).pack(side="right")
+        tk.Button(buttons, text="Copy configuration…",
+                  command=lambda: self.copy_configuration(selected.get(), dialog),
+                  bg=ACCENT, fg="white", activebackground="#315A82",
+                  activeforeground="white", relief="flat", padx=18,
+                  pady=9, cursor="hand2").pack(side="right", padx=10)
+
+    def copy_configuration(self, key: str, dialog: tk.Toplevel) -> None:
+        source = PREMADE_CONFIGS[key]
+        destination = filedialog.asksaveasfilename(
+            parent=dialog,
+            title="Copy pre-made configuration",
+            defaultextension=".tsv",
+            initialfile=source.name,
+            filetypes=[("Tab-delimited configuration", "*.tsv")],
+        )
+        if not destination:
+            return
+        try:
+            shutil.copy2(source, destination)
+            dialog.destroy()
+            messagebox.showinfo(
+                "Configuration copied",
+                "Review the slave ID and serial settings before importing it into a bridge.",
+                parent=self,
+            )
+        except OSError as exc:
+            messagebox.showerror("Copy failed", str(exc), parent=dialog)
+
+    def show_help(self, device: DeviceDefinition) -> None:
+        dialog = tk.Toplevel(self)
+        dialog.title(f"{device.name} help")
+        dialog.geometry("650x540")
+        dialog.configure(bg=BG)
+        dialog.transient(self)
+        tk.Label(dialog, text=f"{device.name} help", font=("Segoe UI", 20, "bold"),
+                 fg=INK, bg=BG).pack(anchor="w", padx=30, pady=(26, 4))
+        tk.Label(dialog, text="Basic setup and troubleshooting",
+                 fg=MUTED, bg=BG).pack(anchor="w", padx=30, pady=(0, 18))
+        content = tk.Frame(dialog, bg=SURFACE, padx=24, pady=20,
+                           highlightthickness=1, highlightbackground=OUTLINE)
+        content.pack(fill="both", expand=True, padx=30, pady=(0, 18))
+        self.help_section(content, "SETUP", device.help_setup)
+        self.help_section(content, "TROUBLESHOOTING", device.help_troubleshooting)
+        tk.Button(dialog, text="Close", command=dialog.destroy, bg=ACCENT,
+                  fg="white", activebackground="#315A82", activeforeground="white",
+                  relief="flat", padx=22, pady=9).pack(anchor="e", padx=30, pady=(0, 24))
+
+    def help_section(self, parent: tk.Widget, heading: str, lines: tuple[str, ...]) -> None:
+        tk.Label(parent, text=heading, font=self.small_bold,
+                 fg=MUTED, bg=SURFACE).pack(anchor="w", pady=(0, 8))
+        for line in lines:
+            tk.Label(parent, text="•  " + line, wraplength=545, justify="left",
+                     fg=INK, bg=SURFACE).pack(anchor="w", pady=4)
+        tk.Frame(parent, height=1, bg=OUTLINE).pack(fill="x", pady=16)
 
     @staticmethod
     def open_artifact(path: Path) -> None:
