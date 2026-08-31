@@ -1,6 +1,11 @@
 import unittest
 
-from app.enlink import default_console_password, normalize_dev_eui, parse_enlink_banner
+from app.enlink import (
+    default_console_password,
+    normalize_dev_eui,
+    parse_enlink_banner,
+    parse_sensor_readings,
+)
 
 
 IAQ_BANNER = """
@@ -12,6 +17,22 @@ Firmware Ver:  5.06
 Description:   enLink Air Quality - Environmental Sensors
 DevEui:        00-04-a3-0b-00-08-4f-86
 Password:
+"""
+
+SENSOR_PAGE = """
+Sensor Readings (Page 1):
+     Temperature                        24.7?C
+-- VOC Air Quality Sensor
+     Temperature                        25.3?C
+     Humidity                           54%
+     Pressure                           997 mbar
+     CO2e Estimate                      500 ppm
+     bVOC Estimate                      0.50 ppm
+     IAQ [Accuracy]                     25 IAQ [2:Medium]
+-- CO2 Sensor (GSS)
+     Version/Serial No                  LP26/614548
+     Auto Calibration                   Enabled
+     Reading                            88 ppm
 """
 
 
@@ -42,6 +63,19 @@ class EnlinkBannerTests(unittest.TestCase):
         banner = IAQ_BANNER.replace("FW-AQ-VCP+", "FW-UNKNOWN").replace(
             "enLink Air Quality - Environmental Sensors", "Unrecognized Device")
         self.assertIsNone(parse_enlink_banner(banner, "COM5"))
+
+    def test_live_sensor_page_is_parsed_by_channel_context(self) -> None:
+        readings = parse_sensor_readings(SENSOR_PAGE)
+        self.assertEqual((24.7, "°C"), readings["Temperature"])
+        self.assertEqual((54.0, "%RH"), readings["Relative humidity"])
+        self.assertEqual((997.0, "mbar"), readings["Pressure"])
+        self.assertEqual((500.0, "ppm"), readings["CO₂ equivalent"])
+        self.assertEqual((0.5, "ppm"), readings["bVOC estimate"])
+        self.assertEqual((25, "2:Medium"), readings["IAQ"])
+        self.assertEqual((88.0, "ppm"), readings["CO₂"])
+
+    def test_non_sensor_page_has_no_live_values(self) -> None:
+        self.assertEqual({}, parse_sensor_readings(IAQ_BANNER))
 
 
 if __name__ == "__main__":

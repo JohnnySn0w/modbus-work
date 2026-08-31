@@ -184,7 +184,11 @@ DEVICES: dict[str, DeviceDefinition] = {
             Readout("Device state", "Configuration console available", quality="Live USB banner"),
             Readout("Temperature", "—", "°C", "Open Live Readings after login"),
             Readout("Relative humidity", "—", "%RH", "Open Live Readings after login"),
-            Readout("Air-quality channels", "—", quality="Installed options require live inventory"),
+            Readout("Pressure", "—", "mbar", "Open Live Readings after login"),
+            Readout("CO₂", "—", "ppm", "Open Live Readings after login"),
+            Readout("CO₂ equivalent", "—", "ppm", "Open Live Readings after login"),
+            Readout("bVOC estimate", "—", "ppm", "Open Live Readings after login"),
+            Readout("IAQ", "—", quality="Open Live Readings after login"),
         ),
         facts=(
             ("Observed part", "003-ADZ-301"),

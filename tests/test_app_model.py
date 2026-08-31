@@ -16,6 +16,10 @@ class CatalogTests(unittest.TestCase):
         ports = [PortInfo("COM8", "USB Serial Device", "USB VID_0483&PID_5740")]
         self.assertEqual("COM8", classify_ports(ports)["synetica_usb"].port)
 
+    def test_pyserial_stm32_vid_pid_format_detection(self) -> None:
+        ports = [PortInfo("COM5", "USB Serial Device", "USB VID:PID=0483:5740 SER=ABC")]
+        self.assertEqual("COM5", classify_ports(ports)["synetica_usb"].port)
+
     def test_premade_configurations_exist(self) -> None:
         self.assertEqual({"dpt146", "hmd65", "wattnode"}, set(PREMADE_CONFIGS))
         for path in PREMADE_CONFIGS.values():

@@ -172,6 +172,9 @@ It is required again when:
 - A connected enLink IAQ Plus, observed part 003-ADZ-301, identified on COM5 as `FW-AQ-VCP+` firmware 5.06 with North American Hybrid FSB #1 / 915 MHz and its DevEUI captured in the private profile.
 - The serial login is deterministically derived from the DevEUI shown in the connection banner: normalize `0004a30b00084f86` and take its final four characters, `4f86`. Background discovery does not submit it; configuration/readout workflows may derive and use it. The initial automation attempt did not advance past the prompt, so terminal input timing/line-ending compatibility still needs implementation validation.
 - Radio profiles now default to enabled US915 Hybrid FSB #1, with an explicitly disabled EU868 future stub.
+- IAQ Plus authenticated console access is working with DTR on, RTS off, and the DevEUI-derived login.
+- The GUI prototype can request current IAQ readings, parse seven engineering/status values, back up Quick Start/radio/configuration pages to JSON, and preview radio profiles without writing the device.
+- The observed unit inventory includes a VOC air-quality module and GSS CO2 module LP26/614548 with auto-calibration enabled. Configure Device page 2 and particle details remain to capture.
 
 ## Next work
 

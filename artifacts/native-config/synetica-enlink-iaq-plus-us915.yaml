@@ -1,0 +1,46 @@
+schema_version: 1
+config_id: synetica-enlink-iaq-plus-us915-standard
+status: backup-and-preview-ready
+automatic_apply_enabled: false
+
+compatibility:
+  product_family: Synetica enLink IAQ Plus
+  observed_part_number: 003-ADZ-301
+  firmware_code: FW-AQ-VCP+
+  tested_firmware: "5.06"
+  firmware_policy: exact-match-until-additional-versions-are-qualified
+
+target:
+  radio_profile: us915_hybrid_fsb1
+  activation: OTAA
+  join_eui: 53796e0000000000
+  app_eui: 53796e0000000000
+  app_key_source: .secrets/synetica-enlink-iaq-plus.env#LORAWAN_APP_KEY
+  transmit_interval_minutes: 15
+  transmit_port: 1
+  receive_port: all
+  join_check_hours: 3
+
+preserve_from_backup:
+  - include_kpi_values
+  - advanced_radio_settings
+  - gss_co2_auto_calibration
+  - gss_co2_calibration_history
+  - particle_sensor_options
+  - sensor_calibration_values
+  - password_and_security_settings
+
+workflow:
+  - Require exact banner identity and firmware match.
+  - Capture private Quick Start, radio, and Configure Device pages.
+  - Resolve credentials from the private recovery artifact.
+  - Show a field-level diff and require technician confirmation.
+  - Apply one field at a time using documented prompts.
+  - Reboot only when the console marks reboot required.
+  - Recapture pages and require an exact target/readback match.
+  - Confirm Loriot join and decoded uplink before completion.
+
+blockers_to_apply:
+  - Field-level write prompts and cancellation behavior are not captured.
+  - Reboot and failed-write recovery have not been validated on this firmware.
+  - Region may be hardware/firmware fixed rather than safely writable.

@@ -27,21 +27,26 @@ try {
     }
     else {
         $banner = Read-Serial 1000
-        if ($banner -notmatch 'Password:') {
-            $port.Write("`r")
-            $banner += Read-Serial 2500
+        if ($banner -match 'enlink Main Menu') {
+            $output = $banner
         }
+        else {
+            if ($banner -notmatch 'Password:') {
+                $port.Write("`r")
+                $banner += Read-Serial 2500
+            }
 
-        $devEuiMatch = [regex]::Match($banner, 'DevEui:\s*([0-9A-Fa-f-]+)')
-        if (-not $devEuiMatch.Success) {
-            throw 'Unable to read DevEUI from bridge banner. Cycle USB and retry.'
-        }
+            $devEuiMatch = [regex]::Match($banner, 'DevEui:\s*([0-9A-Fa-f-]+)')
+            if (-not $devEuiMatch.Success) {
+                throw 'Unable to read DevEUI from enLink banner. Cycle USB and retry.'
+            }
 
-        $password = ($devEuiMatch.Groups[1].Value -replace '-', '').Substring(12, 4)
-        $port.Write("$password`r")
-        $output = Read-Serial 2500
-        if ($output -notmatch 'enLink Main Menu') {
-            throw 'Unable to log in to bridge.'
+            $password = ($devEuiMatch.Groups[1].Value -replace '-', '').Substring(12, 4)
+            $port.Write("$password`r")
+            $output = Read-Serial 2500
+            if ($output -notmatch 'enlink Main Menu') {
+                throw 'Unable to log in to enLink device.'
+            }
         }
     }
 

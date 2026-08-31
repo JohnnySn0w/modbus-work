@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import os
+import json
 import shutil
 import subprocess
+import threading
 import tkinter as tk
 import zipfile
 import queue
@@ -13,9 +15,13 @@ from tkinter import filedialog, font as tkfont, messagebox
 try:
     from .catalog import DEVICES, PREMADE_CONFIGS, ROOT, DeviceDefinition
     from .discovery import DiscoveryService, DiscoverySnapshot, PortInfo
+    from .enlink import capture_page_windows, parse_sensor_readings
+    from .regions import DEFAULT_REGION, RADIO_REGIONS
 except ImportError:  # Direct script execution
     from catalog import DEVICES, PREMADE_CONFIGS, ROOT, DeviceDefinition
     from discovery import DiscoveryService, DiscoverySnapshot, PortInfo
+    from enlink import capture_page_windows, parse_sensor_readings
+    from regions import DEFAULT_REGION, RADIO_REGIONS
 
 
 BG = "#F7F8FA"
@@ -96,8 +102,10 @@ class App(tk.Tk):
         self.ports: list[PortInfo] = []
         self.classified: dict[str, PortInfo] = {}
         self.instruments: dict[str, object] = {}
+        self.live_readings: dict[str, dict[str, tuple[float | int | str, str]]] = {}
         self.active_key: str | None = None
         self.discovery_queue: queue.Queue[DiscoverySnapshot] = queue.Queue()
+        self.action_queue: queue.Queue[tuple[str, object]] = queue.Queue()
         self.discovery = DiscoveryService(self.discovery_queue.put, interval_seconds=1.5)
         self.protocol("WM_DELETE_WINDOW", self.close_app)
         self.show_overview()
@@ -158,7 +166,23 @@ class App(tk.Tk):
             pass
         if latest:
             self.apply_discovery_snapshot(latest)
+        try:
+            while True:
+                action, payload = self.action_queue.get_nowait()
+                self.apply_device_action(action, payload)
+        except queue.Empty:
+            pass
         self.after(100, self.poll_discovery_results)
+
+    def apply_device_action(self, action: str, payload: object) -> None:
+        if action == "iaq_live":
+            self.live_readings["iaq_plus"] = payload  # type: ignore[assignment]
+            if self.active_key == "iaq_plus":
+                self.show_detail("iaq_plus")
+        elif action == "backup_complete":
+            messagebox.showinfo("Backup created", f"Saved IAQ Plus backup to:\n{payload}", parent=self)
+        elif action == "error":
+            messagebox.showerror("Device action failed", str(payload), parent=self)
 
     def apply_discovery_snapshot(self, snapshot: DiscoverySnapshot) -> None:
         self.ports = list(snapshot.ports)
@@ -303,7 +327,8 @@ class App(tk.Tk):
                  fg=MUTED, bg=BG).pack(anchor="w", pady=(24, 10))
         grid = tk.Frame(left, bg=BG)
         grid.pack(fill="both", expand=True)
-        live = getattr(self.instruments.get(key), "readings", {})
+        live = dict(getattr(self.instruments.get(key), "readings", {}))
+        live.update(self.live_readings.get(key, {}))
         for index, item in enumerate(device.readouts):
             box = tk.Frame(grid, bg=SURFACE, padx=18, pady=15,
                            highlightthickness=1, highlightbackground=OUTLINE)
@@ -354,6 +379,22 @@ class App(tk.Tk):
                       activebackground=SOFT, relief="flat", padx=14, pady=10,
                       cursor="hand2", highlightthickness=1,
                       highlightbackground=OUTLINE).pack(side="bottom", fill="x", pady=(0, 10))
+        elif key == "iaq_plus":
+            tk.Button(facts, text="Refresh live readings",
+                      command=self.refresh_iaq_live, bg=ACCENT, fg="white",
+                      activebackground="#315A82", activeforeground="white",
+                      relief="flat", padx=14, pady=10, cursor="hand2").pack(
+                          side="bottom", fill="x", pady=(0, 10))
+            tk.Button(facts, text="Back up device configuration",
+                      command=self.backup_iaq_configuration, bg=SURFACE, fg=INK,
+                      activebackground=SOFT, relief="flat", padx=14, pady=10,
+                      cursor="hand2", highlightthickness=1,
+                      highlightbackground=OUTLINE).pack(side="bottom", fill="x", pady=(0, 10))
+            tk.Button(facts, text="Choose radio profile",
+                      command=self.choose_iaq_region, bg=SURFACE, fg=INK,
+                      activebackground=SOFT, relief="flat", padx=14, pady=10,
+                      cursor="hand2", highlightthickness=1,
+                      highlightbackground=OUTLINE).pack(side="bottom", fill="x", pady=(0, 10))
 
     def connection_status(self, key: str) -> str:
         instrument = self.instruments.get(key)
@@ -376,6 +417,97 @@ class App(tk.Tk):
     def close_app(self) -> None:
         self.discovery.stop()
         self.destroy()
+
+    def iaq_port(self) -> str | None:
+        instrument = self.instruments.get("iaq_plus")
+        if instrument:
+            return str(getattr(instrument, "port"))
+        port = self.classified.get("iaq_plus")
+        return port.port if port else None
+
+    def refresh_iaq_live(self) -> None:
+        port = self.iaq_port()
+        if not port:
+            messagebox.showwarning("Sensor not connected", "Connect the IAQ Plus USB configuration port first.", parent=self)
+            return
+
+        def worker() -> None:
+            try:
+                readings = parse_sensor_readings(capture_page_windows(port, "configure"))
+                if not readings:
+                    raise RuntimeError("The configuration page did not contain recognizable sensor readings")
+                self.action_queue.put(("iaq_live", readings))
+            except Exception as exc:  # Hardware/console boundary
+                self.action_queue.put(("error", exc))
+
+        threading.Thread(target=worker, daemon=True, name="iaq-live-readings").start()
+
+    def backup_iaq_configuration(self) -> None:
+        port = self.iaq_port()
+        if not port:
+            messagebox.showwarning("Sensor not connected", "Connect the IAQ Plus USB configuration port first.", parent=self)
+            return
+        stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        destination = filedialog.asksaveasfilename(
+            parent=self, title="Save IAQ Plus configuration backup",
+            defaultextension=".json", initialfile=f"enlink-iaq-plus-{stamp}.json",
+            filetypes=[("JSON configuration backup", "*.json")],
+        )
+        if not destination:
+            return
+
+        instrument = self.instruments.get("iaq_plus")
+
+        def worker() -> None:
+            try:
+                payload = {
+                    "schema_version": 1,
+                    "captured_at": datetime.now().astimezone().isoformat(),
+                    "identity": {
+                        name: getattr(instrument, name, None)
+                        for name in ("firmware_code", "firmware", "region", "dev_eui")
+                    },
+                    "radio_profile_default": DEFAULT_REGION,
+                    "pages": {
+                        page: capture_page_windows(port, page, redact_secrets=False)
+                        for page in ("quick_start", "radio", "configure")
+                    },
+                }
+                Path(destination).write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+                self.action_queue.put(("backup_complete", destination))
+            except Exception as exc:  # Hardware/console boundary
+                self.action_queue.put(("error", exc))
+
+        threading.Thread(target=worker, daemon=True, name="iaq-config-backup").start()
+
+    def choose_iaq_region(self) -> None:
+        dialog = tk.Toplevel(self)
+        dialog.title("Choose IAQ Plus radio profile")
+        dialog.geometry("620x390")
+        dialog.configure(bg=BG)
+        dialog.transient(self)
+        dialog.grab_set()
+        tk.Label(dialog, text="Choose radio profile", font=("Segoe UI", 19, "bold"),
+                 fg=INK, bg=BG).pack(anchor="w", padx=28, pady=(24, 4))
+        tk.Label(dialog, text="Preview only — this prototype does not change the device region.",
+                 fg=MUTED, bg=BG).pack(anchor="w", padx=28, pady=(0, 16))
+        selected = tk.StringVar(value=DEFAULT_REGION)
+        for key, region in RADIO_REGIONS.items():
+            row = tk.Frame(dialog, bg=SURFACE, padx=14, pady=12,
+                           highlightthickness=1, highlightbackground=OUTLINE)
+            row.pack(fill="x", padx=28, pady=5)
+            tk.Radiobutton(row, variable=selected, value=key, bg=SURFACE,
+                           activebackground=SURFACE, selectcolor=SURFACE,
+                           state="normal" if region.enabled else "disabled").pack(side="left")
+            labels = tk.Frame(row, bg=SURFACE)
+            labels.pack(side="left", padx=8)
+            tk.Label(labels, text=region.display_name, font=self.title_font,
+                     fg=INK if region.enabled else MUTED, bg=SURFACE).pack(anchor="w")
+            state = "Enabled default" if region.enabled else "Future stub · disabled"
+            tk.Label(labels, text=f"{region.frequency_mhz} MHz · {state}",
+                     fg=GOOD if region.enabled else MUTED, bg=SURFACE).pack(anchor="w")
+        tk.Button(dialog, text="Close", command=dialog.destroy, bg=ACCENT, fg="white",
+                  relief="flat", padx=20, pady=9).pack(side="bottom", anchor="e", padx=28, pady=24)
 
     def backup_configuration(self) -> None:
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")

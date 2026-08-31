@@ -38,13 +38,19 @@ Required adapter capabilities:
 - enforce capacity and compatibility constraints;
 - import/write, read back, diff, validate, and roll back;
 - describe LoRaWAN region, activation, join state, reporting interval, payload format, and decoder contract;
-- keep network/application security keys out of logs and project artifacts;
+- keep network/application security keys out of routine logs and redacted evidence; when explicitly required for this private project, store them only in clearly named private clone/recovery artifacts;
 - generate a clone-ready bridge artifact and a human-readable configuration summary.
 - ship a machine-readable manifest with every golden configuration, including tested firmware, schema version, source profiles, validation state, and compatibility policy.
 
 The first adapter target is Polygon ExactAire-E5 / Synetica ENL-MOD-32 firmware 3.6, which supports 32 Modbus data points.
 
 Golden configurations default to exact-firmware compatibility. A GUI must block import on an unvalidated firmware version unless a reviewed compatibility rule explicitly allows it. Firmware changes can affect menu protocol, address interpretation, word-order codes, point capacity, import/export format, and LoRaWAN payload encoding.
+
+## 2a. Native-device adapters
+
+Direct LoRaWAN products such as the Synetica enLink IAQ Plus bypass the Modbus bridge but reuse the same profile and technician workflow concepts. A native-device adapter owns USB/banner identification, authenticated console navigation, region compatibility, configuration backup, live-value parsing, field-level writes, readback, and reboot behavior. It must not place console-menu knowledge in GUI screens.
+
+The first native adapter targets `FW-AQ-VCP+` 5.06 on Windows. Background discovery stops at the unauthenticated banner. Explicit technician actions may derive the login from the DevEUI and read configuration pages. Region and other writes remain blocked until exact prompts and recovery behavior are validated.
 
 ## 3. Technician workflow
 

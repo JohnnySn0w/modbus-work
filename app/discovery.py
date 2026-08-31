@@ -113,7 +113,8 @@ def classify_ports(ports: list[PortInfo]) -> dict[str, PortInfo]:
     found: dict[str, PortInfo] = {}
     for port in ports:
         text = port.search_text
-        if "VID_0483&PID_5740" in text or "STM32" in text:
+        if ("VID_0483&PID_5740" in text or "VID:PID=0483:5740" in text
+                or "STM32" in text):
             # Synetica uses this STM32 virtual-COM identity across products.
             # The USB console banner, not VID/PID or COM number, identifies it.
             found["synetica_usb"] = port

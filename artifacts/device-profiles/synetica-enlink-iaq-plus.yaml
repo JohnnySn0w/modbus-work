@@ -56,7 +56,18 @@ configuration:
   requires_reboot_after_key_change: true
   credential_policy: Preserve keys in private clone/recovery artifacts as requested for this repository.
   live_readings_path: Main Menu > Configure Device > Live Readings
-  installed_sensor_channels: to-be-inventoried-from-live-menu
+  installed_sensor_channels:
+    - primary_temperature_c
+    - voc_module_temperature_c
+    - relative_humidity_percent
+    - pressure_mbar
+    - co2_equivalent_ppm
+    - bvoc_estimate_ppm
+    - iaq_with_accuracy
+    - gss_co2_ppm
+  observed_gss_module: LP26/614548
+  observed_gss_auto_calibration: Enabled
+  particle_sensor_page_2: not-yet-captured
 
 power:
   external_supply_vdc: 12-24

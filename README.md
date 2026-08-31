@@ -53,6 +53,10 @@ The target is specifically the **WND-M1-MB WattNode Module for Modbus**, not the
 
 The IAQ Plus is a direct LoRaWAN sensor, not a Modbus instrument behind the bridge. Its unauthenticated USB banner provides a deterministic product-family signature, firmware code/version, radio region, and DevEUI. This is necessary because it shares the STM32 `0483:5740` USB identity with other Synetica products. Its serial login is deterministically derived by normalizing the displayed DevEUI and taking its final four hexadecimal characters; the observed `0004a30b00084f86` therefore yields `4f86`. Background discovery never submits credentials. The application defaults to US915 Hybrid FSB #1. An EU868 profile exists but remains disabled until compatible regional hardware/firmware and Loriot settings are supplied and validated.
 
+Firmware `FW-AQ-VCP+` 5.06 is supported by a Windows read-only console prototype. The GUI can refresh installed sensor readings, create a JSON backup of Quick Start/radio/configuration pages, and preview the enabled US915 or disabled EU868 radio profiles. The observed unit exposes temperature, relative humidity, pressure, CO₂-equivalent, bVOC, IAQ/accuracy, and a GSS CO₂ module. Device writes remain disabled until field-level readback and recovery are proven.
+
+The first approved-target draft is [the US915 IAQ Plus native configuration](artifacts/native-config/synetica-enlink-iaq-plus-us915.yaml). It binds the observed firmware, Loriot-facing radio fields, the private credential source, preserved calibration settings, and the blockers that keep automatic apply disabled.
+
 ## GUI
 
 The desktop GUI uses Python's built-in Tk toolkit and keeps serial discovery separate from device definitions.
@@ -70,6 +74,7 @@ Features currently implemented:
 - one-click creation of a portable configuration backup ZIP containing the golden table, manifest, bridge settings, radio notes, and recovery credential record;
 - a basic pre-made configuration picker for DPT146, HMD65, and WND-M1-MB that copies a TSV for review without writing to hardware;
 - per-device Help dialogs containing short setup and troubleshooting guidance.
+- IAQ Plus authenticated live-reading refresh, private JSON console backup, and radio-profile preview;
 
 When a direct fingerprint succeeds, the detail page displays the live values returned by that probe. Otherwise, DPT146 values are explicitly labeled as the latest validated bench readings. The transport and fingerprint layer owns register logic; GUI screens do not.
 
@@ -110,12 +115,21 @@ python -m app.main
 
 `pyserial` improves hardware names and VID/PID matching. The app has a Windows registry fallback and will still start without it.
 
+For a command-line IAQ Plus backup on Windows:
+
+```powershell
+.\.venv\Scripts\python.exe .\tools\enlink_snapshot.py --port COM5 --output .\.secrets\enlink-iaq-plus-console-backup.json
+```
+
+The backup intentionally contains LoRaWAN credentials. Store it only in the private repository or an approved commissioning location.
+
 ## Repository map
 
 ```text
 app/                         GUI, device catalog, and hardware discovery
 artifacts/bridge-config/     Golden and documentation-derived bridge tables
 artifacts/device-profiles/   Profile lifecycle and machine-readable profiles
+artifacts/native-config/     Native LoRaWAN device target configurations
 docs/evidence/               Bench photographs and screenshots
 docs/reference/              Manufacturer manuals
 tools/                       Low-level bridge console and credential utilities
