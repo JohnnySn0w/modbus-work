@@ -1,6 +1,6 @@
 import unittest
 
-from app.enlink import parse_enlink_banner
+from app.enlink import default_console_password, normalize_dev_eui, parse_enlink_banner
 
 
 IAQ_BANNER = """
@@ -25,6 +25,15 @@ class EnlinkBannerTests(unittest.TestCase):
         self.assertEqual("5.06", result.firmware)
         self.assertIn("915MHz", result.region)
         self.assertEqual("00-04-a3-0b-00-08-4f-86", result.dev_eui)
+        self.assertEqual("4f86", result.derived_login)
+
+    def test_login_is_last_four_normalized_eui_characters(self) -> None:
+        self.assertEqual("0004a30b00084f86", normalize_dev_eui("00-04-A3-0B-00-08-4F-86"))
+        self.assertEqual("4f86", default_console_password("0004a30b00084f86"))
+
+    def test_invalid_eui_cannot_produce_login(self) -> None:
+        with self.assertRaises(ValueError):
+            default_console_password("84f86")
 
     def test_unrelated_serial_text_is_rejected(self) -> None:
         self.assertIsNone(parse_enlink_banner("ordinary serial device", "COM7"))

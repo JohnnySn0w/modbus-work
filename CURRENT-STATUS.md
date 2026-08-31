@@ -170,7 +170,7 @@ It is required again when:
 - Successful direct fingerprints feed live readings into the device detail view.
 - COM numbers are no longer treated as device identities. Synetica products sharing USB VID/PID `0483:5740` are distinguished by their unauthenticated console banners.
 - A connected enLink IAQ Plus, observed part 003-ADZ-301, identified on COM5 as `FW-AQ-VCP+` firmware 5.06 with North American Hybrid FSB #1 / 915 MHz and its DevEUI captured in the private profile.
-- The documented factory-default password rule did not open the menu during one read-only attempt. No further guesses were made; obtain the current password or confirm the required terminal input behavior before configuration capture.
+- The serial login is deterministically derived from the DevEUI shown in the connection banner: normalize `0004a30b00084f86` and take its final four characters, `4f86`. Background discovery does not submit it; configuration/readout workflows may derive and use it. The initial automation attempt did not advance past the prompt, so terminal input timing/line-ending compatibility still needs implementation validation.
 - Radio profiles now default to enabled US915 Hybrid FSB #1, with an explicitly disabled EU868 future stub.
 
 ## Next work

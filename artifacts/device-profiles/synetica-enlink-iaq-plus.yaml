@@ -25,8 +25,9 @@ transport:
   terminal_baud: 115200
   serial_note: USB CDC ignored tested baud selections; use 115200 8N1 as the application convention.
   unauthenticated_probe: Open port with DTR/RTS and parse banner through Password prompt; do not submit credentials.
-  default_password_rule: last four hexadecimal characters of DevEUI
-  observed_login_result: Factory-default password rule did not produce a menu during the automated read-only attempt; password may have been changed or the console may require terminal-specific input behavior.
+  default_password_rule: Normalize the DevEUI to 16 hexadecimal characters and use the final four lowercase characters.
+  derived_login_for_observed_unit: 4f86
+  programming_policy: Derive the login from the freshly read banner when the operator starts a configuration workflow; do not log in during background discovery.
 
 radio:
   default_profile: us915_hybrid_fsb1
@@ -66,7 +67,7 @@ sources:
   source_note: The accessible IAQ Vape guide documents the shared enLink air-quality USB console workflow; exact IAQ Plus guide is currently locked on Synetica Downloads.
 
 next_steps:
-  - Obtain or confirm the current console password; do not retry guessed credentials.
+  - Validate automated login using the derived 4f86 credential with terminal-compatible input timing and line endings.
   - Log in read-only and capture the complete summary and installed sensor inventory.
   - Back up JoinEUI/AppEUI, AppKey, interval, calibration settings, and radio state before writes.
   - Capture Live Readings labels and units for deterministic GUI parsing.

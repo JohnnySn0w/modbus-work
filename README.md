@@ -51,7 +51,7 @@ The target is specifically the **WND-M1-MB WattNode Module for Modbus**, not the
 
 ### enLink IAQ Plus
 
-The IAQ Plus is a direct LoRaWAN sensor, not a Modbus instrument behind the bridge. Its unauthenticated USB banner provides a deterministic product-family signature, firmware code/version, radio region, and DevEUI. This is necessary because it shares the STM32 `0483:5740` USB identity with other Synetica products. The application defaults to US915 Hybrid FSB #1. An EU868 profile exists but remains disabled until compatible regional hardware/firmware and Loriot settings are supplied and validated.
+The IAQ Plus is a direct LoRaWAN sensor, not a Modbus instrument behind the bridge. Its unauthenticated USB banner provides a deterministic product-family signature, firmware code/version, radio region, and DevEUI. This is necessary because it shares the STM32 `0483:5740` USB identity with other Synetica products. Its serial login is deterministically derived by normalizing the displayed DevEUI and taking its final four hexadecimal characters; the observed `0004a30b00084f86` therefore yields `4f86`. Background discovery never submits credentials. The application defaults to US915 Hybrid FSB #1. An EU868 profile exists but remains disabled until compatible regional hardware/firmware and Loriot settings are supplied and validated.
 
 ## GUI
 
