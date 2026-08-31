@@ -159,6 +159,16 @@ It is required again when:
 - a generated configuration or Loriot payload needs hardware validation;
 - another bridge firmware version must be qualified.
 
+## GUI discovery state
+
+- Serial interfaces are rescanned every 1.5 seconds on a background thread.
+- USB VID/PID and known bench-port fallbacks identify the bridge and USB-COMi-TB adapter.
+- Active Modbus identification is read-only and runs only when the USB-COMi-TB is present without the bridge USB interface; this avoids creating a second master on the bridge bus.
+- DPT146 identification requires its pressure, moisture, and status registers to decode with the documented low-word-first layout and plausible values.
+- HMD65 identification requires its complete eight-float measurement span plus device, RH, and temperature status layout to agree under one unambiguous word order.
+- WND-M1-MB identification uses Report Slave ID. An exact model string is accepted as high confidence; a WattNode-family response is labeled family-only and requires confirmation from the physical WND-M1-MB label.
+- Successful direct fingerprints feed live readings into the device detail view.
+
 ## Next work
 
 Without hardware:

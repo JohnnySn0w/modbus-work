@@ -5,16 +5,17 @@ import shutil
 import subprocess
 import tkinter as tk
 import zipfile
+import queue
 from datetime import datetime
 from pathlib import Path
 from tkinter import filedialog, font as tkfont, messagebox
 
 try:
     from .catalog import DEVICES, PREMADE_CONFIGS, ROOT, DeviceDefinition
-    from .discovery import PortInfo, classify_ports, discover_ports
+    from .discovery import DiscoveryService, DiscoverySnapshot, PortInfo
 except ImportError:  # Direct script execution
     from catalog import DEVICES, PREMADE_CONFIGS, ROOT, DeviceDefinition
-    from discovery import PortInfo, classify_ports, discover_ports
+    from discovery import DiscoveryService, DiscoverySnapshot, PortInfo
 
 
 BG = "#F7F8FA"
@@ -87,14 +88,16 @@ class App(tk.Tk):
         self.small_bold = tkfont.Font(family="Segoe UI", size=9, weight="bold")
         self.ports: list[PortInfo] = []
         self.classified: dict[str, PortInfo] = {}
+        self.instruments: dict[str, object] = {}
         self.active_key: str | None = None
-        self.after_id: str | None = None
+        self.discovery_queue: queue.Queue[DiscoverySnapshot] = queue.Queue()
+        self.discovery = DiscoveryService(self.discovery_queue.put, interval_seconds=1.5)
+        self.protocol("WM_DELETE_WINDOW", self.close_app)
         self.show_overview()
+        self.discovery.start()
+        self.after(100, self.poll_discovery_results)
 
     def clear(self) -> None:
-        if self.after_id:
-            self.after_cancel(self.after_id)
-            self.after_id = None
         for child in self.winfo_children():
             child.destroy()
 
@@ -137,23 +140,42 @@ class App(tk.Tk):
 
     def refresh(self) -> None:
         self.scan_label.configure(text="Scanning serial interfaces…")
-        self.update_idletasks()
-        self.ports = discover_ports()
-        self.classified = classify_ports(self.ports)
-        self.draw_topology()
+        self.discovery.scan_now()
+
+    def poll_discovery_results(self) -> None:
+        latest = None
+        try:
+            while True:
+                latest = self.discovery_queue.get_nowait()
+        except queue.Empty:
+            pass
+        if latest:
+            self.apply_discovery_snapshot(latest)
+        self.after(100, self.poll_discovery_results)
+
+    def apply_discovery_snapshot(self, snapshot: DiscoverySnapshot) -> None:
+        self.ports = list(snapshot.ports)
+        self.classified = snapshot.classified
+        self.instruments = {getattr(item, "key"): item for item in snapshot.instruments}
         count = len(self.ports)
-        self.scan_label.configure(text=f"{count} serial interface{'s' if count != 1 else ''} found")
-        self.after_id = self.after(5000, self.refresh)
+        if self.active_key is None and hasattr(self, "canvas") and self.canvas.winfo_exists():
+            self.draw_topology()
+            self.scan_label.configure(
+                text=f"{count} interface{'s' if count != 1 else ''} · {snapshot.message} · 1.5 s",
+            )
 
     def draw_topology(self) -> None:
         self.canvas.delete("all")
         width = max(self.canvas.winfo_width(), 900)
         center_y = 185
         nodes: list[tuple[str, float]] = []
+        detected_key = next(iter(self.instruments), None)
         if "bridge" in self.classified:
             nodes = [("bridge", width * 0.34), ("dpt146", width * 0.66)]
+        elif "adapter" in self.classified and detected_key:
+            nodes = [("adapter", width * 0.34), (detected_key, width * 0.66)]
         elif "adapter" in self.classified:
-            nodes = [("adapter", width * 0.38), ("dpt146", width * 0.68)]
+            nodes = [("adapter", width * 0.50)]
 
         if not nodes:
             rounded_rect(self.canvas, width / 2 - 245, center_y - 65,
@@ -182,7 +204,13 @@ class App(tk.Tk):
 
         for key, x in nodes:
             port = self.classified.get(key)
-            connection = port.port if port else "Configured behind bridge"
+            instrument = self.instruments.get(key)
+            if port:
+                connection = port.port
+            elif instrument:
+                connection = f"Detected on {getattr(instrument, 'port')} · {getattr(instrument, 'confidence')} confidence"
+            else:
+                connection = "Configured behind bridge"
             self.draw_device_card(DEVICES[key], x, center_y, connection)
 
     def draw_device_card(self, device: DeviceDefinition, cx: float, cy: float,
@@ -266,16 +294,20 @@ class App(tk.Tk):
                  fg=MUTED, bg=BG).pack(anchor="w", pady=(24, 10))
         grid = tk.Frame(left, bg=BG)
         grid.pack(fill="both", expand=True)
+        live = getattr(self.instruments.get(key), "readings", {})
         for index, item in enumerate(device.readouts):
             box = tk.Frame(grid, bg=SURFACE, padx=18, pady=15,
                            highlightthickness=1, highlightbackground=OUTLINE)
             box.grid(row=index // 2, column=index % 2, sticky="nsew", padx=(0, 12), pady=(0, 12))
             grid.columnconfigure(index % 2, weight=1)
             tk.Label(box, text=item.label, fg=MUTED, bg=SURFACE).pack(anchor="w")
-            value = f"{item.value} {item.unit}".strip()
+            live_value = live.get(item.label)
+            raw_value, raw_unit = live_value if live_value else (item.value, item.unit)
+            value = f"{raw_value} {raw_unit}".strip()
             tk.Label(box, text=value, fg=INK, bg=SURFACE,
                      font=("Segoe UI", 18, "bold")).pack(anchor="w", pady=(6, 2))
-            tk.Label(box, text=item.quality, fg=GOOD if "validated" in item.quality.lower() else MUTED,
+            quality = "Live auto-identified reading" if live_value else item.quality
+            tk.Label(box, text=quality, fg=GOOD if live_value or "validated" in quality.lower() else MUTED,
                      bg=SURFACE, font=("Segoe UI", 8)).pack(anchor="w")
 
         facts = tk.Frame(right, bg=SURFACE, padx=22, pady=22,
@@ -315,6 +347,10 @@ class App(tk.Tk):
                       highlightbackground=OUTLINE).pack(side="bottom", fill="x", pady=(0, 10))
 
     def connection_status(self, key: str) -> str:
+        instrument = self.instruments.get(key)
+        if instrument:
+            return (f"Auto-identified on {getattr(instrument, 'port')} · slave {getattr(instrument, 'slave_id')} · "
+                    f"{getattr(instrument, 'serial_format')} · {getattr(instrument, 'confidence')} confidence")
         if key in self.classified:
             port = self.classified[key]
             return f"Connected on {port.port} · {port.description}"
@@ -323,6 +359,10 @@ class App(tk.Tk):
         if key in ("hmd65", "wattnode"):
             return "Profile prepared · physical hardware not detected"
         return "Not currently detected · showing saved project information"
+
+    def close_app(self) -> None:
+        self.discovery.stop()
+        self.destroy()
 
     def backup_configuration(self) -> None:
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")

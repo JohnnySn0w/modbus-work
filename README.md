@@ -54,18 +54,21 @@ The desktop GUI uses Python's built-in Tk toolkit and keeps serial discovery sep
 
 Features currently implemented:
 
-- automatic serial-port discovery, with richer VID/PID identification when `pyserial` is installed;
+- automatic serial-port discovery every 1.5 seconds, with richer VID/PID identification when `pyserial` is installed;
 - recognition of the known ENL-MOD-32 USB interface and USB-COMi-TB bench adapter;
+- deterministic, read-only Modbus fingerprints when the USB-COMi-TB is the only master present: DPT146 measurement/status layout, HMD65 eight-value/status layout, and WattNode Report Slave ID;
 - a connected-device diagram showing the serial interface and attached/configured instrument;
 - clean, clickable device cards with generated device illustrations;
 - detail pages with a top-left back arrow, connection information, readouts, device facts, and links to source artifacts;
 - HMD65 and WND-M1-MB cards clearly marked as ready-to-test rather than connected or validated;
-- automatic refresh every five seconds plus a manual refresh action.
+- automatic refresh every 1.5 seconds plus a manual refresh action;
 - one-click creation of a portable configuration backup ZIP containing the golden table, manifest, bridge settings, radio notes, and recovery credential record;
 - a basic pre-made configuration picker for DPT146, HMD65, and WND-M1-MB that copies a TSV for review without writing to hardware;
 - per-device Help dialogs containing short setup and troubleshooting guidance.
 
-The DPT146 values shown in the initial GUI are explicitly labeled as the latest validated bench readings. Live polling will be added behind the transport layer so the UI never becomes the owner of Modbus register logic.
+When a direct fingerprint succeeds, the detail page displays the live values returned by that probe. Otherwise, DPT146 values are explicitly labeled as the latest validated bench readings. The transport and fingerprint layer owns register logic; GUI screens do not.
+
+Active fingerprinting is deliberately gated. It runs only when the direct USB-COMi-TB adapter is present and the bridge USB interface is absent, preventing the tool from becoming a second Modbus master on the bridge bus. A signature requires the documented serial format, slave response, register map, data encoding, status layout, and plausible decoded values to agree. A WattNode family-only identity is shown as such and requires a WND-M1-MB label check rather than being presented as an exact-model match.
 
 ## Target technician workflow
 

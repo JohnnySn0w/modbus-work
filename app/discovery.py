@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 import re
 import subprocess
+import threading
+from collections.abc import Callable
 from dataclasses import dataclass
 
 
@@ -104,3 +106,71 @@ def classify_ports(ports: list[PortInfo]) -> dict[str, PortInfo]:
         found["adapter"] = by_name["COM3"]
     return found
 
+
+@dataclass(frozen=True)
+class DiscoverySnapshot:
+    ports: tuple[PortInfo, ...]
+    classified: dict[str, PortInfo]
+    instruments: tuple[object, ...]
+    active_probe_allowed: bool
+    message: str
+
+
+class DiscoveryService:
+    """Poll ports periodically without blocking the Tk event loop."""
+
+    def __init__(self, callback: Callable[[DiscoverySnapshot], None],
+                 interval_seconds: float = 1.5) -> None:
+        self.callback = callback
+        self.interval_seconds = interval_seconds
+        self._stop = threading.Event()
+        self._scan_lock = threading.Lock()
+        self._thread: threading.Thread | None = None
+
+    def start(self) -> None:
+        if self._thread and self._thread.is_alive():
+            return
+        self._stop.clear()
+        self._thread = threading.Thread(target=self._run, daemon=True, name="device-discovery")
+        self._thread.start()
+
+    def stop(self) -> None:
+        self._stop.set()
+
+    def scan_now(self) -> None:
+        threading.Thread(target=self._scan_once, daemon=True,
+                         name="device-discovery-refresh").start()
+
+    def _run(self) -> None:
+        while not self._stop.is_set():
+            self._scan_once()
+            self._stop.wait(self.interval_seconds)
+
+    def _scan_once(self) -> None:
+        if not self._scan_lock.acquire(blocking=False):
+            return
+        try:
+            ports = discover_ports()
+            classified = classify_ports(ports)
+            bridge_present = "bridge" in classified
+            adapter = classified.get("adapter")
+            instruments: tuple[object, ...] = ()
+            active_allowed = bool(adapter and not bridge_present)
+            message = "Passive USB discovery"
+            if active_allowed and adapter:
+                try:
+                    from .probe import probe_adapter
+
+                    instruments = tuple(probe_adapter(adapter))
+                    message = "Isolated deterministic Modbus fingerprinting"
+                except ImportError:
+                    message = "Install pyserial to enable Modbus fingerprinting"
+            elif adapter and bridge_present:
+                message = "Active probe blocked: bridge and adapter are both present"
+            snapshot = DiscoverySnapshot(
+                ports=tuple(ports), classified=classified, instruments=instruments,
+                active_probe_allowed=active_allowed, message=message,
+            )
+            self.callback(snapshot)
+        finally:
+            self._scan_lock.release()
