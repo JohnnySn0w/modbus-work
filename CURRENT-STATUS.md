@@ -25,7 +25,7 @@ The present acceptance boundary ends at correctly decoded raw data in Loriot. Ex
 - Configuration interface: STM32 USB virtual COM port, observed as COM5.
 - Radio: North American hybrid 915 MHz LoRaWAN.
 - Power: external 20–24 VDC; USB does not power-cycle the bridge.
-- Credentials: DevEUI, AppEUI/JoinEUI, and AppKey are captured in `.secrets/polygon-enl-mod-32-lorawan.env`.
+- Credentials: DevEUI, AppEUI/JoinEUI, and AppKey are captured in `.secrets/polygon-enl-mod-32-lorawan.env` and intentionally tracked so they transfer with this private repository.
 - Firmware 3.6 does not expose a separate provisioned NwkKey in its radio menu.
 
 ### Direct RS-485 adapter
@@ -136,7 +136,7 @@ Exact target: Continental Control Systems WND-M1-MB WattNode Module for Modbus (
 - Network server: Loriot.
 - Join status was confirmed.
 - AppEUI/JoinEUI: captured locally; non-secret identifier also recorded in Loriot evidence.
-- AppKey: captured locally in `.secrets`; do not include in technician-facing exports.
+- AppKey: captured in the repository's `.secrets` directory for private clone/recovery use; do not include in technician-facing exports or public materials.
 - Interval: 15 minutes.
 - Uplink port: 1.
 - Receive port: all.
@@ -178,4 +178,3 @@ When HMD65 or WND-M1-MB hardware arrives:
 5. Import the candidate bridge table, read back, and validate all points.
 6. Capture and decode a Loriot payload.
 7. Promote the profile only after evidence review.
-
