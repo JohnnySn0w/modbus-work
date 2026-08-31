@@ -55,7 +55,7 @@ The IAQ Plus is a direct LoRaWAN sensor, not a Modbus instrument behind the brid
 
 Firmware `FW-AQ-VCP+` 5.06 is supported by a Windows read-only console prototype. The GUI can refresh installed sensor readings, create a JSON backup of Quick Start/radio/configuration pages, and preview the enabled US915 or disabled EU868 radio profiles. The observed unit exposes temperature, relative humidity, pressure, CO₂-equivalent, bVOC, IAQ/accuracy, and a GSS CO₂ module. Device writes remain disabled until field-level readback and recovery are proven.
 
-The first approved-target draft is [the US915 IAQ Plus native configuration](artifacts/native-config/synetica-enlink-iaq-plus-us915.yaml). It binds the observed firmware, Loriot-facing radio fields, the private credential source, preserved calibration settings, and the blockers that keep automatic apply disabled.
+The first approved-target draft is [the US915 IAQ Plus native configuration](artifacts/native-config/synetica-enlink-iaq-plus-us915.yaml). IAQ commissioning preserves the existing JoinEUI/AppEUI and provisions only a selected AppKey; measurement display is optional verification. The attached IAQ JoinEUI already matches the project value, but its current AppKey differs from the stored bridge/project AppKey, so the target credential profile remains an explicit commissioning choice.
 
 ## GUI
 

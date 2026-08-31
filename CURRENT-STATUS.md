@@ -175,6 +175,7 @@ It is required again when:
 - IAQ Plus authenticated console access is working with DTR on, RTS off, and the DevEUI-derived login.
 - The GUI prototype can request current IAQ readings, parse seven engineering/status values, back up Quick Start/radio/configuration pages to JSON, and preview radio profiles without writing the device.
 - The observed unit inventory includes a VOC air-quality module and GSS CO2 module LP26/614548 with auto-calibration enabled. Configure Device page 2 and particle details remain to capture.
+- IAQ commissioning scope is now credential-first: preserve JoinEUI/AppEUI, provision the selected AppKey, and treat measurements as optional verification. The attached IAQ and stored bridge/project JoinEUI values match; their AppKeys do not. Firmware 5.06 exposes no separate NwkKey.
 
 ## Next work
 

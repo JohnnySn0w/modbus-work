@@ -50,9 +50,10 @@ radio:
 configuration:
   write_status: not-yet-automated
   quick_start_fields:
-    - JoinEUI/AppEUI
     - AppKey
     - transmit_interval
+  preserved_fields:
+    - JoinEUI/AppEUI
   requires_reboot_after_key_change: true
   credential_policy: Preserve keys in private clone/recovery artifacts as requested for this repository.
   live_readings_path: Main Menu > Configure Device > Live Readings
@@ -81,5 +82,6 @@ next_steps:
   - Validate automated login using the derived 4f86 credential with terminal-compatible input timing and line endings.
   - Log in read-only and capture the complete summary and installed sensor inventory.
   - Back up JoinEUI/AppEUI, AppKey, interval, calibration settings, and radio state before writes.
+  - Preserve JoinEUI/AppEUI and validate only the selected AppKey write/readback path.
   - Capture Live Readings labels and units for deterministic GUI parsing.
   - Validate Loriot join, port, payload decoder, and every installed channel.

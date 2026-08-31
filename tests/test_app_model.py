@@ -43,6 +43,14 @@ class CatalogTests(unittest.TestCase):
         self.assertTrue(RADIO_REGIONS[DEFAULT_REGION].enabled)
         self.assertFalse(RADIO_REGIONS["eu868"].enabled)
 
+    def test_iaq_target_preserves_join_eui(self) -> None:
+        target = (DEVICES["iaq_plus"].artifact.parents[1] / "native-config" /
+                  "synetica-enlink-iaq-plus-us915.yaml")
+        text = target.read_text(encoding="utf-8")
+        self.assertIn("join_eui_policy: preserve-existing", text)
+        self.assertIn("app_key_policy: provision-selected-credential-profile", text)
+        self.assertNotIn("app_key_source: .secrets/synetica-enlink-iaq-plus.env", text)
+
 
 if __name__ == "__main__":
     unittest.main()

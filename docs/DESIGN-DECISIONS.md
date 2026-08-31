@@ -19,8 +19,8 @@ This file records decisions made autonomously for the rough technician prototype
 
 1. Is region selection actually writable on all enLink IAQ Plus hardware, or is EU868 versus US915 fixed by orderable hardware/firmware? Until confirmed, the UI treats region profiles as compatibility selections and does not issue a region write.
 2. What sensors and values appear on Configure Device page 2 for part 003-ADZ-301, especially particle bins and counts? This should be captured before defining the full live-readout schema or payload decoder.
-3. Which IAQ Plus settings are approved for normal technicians versus experts? Proposed split: network identity and reporting interval are guarded technician settings; sensor calibration and particle-cleaning controls are expert-only.
-4. Should a clone restore reuse the source AppKey or generate/provision a distinct key per DevEUI? The rough prototype preserves exact recovery values because that was explicitly requested, but fleet provisioning policy should eventually decide this.
+3. **Resolved:** normal IAQ commissioning preserves the existing JoinEUI/AppEUI and provisions only the selected AppKey. Measurement display is useful but not required for credential commissioning. Calibration, particle-cleaning, and advanced radio controls remain expert-only.
+4. Which AppKey credential profile should be the default for IAQ commissioning? The attached IAQ currently has a different AppKey from the stored bridge/project AppKey, although their JoinEUI values already match. No physical key write should occur until that target is explicitly selected.
 5. Should the GUI store backups beside the repository, in a per-job commissioning folder, or in an organization-managed record system? The prototype uses operator-selected JSON files.
 6. What acceptance ranges should be used for IAQ channels? These should come from the exact product datasheet and commissioning procedure, not generic indoor-air assumptions.
 7. Does Loriot already have a decoder for every optional 003-ADZ-301 channel, and can its decoder/profile be exported for a clone package? DSP remains downstream and out of the current proof-of-concept boundary.
@@ -28,7 +28,7 @@ This file records decisions made autonomously for the rough technician prototype
 ## Next implementation slice
 
 - Capture Configure Device page 2 and particle options without writes.
-- Add a plain-language configuration diff for JoinEUI, transmit interval, ports, and approved sensor options.
+- Add a plain-language credential diff that always marks JoinEUI/AppEUI as preserved and shows only whether the AppKey will change, without revealing it.
 - Implement writes one field at a time with backup, confirmation, reboot when required, readback, and rollback evidence.
 - Add Loriot payload replay fixtures and compare them with USB live readings.
 - Package the Windows application for technicians who do not have Python installed.
