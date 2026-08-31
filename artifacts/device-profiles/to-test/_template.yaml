@@ -1,0 +1,96 @@
+schema_version: 1
+profile_id: replace-with-stable-id
+profile_status: to-test
+deployment_allowed: false
+golden_configuration: false
+created_at: null
+
+provenance:
+  manufacturer: null
+  product_family: null
+  candidate_model: null
+  authoritative_sources: []
+  manual_revision: null
+  register_map_revision: null
+  bench_validated: false
+  reason_unvalidated: Physical test device not currently available.
+
+applicability:
+  exact_model: null
+  hardware_revision: null
+  firmware_version: null
+  compatibility_policy: block-until-exact-device-and-firmware-are-recorded
+
+transport:
+  protocol: Modbus RTU
+  connector: null
+  wiring: null
+  power: null
+  slave_id: null
+  baud: null
+  data_bits: 8
+  parity: null
+  stop_bits: null
+  address_convention:
+    manual_logical: null
+    pdu_zero_based: null
+  byte_order: null
+  word_order: null
+
+installation_inputs: []
+
+configuration_fields: []
+
+candidate_measurements:
+  selection_policy: Prefer native floating-point engineering values when supported.
+  points: []
+
+safety:
+  default_mode: read-only
+  allowed_automatic_reads: []
+  installation_writes: []
+  expert_only_writes: []
+  calibration_only_writes: []
+  prohibited_actions: []
+
+bridge_candidate:
+  manufacturer: Synetica
+  white_label: Polygon ExactAire-E5
+  model: ENL-MOD-32
+  firmware: null
+  point_capacity: 32
+  configuration_file: null
+  lorawan_platform: Loriot
+  acceptance_boundary: validated-raw-payload-decoding-in-loriot
+  dsp_routing: out-of-current-scope
+
+preflight_blockers:
+  - Exact device and firmware identity are missing.
+  - Applicable authoritative register map is not bound to the profile.
+  - Serial settings and address convention are not live-validated.
+  - Measurement decoding and scaling are not live-validated.
+  - Exact bridge firmware and configuration are not validated.
+  - Loriot payload is not captured and decoded.
+
+test_sequence:
+  - Photograph labels, connectors, wiring, and power arrangement.
+  - Record exact device identity and firmware.
+  - Snapshot device and bridge configuration before writes.
+  - Confirm communications using safe identity or measurement reads.
+  - Validate address convention, data types, byte order, word order, scale, and units.
+  - Compare engineering values with a trusted reference or plausible test condition.
+  - Compile the selected points into a backed-up bridge.
+  - Read back and diff the bridge configuration.
+  - Confirm local point reads.
+  - Capture and decode the Loriot raw payload.
+
+promotion_requirements:
+  target_status: bench-validated
+  require_all_preflight_blockers_cleared: true
+  require_device_model_and_firmware: true
+  require_source_revisions: true
+  require_live_modbus_evidence: true
+  require_bridge_model_and_firmware_for_bridge_validation: true
+  require_loriot_payload_for_clone_ready: true
+  allow_technician_deployment_before_clone_ready: false
+

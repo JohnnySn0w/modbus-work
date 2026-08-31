@@ -1,0 +1,78 @@
+schema_version: 1
+profile_id: vaisala-hmd65-documentation-test
+profile_status: to-test
+deployment_allowed: false
+golden_configuration: false
+created_at: 2026-08-28
+
+provenance:
+  manufacturer: Vaisala
+  product_family: HMD60
+  candidate_model: HMD65
+  authoritative_sources:
+    - https://docs.vaisala.com/r/M212243EN-C/en-US
+    - https://docs.vaisala.com/r/M212264EN-B/en-US
+  manual_revision: M212243EN-C
+  quick_guide_revision: M212264EN-B
+  bench_validated: false
+
+transport:
+  protocol: Modbus RTU
+  physical: isolated two-wire RS-485
+  power: 15..35 VDC or 16..24 VAC
+  address_source: eight address DIP switches
+  slave_id_candidate: 1
+  slave_id_range: 1..247
+  baud_candidate: 19200
+  baud_source: DIP switches; 19200 when bitrate switches are all off
+  data_bits: 8
+  parity_candidate: none
+  stop_bits_candidate: 1
+  termination: switchable 120 ohm resistor
+  address_convention: zero-based-pdu
+  function_code_read: 3
+
+bridge:
+  model: ENL-MOD-32
+  tested_firmware_target: "3.6"
+  candidate_file: ../../bridge-config/hmd65-documentation-test.tsv
+  point_count: 12
+  float_word_order_candidate: HH
+  float_word_order_status: documentation-does-not-state-register-word-order; verify-live-and-try-HL-if-values-are-implausible
+
+measurements:
+  - {key: relative_humidity, pdu_address: 0, type: float32, unit: "%RH", bridge_item: 1}
+  - {key: temperature, pdu_address: 2, type: float32, unit: degC, bridge_item: 2}
+  - {key: dew_point, pdu_address: 4, type: float32, unit: degC, bridge_item: 3}
+  - {key: dew_frost_point, pdu_address: 6, type: float32, unit: degC, bridge_item: 4}
+  - {key: absolute_humidity, pdu_address: 8, type: float32, unit: g_per_m3, bridge_item: 5}
+  - {key: mixing_ratio, pdu_address: 10, type: float32, unit: g_per_kg, bridge_item: 6}
+  - {key: wet_bulb_temperature, pdu_address: 12, type: float32, unit: degC, bridge_item: 7}
+  - {key: enthalpy, pdu_address: 14, type: float32, unit: kJ_per_kg, bridge_item: 8}
+
+status_points:
+  - {key: device_status, pdu_address: 512, type: int16, healthy: 0, bridge_item: 9}
+  - {key: error_code, pdu_address: 513, type: int32, healthy: 0, bridge_item: 10}
+  - {key: rh_measurement_status, pdu_address: 517, type: int16, healthy: 0, bridge_item: 11}
+  - {key: temperature_measurement_status, pdu_address: 518, type: int16, healthy: 0, bridge_item: 12}
+
+safety:
+  default_mode: read-only
+  permitted_for_initial_test: all-listed-measurements-and-status
+  configuration_writes: disabled
+  calibration_writes: prohibited
+
+preflight_blockers:
+  - Exact HMD65 order code, serial number, and firmware are unknown.
+  - Actual protocol, address, bitrate, parity, and termination DIP positions must be photographed and recorded.
+  - Float register word order must be confirmed live; HH is only the first test candidate.
+  - Bridge import, readback, local point test, and Loriot payload decode are not validated.
+
+acceptance:
+  - Relative humidity is plausible for the environment and between 0 and 100 percent.
+  - Temperature is plausible and changes in the expected direction during a gentle stimulus.
+  - Device, RH, and temperature status registers are zero under healthy conditions.
+  - All eight float values decode without NaN, infinity, or impossible magnitude.
+  - Bridge export matches the intended rows after import.
+  - Loriot raw payload decodes to the same local readings.
+

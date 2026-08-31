@@ -1,0 +1,70 @@
+schema_version: 1
+artifact_id: polygon-enl-mod32-vaisala-dpt146
+artifact_status: validated
+validated_at: 2026-08-28
+
+bridge:
+  manufacturer: Synetica
+  white_label: Polygon ExactAire-E5
+  model: ENL-MOD-32
+  firmware:
+    tested: "3.6"
+    compatibility_policy: exact-until-revalidated
+  region: North American hybrid 915 MHz
+  capacity_points: 32
+
+device:
+  manufacturer: Vaisala
+  model: DPT146
+  order_code: B2MBD102A0X
+  tested_serial_number: U2720970
+  manual_document: M211372EN-E
+  connector: II
+  protocol: Modbus RTU
+  slave_id: 1
+
+serial:
+  baud: 19200
+  data_bits: 8
+  parity: none
+  stop_bits: 2
+  retries: 1
+  timeout_ms: 500
+  inter_message_delay_ms: 150
+
+configuration:
+  format: synetica-enlink-tab-delimited-8-column
+  file: vaisala-dpt146-golden.tsv
+  configured_points: 8
+  address_convention: zero-based-pdu
+  float_format: ieee754-f32
+  float_bridge_order: HL
+
+validation:
+  local_modbus_reads_ok: 8
+  local_modbus_exceptions: 0
+  post_import_export_match: true
+  modbus_point_reset_method_validated: true
+  golden_restore_after_reset_validated: true
+  reboot_persistence_validated: true
+  lorawan_joined: true
+  lorawan_payload_validated: true
+  dsp_mapping_validated: false
+  dsp_mapping_status: deferred-after-initial-modbus-device-pocs
+
+lorawan_payload:
+  platform: Loriot
+  fport: 1
+  record_marker: 0x10
+  record_length_bytes: 6
+  index_base: 0
+  value_encoding: ieee754-float32-big-endian
+  contract_file: enl-mod-32-lorawan-payload.md
+
+compatibility:
+  import_allowed_when:
+    - bridge model is ENL-MOD-32
+    - bridge firmware is exactly 3.6
+  otherwise:
+    action: block-and-revalidate
+    reason: Address interpretation, import columns, word-order codes, capacity, and payload encoding may change between firmware versions.

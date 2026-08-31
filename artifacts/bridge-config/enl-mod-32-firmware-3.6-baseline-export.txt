@@ -1,0 +1,43 @@
+
+
+	Modbus Import/Export Menu:
+	==============================================================================
+	I - Import (Tab delimited)
+	S - Import (Space Delimited)
+	E - Export                    8/32
+	X - Exit Menu
+
+Enter Selection: cc7c
+Bad option. Try again.
+
+
+	Modbus Import/Export Menu:
+	==============================================================================
+	I - Import (Tab delimited)
+	S - Import (Space Delimited)
+	E - Export                    8/32
+	X - Exit Menu
+
+Enter Selection: C
+Bad option. Try again.
+
+
+	Modbus Import/Export Menu:
+	==============================================================================
+	I - Import (Tab delimited)
+	S - Import (Space Delimited)
+	E - Export                    8/32
+	X - Exit Menu
+
+Enter Selection: M
+Bad option. Try again.
+
+
+	Modbus Import/Export Menu:
+	==============================================================================
+	I - Import (Tab delimited)
+	S - Import (Space Delimited)
+	E - Export                    8/32
+	X - Exit Menu
+
+Enter Selection: 

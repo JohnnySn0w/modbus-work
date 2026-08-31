@@ -1,0 +1,213 @@
+schema_version: 1
+profile_id: ccs-wattnode-wnd-m1-mb-to-test
+profile_status: to-test
+deployment_allowed: false
+golden_configuration: false
+created_at: 2026-08-28
+
+provenance:
+  manufacturer: Continental Control Systems
+  product_family: WattNode Module for Modbus (WND Series)
+  candidate_model: WND-M1-MB
+  support_page: https://ctlsys.com/support/wattnode-module-modbus/
+  reference_manual: https://ctlsys.com/wp-content/uploads/2017/10/WND-Module-Modbus-Ref-Manual.pdf
+  manual_document: WND-M1-MB-Ref-1.10
+  documented_firmware: "1028"
+  bench_validated: false
+  reason_unvalidated: No physical WattNode is currently available.
+
+applicability:
+  exact_model: null
+  hardware_revision: null
+  firmware_version: null
+  compatibility_policy: block-until-exact-device-and-firmware-are-recorded
+
+transport:
+  protocol: Modbus RTU
+  serial_settings:
+    source: read-from-device-or-front-label-options
+    slave_id: 1
+    baud: 19200
+    data_bits: 8
+    parity: none
+    stop_bits: 1
+  address_convention:
+    manual_logical: preserve-from-source
+    pdu_zero_based: manual-register-minus-one
+
+installation_inputs:
+  service_type:
+    value: null
+    required: true
+  ct_phase_a:
+    manufacturer: null
+    model: null
+    rated_primary_amps: null
+    nominal_secondary_volts: null
+  ct_phase_b:
+    manufacturer: null
+    model: null
+    rated_primary_amps: null
+    nominal_secondary_volts: null
+  ct_phase_c:
+    manufacturer: null
+    model: null
+    rated_primary_amps: null
+    nominal_secondary_volts: null
+
+configuration_fields:
+  - key: ct_amps_phase_a
+    source_register: 1604
+    class: installation
+    expected_value: null
+    instruction: Set from the physical phase-A CT label.
+  - key: ct_amps_phase_b
+    source_register: 1605
+    class: installation
+    expected_value: null
+    instruction: Set from the physical phase-B CT label.
+  - key: ct_amps_phase_c
+    source_register: 1606
+    class: installation
+    expected_value: null
+    instruction: Set from the physical phase-C CT label.
+  - key: current_integer_scale
+    manual_register: 1622
+    pdu_address: null
+    data_type: uint16
+    class: scaling
+    documented_default: 20000
+    units: full-scale-count
+    formula: current_amps = raw_integer * ct_rated_amps / current_integer_scale
+    write_policy: leave-default-unless-legacy-integer-output-requires-a-reviewed-scale
+  - key: gain_adjust_phase_a
+    manual_register: 1612
+    pdu_address: null
+    data_type: uint16
+    class: calibration-only
+    documented_default: 10000
+    formula: gain_multiplier = raw / 10000
+    write_policy: prohibited-without-traceable-calibration-data
+  - key: gain_adjust_phase_b
+    manual_register: 1613
+    pdu_address: null
+    data_type: uint16
+    class: calibration-only
+    documented_default: 10000
+    formula: gain_multiplier = raw / 10000
+    write_policy: prohibited-without-traceable-calibration-data
+  - key: gain_adjust_phase_c
+    manual_register: 1614
+    pdu_address: null
+    data_type: uint16
+    class: calibration-only
+    documented_default: 10000
+    formula: gain_multiplier = raw / 10000
+    write_policy: prohibited-without-traceable-calibration-data
+  - key: phase_adjust_phase_a
+    manual_register: 1615
+    pdu_address: null
+    data_type: int16
+    class: calibration-only
+    documented_default: -1000
+    units: 0.001-degree
+    write_policy: prohibited-without-ct-characterization-data
+  - key: phase_adjust_phase_b
+    manual_register: 1616
+    pdu_address: null
+    data_type: int16
+    class: calibration-only
+    documented_default: -1000
+    units: 0.001-degree
+    write_policy: prohibited-without-ct-characterization-data
+  - key: phase_adjust_phase_c
+    manual_register: 1617
+    pdu_address: null
+    data_type: int16
+    class: calibration-only
+    documented_default: -1000
+    units: 0.001-degree
+    write_policy: prohibited-without-ct-characterization-data
+  - key: nominal_ct_volts_phase_a
+    manual_register_span: [1629, 1630]
+    pdu_address: null
+    data_type: float32
+    class: ct-characteristic
+    documented_default: 0.33333
+    units: Vac
+    write_policy: change-only-when-physical-ct-output-is-not-standard-0.333V
+  - key: nominal_ct_volts_phase_b
+    manual_register_span: [1631, 1632]
+    pdu_address: null
+    data_type: float32
+    class: ct-characteristic
+    documented_default: 0.33333
+    units: Vac
+    write_policy: change-only-when-physical-ct-output-is-not-standard-0.333V
+  - key: nominal_ct_volts_phase_c
+    manual_register_span: [1633, 1634]
+    pdu_address: null
+    data_type: float32
+    class: ct-characteristic
+    documented_default: 0.33333
+    units: Vac
+    write_policy: change-only-when-physical-ct-output-is-not-standard-0.333V
+
+candidate_measurements:
+  policy: Native float32 values, with documented low-word-first register order.
+  bridge_file: ../../bridge-config/wattnode-wnd-m1-mb-documentation-test.tsv
+  points:
+    - {key: energy_total, manual_register: 1001, pdu_address: 1000, type: float32, unit: kWh}
+    - {key: active_power_total, manual_register: 1009, pdu_address: 1008, type: float32, unit: W}
+    - {key: active_power_1, manual_register: 1011, pdu_address: 1010, type: float32, unit: W}
+    - {key: active_power_2, manual_register: 1013, pdu_address: 1012, type: float32, unit: W}
+    - {key: active_power_3, manual_register: 1015, pdu_address: 1014, type: float32, unit: W}
+    - {key: voltage_an, manual_register: 1019, pdu_address: 1018, type: float32, unit: V}
+    - {key: voltage_bn, manual_register: 1021, pdu_address: 1020, type: float32, unit: V}
+    - {key: voltage_cn, manual_register: 1023, pdu_address: 1022, type: float32, unit: V}
+    - {key: frequency, manual_register: 1033, pdu_address: 1032, type: float32, unit: Hz}
+    - {key: current_1, manual_register: 1163, pdu_address: 1162, type: float32, unit: A}
+    - {key: current_2, manual_register: 1165, pdu_address: 1164, type: float32, unit: A}
+    - {key: current_3, manual_register: 1167, pdu_address: 1166, type: float32, unit: A}
+
+bridge_candidate:
+  manufacturer: Synetica
+  white_label: Polygon ExactAire-E5
+  model: ENL-MOD-32
+  firmware: null
+  configuration_file: ../../bridge-config/wattnode-wnd-m1-mb-documentation-test.tsv
+  lorawan_platform: Loriot
+  acceptance_boundary: validated-raw-payload-decoding-in-loriot
+  dsp_routing: out-of-current-scope
+
+preflight_blockers:
+  - The physical unit must be confirmed as WND-M1-MB and its serial number, options, hardware revision, and firmware recorded.
+  - Physical CT labels and phase assignments are missing.
+  - Applicable live firmware must be checked against manual firmware 1028 and the current register-list revision.
+  - Modbus serial settings and slave address are unknown.
+  - No read-only configuration snapshot exists.
+  - No live measurement has been compared with a trusted reference.
+  - No bridge export/import/readback test has been performed.
+  - No Loriot payload has been captured and decoded.
+
+test_sequence:
+  - Photograph the WattNode label, wiring, and every CT label.
+  - Record exact model, serial number, hardware revision, and firmware.
+  - Bind the current manufacturer register-list revision to this profile.
+  - Confirm serial settings and manual-versus-PDU addressing using read-only requests.
+  - Snapshot all relevant configuration registers before any write.
+  - Populate and validate the preferred floating-point measurement registers.
+  - Compare readings with the meter display or a trusted reference instrument.
+  - Create and back up an ENL-MOD-32 configuration for the selected points.
+  - Read back and diff the bridge configuration.
+  - Capture and decode the Loriot raw payload.
+  - Promote only after evidence review to validated or golden status.
+
+promotion_requirements:
+  target_status: validated
+  require_all_preflight_blockers_cleared: true
+  require_bridge_model_and_firmware: true
+  require_device_model_and_firmware: true
+  require_readback_diff: true
+  require_loriot_payload_validation: true
+  allow_technician_deployment_before_promotion: false
