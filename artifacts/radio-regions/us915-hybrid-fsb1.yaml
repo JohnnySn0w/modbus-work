@@ -1,0 +1,7 @@
+key: us915_hybrid_fsb1
+enabled: true
+default: true
+display_name: North American Hybrid FSB #1
+frequency_mhz: 902-928
+loriot_region: US915
+validation: Required per-device from USB banner and Loriot join/uplink.

@@ -4,11 +4,12 @@ This repository contains the device profiles, bridge configurations, validation 
 
 The intended operator experience is: **plug in the hardware, select an approved pre-made configuration, let the tool program it safely, and confirm real data before the unit leaves the bench.**
 
-The current scope is intentionally limited to three instruments:
+The current Modbus scope is intentionally limited to three instruments, plus one directly connected Synetica LoRaWAN sensor used to extend the same technician workflow:
 
 - **Vaisala DPT146** — golden configuration, validated locally through Modbus, through the bridge, and as a decoded Loriot uplink.
 - **Vaisala HMD65** — documentation-derived test configuration awaiting physical hardware.
 - **Continental Control Systems WND-M1-MB** — documentation-derived test configuration for the WattNode Module for Modbus, awaiting physical hardware.
+- **Synetica enLink IAQ Plus, observed part 003-ADZ-301** — identified live through its USB console as `FW-AQ-VCP+` firmware 5.06 on North American Hybrid FSB #1 / 915 MHz.
 
 Start with [CURRENT-STATUS.md](CURRENT-STATUS.md) for the complete bench handoff and current state.
 
@@ -47,6 +48,10 @@ The prepared test profile contains eight metric float measurements and four stat
 ### WND-M1-MB
 
 The target is specifically the **WND-M1-MB WattNode Module for Modbus**, not the Wide-Range meter. The candidate uses 12 native float measurements so current and power do not need integer scaling. CT ratings and electrical service mapping remain installation inputs.
+
+### enLink IAQ Plus
+
+The IAQ Plus is a direct LoRaWAN sensor, not a Modbus instrument behind the bridge. Its unauthenticated USB banner provides a deterministic product-family signature, firmware code/version, radio region, and DevEUI. This is necessary because it shares the STM32 `0483:5740` USB identity with other Synetica products. The application defaults to US915 Hybrid FSB #1. An EU868 profile exists but remains disabled until compatible regional hardware/firmware and Loriot settings are supplied and validated.
 
 ## GUI
 

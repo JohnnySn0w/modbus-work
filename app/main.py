@@ -65,6 +65,13 @@ class DeviceIcon:
                               start=20, extent=140, style="arc", outline=color, width=3)
             canvas.create_line(cx, cy, cx + 11, cy - 11, fill=color, width=3)
             canvas.create_line(cx - 14, cy + 21, cx + 14, cy + 21, fill=color, width=3)
+        elif kind == "air_quality":
+            canvas.create_oval(cx - 30, cy - 30, cx + 30, cy + 30,
+                               outline=color, width=3)
+            for dx, dy, radius in ((-11, -8, 4), (8, -13, 3), (12, 8, 5), (-8, 13, 3)):
+                canvas.create_oval(cx + dx - radius, cy + dy - radius,
+                                   cx + dx + radius, cy + dy + radius,
+                                   fill=color, outline="")
         else:
             canvas.create_rectangle(cx - 27, cy - 18, cx + 17, cy + 18,
                                     outline=color, width=3)
@@ -172,6 +179,8 @@ class App(tk.Tk):
         detected_key = next(iter(self.instruments), None)
         if "bridge" in self.classified:
             nodes = [("bridge", width * 0.34), ("dpt146", width * 0.66)]
+        elif "iaq_plus" in self.classified:
+            nodes = [("iaq_plus", width * 0.50)]
         elif "adapter" in self.classified and detected_key:
             nodes = [("adapter", width * 0.34), (detected_key, width * 0.66)]
         elif "adapter" in self.classified:
@@ -349,6 +358,10 @@ class App(tk.Tk):
     def connection_status(self, key: str) -> str:
         instrument = self.instruments.get(key)
         if instrument:
+            if key == "iaq_plus":
+                return (f"Auto-identified on {getattr(instrument, 'port')} · firmware "
+                        f"{getattr(instrument, 'firmware_code')} {getattr(instrument, 'firmware')} · "
+                        f"{getattr(instrument, 'region')}")
             return (f"Auto-identified on {getattr(instrument, 'port')} · slave {getattr(instrument, 'slave_id')} · "
                     f"{getattr(instrument, 'serial_format')} · {getattr(instrument, 'confidence')} confidence")
         if key in self.classified:

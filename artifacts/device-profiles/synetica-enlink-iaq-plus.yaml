@@ -1,0 +1,73 @@
+schema_version: 1
+profile_id: synetica-enlink-iaq-plus-003-adz-301
+profile_status: observed-read-only
+deployment_allowed: false
+created_at: 2026-08-31
+
+identity:
+  manufacturer: Synetica
+  product_family: enLink IAQ Plus
+  product_code: ENL-IAQ-PLUS
+  observed_part_number: 003-ADZ-301
+  usb_vid_pid: 0483:5740
+  usb_identity_warning: VID/PID is shared by multiple Synetica products; require the console banner.
+  banner_signature:
+    firmware_code: FW-AQ-VCP+
+    firmware_version: "5.06"
+    description: enLink Air Quality - Environmental Sensors
+    deveui: 00-04-a3-0b-00-08-4f-86
+  identification_confidence: high
+
+transport:
+  protocol: Synetica USB configuration console
+  connector: internal configuration USB
+  serial_port_observed: COM5
+  terminal_baud: 115200
+  serial_note: USB CDC ignored tested baud selections; use 115200 8N1 as the application convention.
+  unauthenticated_probe: Open port with DTR/RTS and parse banner through Password prompt; do not submit credentials.
+  default_password_rule: last four hexadecimal characters of DevEUI
+  observed_login_result: Factory-default password rule did not produce a menu during the automated read-only attempt; password may have been changed or the console may require terminal-specific input behavior.
+
+radio:
+  default_profile: us915_hybrid_fsb1
+  profiles:
+    us915_hybrid_fsb1:
+      enabled: true
+      display: North American band (Hybrid FSB#1) on 915MHz
+      frequency_mhz: 902-928
+      status: observed-on-hardware
+    eu868:
+      enabled: false
+      display: Europe EU868
+      frequency_mhz: 863-870
+      status: future-stub
+      activation_requirements:
+        - Confirm regional hardware and firmware support.
+        - Select the matching Loriot EU868 network profile.
+        - Validate join and uplink decoding before deployment.
+
+configuration:
+  write_status: not-yet-automated
+  quick_start_fields:
+    - JoinEUI/AppEUI
+    - AppKey
+    - transmit_interval
+  requires_reboot_after_key_change: true
+  credential_policy: Preserve keys in private clone/recovery artifacts as requested for this repository.
+  live_readings_path: Main Menu > Configure Device > Live Readings
+  installed_sensor_channels: to-be-inventoried-from-live-menu
+
+power:
+  external_supply_vdc: 12-24
+
+sources:
+  - https://synetica.net/product/enlink-iaq-plus-lorawan-indoor-air-quality-monitor
+  - https://synetica.net/wp-content/uploads/2024/07/Synetica-IAQ-Vape-User-Guide.pdf
+  source_note: The accessible IAQ Vape guide documents the shared enLink air-quality USB console workflow; exact IAQ Plus guide is currently locked on Synetica Downloads.
+
+next_steps:
+  - Obtain or confirm the current console password; do not retry guessed credentials.
+  - Log in read-only and capture the complete summary and installed sensor inventory.
+  - Back up JoinEUI/AppEUI, AppKey, interval, calibration settings, and radio state before writes.
+  - Capture Live Readings labels and units for deterministic GUI parsing.
+  - Validate Loriot join, port, payload decoder, and every installed channel.

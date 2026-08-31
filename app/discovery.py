@@ -51,11 +51,32 @@ def _windows_registry_ports() -> list[PortInfo]:
                 driver, port, _ = winreg.EnumValue(key, index)
             except OSError:
                 break
-            result.append(PortInfo(port=port, description=driver))
+            result.append(PortInfo(
+                port=port,
+                description=driver,
+                hardware_id=_windows_usb_hardware_id(port),
+            ))
             index += 1
         return result
     except OSError:
         return []
+
+
+def _windows_usb_hardware_id(port: str) -> str:
+    """Recover VID/PID for registry-only discovery without admin privileges."""
+    try:
+        completed = subprocess.run(
+            ["reg", "query", r"HKLM\SYSTEM\CurrentControlSet\Enum\USB", "/s", "/f", port],
+            capture_output=True,
+            text=True,
+            timeout=3,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    match = re.search(r"USB\\(VID_[0-9A-F]{4}&PID_[0-9A-F]{4})\\([^\r\n\\]+)",
+                      completed.stdout, re.IGNORECASE)
+    return "\\".join(match.groups()) if match else ""
 
 
 def _mode_ports() -> list[PortInfo]:
@@ -93,17 +114,12 @@ def classify_ports(ports: list[PortInfo]) -> dict[str, PortInfo]:
     for port in ports:
         text = port.search_text
         if "VID_0483&PID_5740" in text or "STM32" in text:
-            found["bridge"] = port
+            # Synetica uses this STM32 virtual-COM identity across products.
+            # The USB console banner, not VID/PID or COM number, identifies it.
+            found["synetica_usb"] = port
         elif "USB-COMI" in text or "USB COMI" in text or "FTDI" in text:
             found["adapter"] = port
 
-    # The Windows registry fallback lacks VID/PID and descriptions. These known
-    # bench mappings remain clearly identified as inferred, not probed devices.
-    by_name = {item.port.upper(): item for item in ports}
-    if "bridge" not in found and "COM5" in by_name:
-        found["bridge"] = by_name["COM5"]
-    if "adapter" not in found and "COM3" in by_name:
-        found["adapter"] = by_name["COM3"]
     return found
 
 
@@ -126,6 +142,7 @@ class DiscoveryService:
         self._stop = threading.Event()
         self._scan_lock = threading.Lock()
         self._thread: threading.Thread | None = None
+        self._console_cache: dict[tuple[str, str], object] = {}
 
     def start(self) -> None:
         if self._thread and self._thread.is_alive():
@@ -152,23 +169,42 @@ class DiscoveryService:
         try:
             ports = discover_ports()
             classified = classify_ports(ports)
+            instruments_list: list[object] = []
+            console_port = classified.pop("synetica_usb", None)
+            console_message = ""
+            if console_port:
+                cache_key = (console_port.port, console_port.hardware_id)
+                console_result = self._console_cache.get(cache_key)
+                try:
+                    from .enlink import probe_enlink_console
+
+                    if console_result is None:
+                        console_result = probe_enlink_console(console_port)
+                except ImportError:
+                    console_result = None
+                if console_result:
+                    self._console_cache = {cache_key: console_result}
+                    classified[console_result.key] = console_port
+                    instruments_list.append(console_result)
+                    console_message = f"Identified {console_result.display_name} by USB banner"
+                else:
+                    classified["synetica_usb"] = console_port
             bridge_present = "bridge" in classified
             adapter = classified.get("adapter")
-            instruments: tuple[object, ...] = ()
             active_allowed = bool(adapter and not bridge_present)
-            message = "Passive USB discovery"
+            message = console_message or "Passive USB discovery"
             if active_allowed and adapter:
                 try:
                     from .probe import probe_adapter
 
-                    instruments = tuple(probe_adapter(adapter))
+                    instruments_list.extend(probe_adapter(adapter))
                     message = "Isolated deterministic Modbus fingerprinting"
                 except ImportError:
                     message = "Install pyserial to enable Modbus fingerprinting"
             elif adapter and bridge_present:
                 message = "Active probe blocked: bridge and adapter are both present"
             snapshot = DiscoverySnapshot(
-                ports=tuple(ports), classified=classified, instruments=instruments,
+                ports=tuple(ports), classified=classified, instruments=tuple(instruments_list),
                 active_probe_allowed=active_allowed, message=message,
             )
             self.callback(snapshot)

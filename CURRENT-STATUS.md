@@ -168,6 +168,10 @@ It is required again when:
 - HMD65 identification requires its complete eight-float measurement span plus device, RH, and temperature status layout to agree under one unambiguous word order.
 - WND-M1-MB identification uses Report Slave ID. An exact model string is accepted as high confidence; a WattNode-family response is labeled family-only and requires confirmation from the physical WND-M1-MB label.
 - Successful direct fingerprints feed live readings into the device detail view.
+- COM numbers are no longer treated as device identities. Synetica products sharing USB VID/PID `0483:5740` are distinguished by their unauthenticated console banners.
+- A connected enLink IAQ Plus, observed part 003-ADZ-301, identified on COM5 as `FW-AQ-VCP+` firmware 5.06 with North American Hybrid FSB #1 / 915 MHz and its DevEUI captured in the private profile.
+- The documented factory-default password rule did not open the menu during one read-only attempt. No further guesses were made; obtain the current password or confirm the required terminal input behavior before configuration capture.
+- Radio profiles now default to enabled US915 Hybrid FSB #1, with an explicitly disabled EU868 future stub.
 
 ## Next work
 

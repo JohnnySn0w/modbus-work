@@ -1,0 +1,11 @@
+key: eu868
+enabled: false
+default: false
+display_name: Europe EU868
+frequency_mhz: 863-870
+loriot_region: EU868
+status: future-stub
+activation_requirements:
+  - Use hardware and firmware that explicitly support EU868.
+  - Select a matching Loriot EU868 network profile.
+  - Validate legal channel plan, join, uplink, and decoder before deployment.
