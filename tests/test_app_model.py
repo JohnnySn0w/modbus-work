@@ -68,6 +68,23 @@ class CatalogTests(unittest.TestCase):
                          (by_name["Model"].logical, by_name["Model"].pdu))
         self.assertEqual("R/W", by_name["Connection type"].access)
 
+    def test_status_and_enum_registers_decode_values(self) -> None:
+        dpt = {item.name: item for item in REGISTER_MAPS["dpt146"]}
+        self.assertEqual("no errors", dpt["Fault status"].decode(1))
+        self.assertEqual("online data available", dpt["Online status"].decode(1))
+        self.assertEqual("no errors", dpt["Error code"].decode(0))
+
+        hmd = {item.name: item for item in REGISTER_MAPS["hmd65"]}
+        decoded = hmd["Device status"].decode(0x0005)
+        self.assertIn("critical error", decoded)
+        self.assertIn("warning", decoded)
+        self.assertEqual("status OK", hmd["RH measurement status"].decode(0))
+
+        wattnode = {item.name: item for item in REGISTER_MAPS["wattnode"]}
+        self.assertEqual("wye", wattnode["Connection type"].decode(1))
+        self.assertEqual("19200 baud", wattnode["Baud rate"].decode(5))
+        self.assertEqual("WattNode Module", wattnode["Model"].decode(530))
+
     def test_every_device_has_basic_help(self) -> None:
         for device in DEVICES.values():
             self.assertGreaterEqual(len(device.help_setup), 3)

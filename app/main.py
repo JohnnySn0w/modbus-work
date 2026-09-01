@@ -441,15 +441,16 @@ class App(tk.Tk):
         shell = tk.Frame(self, bg=SURFACE, highlightthickness=1,
                          highlightbackground=OUTLINE)
         shell.pack(fill="both", expand=True, padx=44, pady=(12, 34))
-        columns = ("name", "logical", "pdu", "type", "access", "value", "unit", "description")
+        columns = ("name", "logical", "pdu", "type", "access", "value", "decoded", "unit", "description")
         table = ttk.Treeview(shell, columns=columns, show="headings", selectmode="browse")
         headings = {
             "name": "Register / value", "logical": "Manual", "pdu": "PDU",
             "type": "Type", "access": "Access", "value": "Readout",
-            "unit": "Unit", "description": "Description",
+            "decoded": "Decoded meaning", "unit": "Unit", "description": "Description",
         }
         widths = {"name": 170, "logical": 90, "pdu": 90, "type": 80,
-                  "access": 58, "value": 115, "unit": 72, "description": 430}
+                  "access": 58, "value": 105, "decoded": 290,
+                  "unit": 72, "description": 370}
         for column in columns:
             table.heading(column, text=headings[column])
             table.column(column, width=widths[column], minwidth=50,
@@ -463,9 +464,10 @@ class App(tk.Tk):
                 raw_value, raw_unit = current
                 value = str(raw_value)
                 unit = raw_unit or unit
+            decoded = register.decode(value if current else None)
             table.insert("", "end", values=(
                 register.name, register.logical, register.pdu, register.data_type,
-                register.access, value, unit, register.description,
+                register.access, value, decoded, unit, register.description,
             ))
 
         vertical = ttk.Scrollbar(shell, orient="vertical", command=table.yview)

@@ -71,7 +71,7 @@ Features currently implemented:
 - a connected-device diagram showing the serial interface and attached/configured instrument;
 - clean, clickable device cards with generated device illustrations;
 - detail pages with a top-left back arrow, connection information, readouts, device facts, and links to source artifacts;
-- register-table pages for every supported Modbus instrument, showing manual and zero-based PDU addresses, data type, access, live/saved readout, units, and plain-language descriptions;
+- register-table pages for every supported Modbus instrument, showing manual and zero-based PDU addresses, data type, access, live/saved readout, decoded enum/bitfield meaning, units, and plain-language descriptions;
 - HMD65 and WND-M1-MB cards clearly marked as ready-to-test rather than connected or validated;
 - automatic refresh every 1.5 seconds plus a manual refresh action;
 - one-click creation of a portable configuration backup ZIP containing the golden table, manifest, bridge settings, radio notes, and recovery credential record;
