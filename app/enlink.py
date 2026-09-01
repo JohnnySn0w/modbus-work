@@ -51,17 +51,21 @@ def parse_enlink_banner(text: str, port: str) -> EnlinkProbeResult | None:
     if "Synetica - enLink" not in clean:
         return None
     fields: dict[str, str] = {}
-    for label in ("Region", "Firmware Code", "Firmware Ver", "Description", "DevEui"):
+    for label in ("Region", "Firmware Code", "Firmware Ver", "Description", "DevEui",
+                  "Model Number", "Model No", "Model No.", "Model Name"):
         match = re.search(rf"^{re.escape(label)}:\s*(.+?)\s*$", clean,
                           re.IGNORECASE | re.MULTILINE)
         if match:
             fields[label] = match.group(1).strip()
     firmware_code = fields.get("Firmware Code", "")
     description = fields.get("Description", "")
+    model_number = fields.get("Model Number", fields.get("Model No", fields.get("Model No.", "")))
+    model_name = fields.get("Model Name", "")
     if firmware_code.startswith("FW-AQ-") or "Air Quality" in description:
         key = "iaq_plus"
         display_name = "Synetica enLink IAQ Plus"
-    elif "MOD" in firmware_code.upper() or "MODBUS" in description.upper():
+    elif (model_number.upper() == "ENL-MOD-32" or "MOD" in firmware_code.upper()
+          or "MODBUS" in description.upper() or "MODBUS" in model_name.upper()):
         key = "bridge"
         display_name = "Synetica ENL-MOD-32"
     else:
@@ -78,7 +82,7 @@ def parse_enlink_banner(text: str, port: str) -> EnlinkProbeResult | None:
         reason="Synetica product family, firmware code, region, and DevEUI matched the USB banner.",
         display_name=display_name,
         firmware=fields.get("Firmware Ver", "Unknown"),
-        firmware_code=firmware_code or "Unknown",
+        firmware_code=firmware_code or model_number or "Unknown",
         region=fields.get("Region", "Unknown"),
         dev_eui=dev_eui,
         derived_login=derived_login,
@@ -110,6 +114,20 @@ def probe_enlink_console(port: PortInfo, timeout: float = 1.0) -> EnlinkProbeRes
                     chunks.append(chunk)
                     if b"Password:" in b"".join(chunks):
                         break
+            # Some enLink firmware emits its banner only after terminal input.
+            # A carriage return wakes the console without authenticating or
+            # changing configuration.
+            if not chunks:
+                connection.write(b"\r")
+                connection.flush()
+                deadline = time.monotonic() + 2.0
+                while time.monotonic() < deadline:
+                    waiting = connection.in_waiting
+                    chunk = connection.read(waiting or 1)
+                    if chunk:
+                        chunks.append(chunk)
+                        if b"Password:" in b"".join(chunks):
+                            break
             result = parse_enlink_banner(b"".join(chunks).decode("utf-8", errors="replace"), port.port)
     except (OSError, ValueError):
         pass

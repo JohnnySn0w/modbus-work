@@ -10,7 +10,7 @@ import zipfile
 import queue
 from datetime import datetime
 from pathlib import Path
-from tkinter import filedialog, font as tkfont, messagebox, ttk
+from tkinter import filedialog, font as tkfont, messagebox
 
 try:
     from .catalog import DEVICES, PREMADE_CONFIGS, ROOT, DeviceDefinition
@@ -442,7 +442,6 @@ class App(tk.Tk):
                          highlightbackground=OUTLINE)
         shell.pack(fill="both", expand=True, padx=44, pady=(12, 34))
         columns = ("name", "logical", "pdu", "type", "access", "value", "decoded", "unit", "description")
-        table = ttk.Treeview(shell, columns=columns, show="headings", selectmode="browse")
         headings = {
             "name": "Register / value", "logical": "Manual", "pdu": "PDU",
             "type": "Type", "access": "Access", "value": "Readout",
@@ -451,12 +450,28 @@ class App(tk.Tk):
         widths = {"name": 170, "logical": 90, "pdu": 90, "type": 80,
                   "access": 58, "value": 105, "decoded": 290,
                   "unit": 72, "description": 370}
-        for column in columns:
-            table.heading(column, text=headings[column])
-            table.column(column, width=widths[column], minwidth=50,
-                         stretch=column == "description")
 
-        for register in REGISTER_MAPS[key]:
+        canvas = tk.Canvas(shell, bg=SURFACE, highlightthickness=0)
+        vertical = tk.Scrollbar(shell, orient="vertical", command=canvas.yview)
+        horizontal = tk.Scrollbar(shell, orient="horizontal", command=canvas.xview)
+        canvas.configure(yscrollcommand=vertical.set, xscrollcommand=horizontal.set)
+        canvas.grid(row=0, column=0, sticky="nsew")
+        vertical.grid(row=0, column=1, sticky="ns")
+        horizontal.grid(row=1, column=0, sticky="ew")
+        shell.rowconfigure(0, weight=1)
+        shell.columnconfigure(0, weight=1)
+
+        table = tk.Frame(canvas, bg=OUTLINE)
+        window = canvas.create_window((0, 0), window=table, anchor="nw")
+        for index, column in enumerate(columns):
+            table.columnconfigure(index, minsize=widths[column])
+            tk.Label(table, text=headings[column], bg=SOFT, fg=INK,
+                     font=self.small_bold, anchor="w", justify="left",
+                     padx=8, pady=9, width=1,
+                     wraplength=widths[column] - 16).grid(
+                         row=0, column=index, sticky="nsew", padx=(0, 1), pady=(0, 1))
+
+        for row_index, register in enumerate(REGISTER_MAPS[key], start=1):
             current = live.get(register.readout_label) if register.readout_label else None
             value = "—"
             unit = register.unit
@@ -465,19 +480,28 @@ class App(tk.Tk):
                 value = str(raw_value)
                 unit = raw_unit or unit
             decoded = register.decode(value if current else None)
-            table.insert("", "end", values=(
+            values = (
                 register.name, register.logical, register.pdu, register.data_type,
                 register.access, value, decoded, unit, register.description,
-            ))
+            )
+            row_color = SURFACE if row_index % 2 else BG
+            for column_index, (column, cell_value) in enumerate(zip(columns, values)):
+                tk.Label(table, text=cell_value, bg=row_color, fg=INK,
+                         anchor="nw", justify="left", padx=8, pady=8,
+                         width=1, wraplength=widths[column] - 16).grid(
+                             row=row_index, column=column_index, sticky="nsew",
+                             padx=(0, 1), pady=(0, 1))
 
-        vertical = ttk.Scrollbar(shell, orient="vertical", command=table.yview)
-        horizontal = ttk.Scrollbar(shell, orient="horizontal", command=table.xview)
-        table.configure(yscrollcommand=vertical.set, xscrollcommand=horizontal.set)
-        table.grid(row=0, column=0, sticky="nsew")
-        vertical.grid(row=0, column=1, sticky="ns")
-        horizontal.grid(row=1, column=0, sticky="ew")
-        shell.rowconfigure(0, weight=1)
-        shell.columnconfigure(0, weight=1)
+        def update_scroll_region(_event=None) -> None:
+            table.update_idletasks()
+            canvas.configure(scrollregion=canvas.bbox("all"))
+            canvas.itemconfigure(window, width=max(table.winfo_reqwidth(), canvas.winfo_width()))
+
+        table.bind("<Configure>", update_scroll_region)
+        canvas.bind("<Configure>", update_scroll_region)
+        canvas.bind("<MouseWheel>",
+                    lambda event: canvas.yview_scroll(-1 * int(event.delta / 120), "units"))
+        update_scroll_region()
 
     def connection_status(self, key: str) -> str:
         instrument = self.instruments.get(key)

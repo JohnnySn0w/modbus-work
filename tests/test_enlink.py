@@ -35,6 +35,16 @@ Sensor Readings (Page 1):
      Reading                            88 ppm
 """
 
+BRIDGE_BANNER = """
+Synetica - enLink :: Wireless Sensor Networks
+Region:        North American band (Hybrid) on 915MHz
+Model Number:  ENL-MOD-32
+Model Name:    enLink Modbus RS485 RTU Master
+Firmware Ver:  3.6
+DevEui:        00-04-a3-0b-00-05-cc-7c
+Password:
+"""
+
 
 class EnlinkBannerTests(unittest.TestCase):
     def test_exact_iaq_banner_signature(self) -> None:
@@ -51,6 +61,15 @@ class EnlinkBannerTests(unittest.TestCase):
     def test_login_is_last_four_normalized_eui_characters(self) -> None:
         self.assertEqual("0004a30b00084f86", normalize_dev_eui("00-04-A3-0B-00-08-4F-86"))
         self.assertEqual("4f86", default_console_password("0004a30b00084f86"))
+
+    def test_bridge_banner_uses_model_fields_not_iaq_fields(self) -> None:
+        result = parse_enlink_banner(BRIDGE_BANNER, "COM12")
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertEqual("bridge", result.key)
+        self.assertEqual("ENL-MOD-32", result.firmware_code)
+        self.assertEqual("3.6", result.firmware)
+        self.assertEqual("cc7c", result.derived_login)
 
     def test_invalid_eui_cannot_produce_login(self) -> None:
         with self.assertRaises(ValueError):
