@@ -10,7 +10,7 @@ import zipfile
 import queue
 from datetime import datetime
 from pathlib import Path
-from tkinter import filedialog, font as tkfont, messagebox
+from tkinter import filedialog, font as tkfont, messagebox, ttk
 
 try:
     from .catalog import DEVICES, PREMADE_CONFIGS, ROOT, DeviceDefinition
@@ -18,12 +18,14 @@ try:
     from .enlink import capture_page_windows, parse_sensor_readings
     from .firmware import validate_firmware_manifest
     from .regions import DEFAULT_REGION, RADIO_REGIONS
+    from .registers import REGISTER_MAPS
 except ImportError:  # Direct script execution
     from catalog import DEVICES, PREMADE_CONFIGS, ROOT, DeviceDefinition
     from discovery import DiscoveryService, DiscoverySnapshot, PortInfo
     from enlink import capture_page_windows, parse_sensor_readings
     from firmware import validate_firmware_manifest
     from regions import DEFAULT_REGION, RADIO_REGIONS
+    from registers import REGISTER_MAPS
 
 
 BG = "#F7F8FA"
@@ -370,6 +372,13 @@ class App(tk.Tk):
                   cursor="hand2", highlightthickness=1,
                   highlightbackground=OUTLINE).pack(side="bottom", fill="x", pady=(0, 10))
 
+        if key in REGISTER_MAPS:
+            tk.Button(facts, text="Register table",
+                      command=lambda: self.show_registers(key), bg=SURFACE, fg=INK,
+                      activebackground=SOFT, relief="flat", padx=14, pady=10,
+                      cursor="hand2", highlightthickness=1,
+                      highlightbackground=OUTLINE).pack(side="bottom", fill="x", pady=(0, 10))
+
         if key == "bridge":
             tk.Button(facts, text="Choose pre-made config",
                       command=self.choose_configuration, bg=SURFACE, fg=INK,
@@ -402,6 +411,67 @@ class App(tk.Tk):
                       activebackground=SOFT, relief="flat", padx=14, pady=10,
                       cursor="hand2", highlightthickness=1,
                       highlightbackground=OUTLINE).pack(side="bottom", fill="x", pady=(0, 10))
+
+    def show_registers(self, key: str) -> None:
+        self.active_key = key
+        self.clear()
+        device = DEVICES[key]
+        top = tk.Frame(self, bg=BG)
+        top.pack(fill="x", padx=36, pady=(26, 8))
+        tk.Button(top, text="←", command=lambda: self.show_detail(key),
+                  font=("Segoe UI", 20), fg=INK, bg=BG,
+                  activebackground=SOFT, relief="flat", cursor="hand2",
+                  width=2).pack(side="left")
+        title_box = tk.Frame(top, bg=BG)
+        title_box.pack(side="left", padx=14)
+        tk.Label(title_box, text=f"{device.name} registers", font=self.heading,
+                 fg=INK, bg=BG).pack(anchor="w")
+        tk.Label(title_box,
+                 text="Logical addresses follow the manual; PDU addresses are the zero-based values sent on the wire.",
+                 fg=MUTED, bg=BG).pack(anchor="w")
+
+        live = {item.label: (item.value, item.unit) for item in device.readouts}
+        live.update(dict(getattr(self.instruments.get(key), "readings", {})))
+        live.update(self.live_readings.get(key, {}))
+
+        shell = tk.Frame(self, bg=SURFACE, highlightthickness=1,
+                         highlightbackground=OUTLINE)
+        shell.pack(fill="both", expand=True, padx=44, pady=(12, 34))
+        columns = ("name", "logical", "pdu", "type", "access", "value", "unit", "description")
+        table = ttk.Treeview(shell, columns=columns, show="headings", selectmode="browse")
+        headings = {
+            "name": "Register / value", "logical": "Manual", "pdu": "PDU",
+            "type": "Type", "access": "Access", "value": "Readout",
+            "unit": "Unit", "description": "Description",
+        }
+        widths = {"name": 170, "logical": 90, "pdu": 90, "type": 80,
+                  "access": 58, "value": 115, "unit": 72, "description": 430}
+        for column in columns:
+            table.heading(column, text=headings[column])
+            table.column(column, width=widths[column], minwidth=50,
+                         stretch=column == "description")
+
+        for register in REGISTER_MAPS[key]:
+            current = live.get(register.readout_label) if register.readout_label else None
+            value = "—"
+            unit = register.unit
+            if current:
+                raw_value, raw_unit = current
+                value = str(raw_value)
+                unit = raw_unit or unit
+            table.insert("", "end", values=(
+                register.name, register.logical, register.pdu, register.data_type,
+                register.access, value, unit, register.description,
+            ))
+
+        vertical = ttk.Scrollbar(shell, orient="vertical", command=table.yview)
+        horizontal = ttk.Scrollbar(shell, orient="horizontal", command=table.xview)
+        table.configure(yscrollcommand=vertical.set, xscrollcommand=horizontal.set)
+        table.grid(row=0, column=0, sticky="nsew")
+        vertical.grid(row=0, column=1, sticky="ns")
+        horizontal.grid(row=1, column=0, sticky="ew")
+        shell.rowconfigure(0, weight=1)
+        shell.columnconfigure(0, weight=1)
 
     def connection_status(self, key: str) -> str:
         instrument = self.instruments.get(key)

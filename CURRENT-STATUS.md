@@ -10,6 +10,8 @@ Only three Modbus instruments are in the active device scope:
 2. Vaisala HMD65 — documentation-derived test configuration prepared; no physical unit available.
 3. Continental Control Systems WND-M1-MB WattNode Module for Modbus — documentation-derived test configuration prepared; no physical unit available.
 
+The GUI now includes register-table pages for all three Modbus instruments. Each table shows the manufacturer/manual address, zero-based PDU address, data type/word order, access, current readout when known, units, and a technician-facing description.
+
 All other instruments from the original shipment-intake list are deferred.
 
 The present acceptance boundary ends at correctly decoded raw data in Loriot. Existing infrastructure normally handles routing after Loriot; downstream DSP routing is outside this project's current scope.

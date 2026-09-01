@@ -4,6 +4,7 @@ import csv
 from app.catalog import DEVICES, PREMADE_CONFIGS
 from app.discovery import PortInfo, classify_ports
 from app.regions import DEFAULT_REGION, RADIO_REGIONS
+from app.registers import REGISTER_MAPS
 
 
 class CatalogTests(unittest.TestCase):
@@ -35,6 +36,20 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(len(addresses), len(set(addresses)))
         for path in PREMADE_CONFIGS.values():
             self.assertTrue(path.is_file(), path)
+
+    def test_each_modbus_device_has_a_register_table(self) -> None:
+        self.assertEqual({"dpt146", "hmd65", "wattnode"}, set(REGISTER_MAPS))
+        for key, registers in REGISTER_MAPS.items():
+            self.assertGreater(len(registers), 0, key)
+            self.assertTrue(all(item.logical and item.pdu and item.description for item in registers))
+
+    def test_wattnode_register_table_uses_documented_addresses(self) -> None:
+        by_name = {item.name: item for item in REGISTER_MAPS["wattnode"]}
+        self.assertEqual(("1001–1002", "1000–1001"),
+                         (by_name["Energy total"].logical, by_name["Energy total"].pdu))
+        self.assertEqual(("1707", "1706"),
+                         (by_name["Model"].logical, by_name["Model"].pdu))
+        self.assertEqual("R/W", by_name["Connection type"].access)
 
     def test_every_device_has_basic_help(self) -> None:
         for device in DEVICES.values():
