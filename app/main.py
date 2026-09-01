@@ -752,10 +752,7 @@ class App(tk.Tk):
         dialog.grab_set()
         tk.Label(dialog, text="Choose a pre-made configuration",
                  font=("Segoe UI", 19, "bold"), fg=INK, bg=BG).pack(anchor="w", padx=28, pady=(24, 4))
-        bridge_ready = "bridge" in self.classified and "bridge" in self.instruments
-        tk.Label(dialog, text=("Review/export a profile, or apply it to the connected firmware 3.6 bridge."
-                               if bridge_ready else
-                               "Connect and identify a firmware 3.6 bridge to enable programming."),
+        tk.Label(dialog, text="Choose a profile and export its native TSV for review.",
                  fg=MUTED, bg=BG).pack(anchor="w", padx=28, pady=(0, 16))
         selected = tk.StringVar(value="dpt146")
         for key in ("dpt146", "hmd65", "wattnode"):
@@ -782,12 +779,6 @@ class App(tk.Tk):
                   bg=SURFACE, fg=INK, activebackground=SOFT,
                   activeforeground="white", relief="flat", padx=18,
                   pady=9, cursor="hand2").pack(side="right", padx=10)
-        tk.Button(buttons, text="Apply to bridge…",
-                  command=lambda: self.apply_bridge_configuration(selected.get(), dialog),
-                  state="normal" if bridge_ready else "disabled",
-                  bg=ACCENT, fg="white", activebackground="#315A82",
-                  activeforeground="white", relief="flat", padx=18,
-                  pady=9, cursor="hand2").pack(side="right")
 
     def copy_configuration(self, key: str, dialog: tk.Toplevel) -> None:
         source = PREMADE_CONFIGS[key]
