@@ -62,28 +62,47 @@ class EnlinkModbusBridge:
     def __init__(self, port: str) -> None:
         self.port = port
 
-    def apply_verified(self, rows: tuple[str, ...]) -> BridgeApplyResult:
+    def _run_transport(self, action: str, config_path: Path | None = None,
+                       backup_path: Path | None = None) -> dict[str, object]:
         root = Path(__file__).resolve().parents[1]
         script = root / "tools" / "enlink_bridge_config.ps1"
+        command = [
+            "powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script),
+            "-PortName", self.port, "-Action", action,
+        ]
+        if config_path is not None:
+            command.extend(("-ConfigPath", str(config_path)))
+        if backup_path is not None:
+            command.extend(("-BackupPath", str(backup_path)))
+        completed = subprocess.run(
+            command, capture_output=True, text=True, timeout=180,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+        if completed.returncode:
+            message = completed.stderr.strip() or completed.stdout.strip() or "Bridge console operation failed"
+            raise RuntimeError(message)
+        try:
+            return json.loads(completed.stdout)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError("Bridge console returned invalid completion data") from exc
+
+    def export_verified(self) -> tuple[str, ...]:
+        payload = self._run_transport("Export")
+        rows = tuple(payload["backupRows"])  # type: ignore[arg-type]
+        if not rows:
+            raise RuntimeError("Bridge export returned no configured point rows")
+        return rows
+
+    def apply_verified(self, rows: tuple[str, ...]) -> BridgeApplyResult:
         with tempfile.TemporaryDirectory(prefix="modbus-bridge-") as folder:
             config_path = Path(folder) / "selected.tsv"
             backup_path = Path(folder) / "backup.tsv"
             write_bridge_table(config_path, rows)
-            completed = subprocess.run(
-                ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script),
-                 "-PortName", self.port, "-Action", "Apply", "-ConfigPath", str(config_path),
-                 "-BackupPath", str(backup_path)],
-                capture_output=True, text=True, timeout=180,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-            )
-            backup = load_bridge_table(backup_path) if backup_path.exists() else ()
-            if completed.returncode:
-                message = completed.stderr.strip() or completed.stdout.strip() or "Bridge writer failed"
-                raise BridgeApplyError(message, backup, False)
             try:
-                payload = json.loads(completed.stdout)
-            except json.JSONDecodeError as exc:
-                raise BridgeApplyError("Bridge writer returned invalid completion data", backup, False) from exc
+                payload = self._run_transport("Apply", config_path, backup_path)
+            except RuntimeError as exc:
+                backup = load_bridge_table(backup_path) if backup_path.exists() else ()
+                raise BridgeApplyError(str(exc), backup, False) from exc
             return BridgeApplyResult(
                 backup_rows=tuple(payload["backupRows"]),
                 applied_rows=tuple(payload["appliedRows"]),

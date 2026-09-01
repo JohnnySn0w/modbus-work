@@ -6,7 +6,6 @@ import shutil
 import subprocess
 import threading
 import tkinter as tk
-import zipfile
 import queue
 from datetime import datetime
 from pathlib import Path
@@ -188,6 +187,8 @@ class App(tk.Tk):
                 self.show_detail("iaq_plus")
         elif action == "backup_complete":
             messagebox.showinfo("Backup created", f"Saved IAQ Plus backup to:\n{payload}", parent=self)
+        elif action == "bridge_backup_complete":
+            messagebox.showinfo("Backup created", f"Saved the bridge's native TSV export to:\n{payload}", parent=self)
         elif action == "error":
             messagebox.showerror("Device action failed", str(payload), parent=self)
         elif action == "bridge_apply_complete":
@@ -704,35 +705,42 @@ class App(tk.Tk):
         messagebox.showinfo("Firmware package inspection", "\n".join(lines), parent=self)
 
     def backup_configuration(self) -> None:
+        bridge_port = self.classified.get("bridge")
+        instrument = self.instruments.get("bridge")
+        if bridge_port is None or instrument is None:
+            messagebox.showwarning(
+                "Bridge not ready",
+                "Connect and identify the ENL-MOD-32 before exporting its configuration.",
+                parent=self,
+            )
+            return
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         destination = filedialog.asksaveasfilename(
             parent=self,
-            title="Save configuration backup",
-            defaultextension=".zip",
-            initialfile=f"enl-mod-32-backup-{stamp}.zip",
-            filetypes=[("ZIP archive", "*.zip")],
+            title="Save native bridge configuration export",
+            defaultextension=".tsv",
+            initialfile=f"enl-mod-32-export-{stamp}.tsv",
+            filetypes=[("Tab-delimited configuration", "*.tsv")],
         )
         if not destination:
             return
-        files = [
-            ROOT / "artifacts/bridge-config/vaisala-dpt146-golden.tsv",
-            ROOT / "artifacts/bridge-config/vaisala-dpt146-manifest.yaml",
-            ROOT / "artifacts/bridge-config/vaisala-dpt146-bridge-settings.md",
-            ROOT / "artifacts/bridge-config/enl-mod-32-lorawan-status.md",
-            ROOT / ".secrets/polygon-enl-mod-32-lorawan.env",
-        ]
-        try:
-            with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as archive:
-                for path in files:
-                    if path.exists():
-                        archive.write(path, path.relative_to(ROOT))
-            messagebox.showinfo(
-                "Backup created",
-                "Saved the known-good bridge configuration, settings, manifest, and recovery credentials.",
-                parent=self,
-            )
-        except OSError as exc:
-            messagebox.showerror("Backup failed", str(exc), parent=self)
+        self.scan_label.configure(text="Exporting native bridge table…")
+
+        def worker() -> None:
+            if not self.discovery.suspend():
+                self.action_queue.put(("error", "Could not obtain exclusive access to bridge discovery."))
+                self.discovery.resume()
+                return
+            try:
+                rows = EnlinkModbusBridge(bridge_port.port).export_verified()
+                write_bridge_table(Path(destination), rows)
+                self.action_queue.put(("bridge_backup_complete", destination))
+            except Exception as exc:
+                self.action_queue.put(("error", exc))
+            finally:
+                self.discovery.resume()
+
+        threading.Thread(target=worker, daemon=True, name="bridge-config-export").start()
 
     def choose_configuration(self) -> None:
         dialog = tk.Toplevel(self)
