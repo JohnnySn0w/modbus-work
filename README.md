@@ -75,7 +75,8 @@ Features currently implemented:
 - HMD65 and WND-M1-MB cards clearly marked as ready-to-test rather than connected or validated;
 - automatic refresh every 1.5 seconds plus a manual refresh action;
 - one-click creation of a portable configuration backup ZIP containing the golden table, manifest, bridge settings, radio notes, and recovery credential record;
-- a basic pre-made configuration picker for DPT146, HMD65, and WND-M1-MB that copies a TSV for review without writing to hardware;
+- a pre-made configuration picker for DPT146, HMD65, and WND-M1-MB that can export a TSV or program an identified ENL-MOD-32 firmware 3.6 bridge;
+- guarded bridge programming that captures a live point-table backup, validates the selected TSV, clears the prior table using the firmware's supported Slave-ID-0 method, imports each row, checks acknowledgements, exports and compares readback, and runs Read All Data Points; the saved live export is retained for recovery if a transaction cannot be verified;
 - per-device Help dialogs containing short setup and troubleshooting guidance.
 - IAQ Plus authenticated live-reading refresh, private JSON console backup, and radio-profile preview;
 - firmware-package preflight with exact identity/region/upgrade-path checks and SHA-256 validation; actual flashing remains blocked pending vendor tooling and recovery instructions;

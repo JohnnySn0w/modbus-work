@@ -154,6 +154,7 @@ class DiscoveryService:
         self.callback = callback
         self.interval_seconds = interval_seconds
         self._stop = threading.Event()
+        self._suspended = threading.Event()
         self._scan_lock = threading.Lock()
         self._thread: threading.Thread | None = None
         self._console_cache: dict[tuple[str, str], object] = {}
@@ -172,6 +173,17 @@ class DiscoveryService:
     def stop(self) -> None:
         self._stop.set()
 
+    def suspend(self, timeout: float = 5.0) -> bool:
+        """Pause new scans and wait for any active serial discovery to finish."""
+        self._suspended.set()
+        acquired = self._scan_lock.acquire(timeout=timeout)
+        if acquired:
+            self._scan_lock.release()
+        return acquired
+
+    def resume(self) -> None:
+        self._suspended.clear()
+
     def scan_now(self) -> None:
         threading.Thread(target=self._scan_once, daemon=True,
                          name="device-discovery-refresh").start()
@@ -183,6 +195,9 @@ class DiscoveryService:
 
     def _run(self) -> None:
         while not self._stop.is_set():
+            if self._suspended.is_set():
+                self._stop.wait(0.1)
+                continue
             started = time.monotonic()
             try:
                 self._scan_once()
@@ -194,9 +209,13 @@ class DiscoveryService:
             self._stop.wait(max(0.0, self.interval_seconds - elapsed))
 
     def _scan_once(self) -> None:
+        if self._suspended.is_set():
+            return
         if not self._scan_lock.acquire(blocking=False):
             return
         try:
+            if self._suspended.is_set():
+                return
             ports = discover_ports()
             classified = classify_ports(ports)
             present_keys = {(item.port, item.hardware_id) for item in classified.values()}

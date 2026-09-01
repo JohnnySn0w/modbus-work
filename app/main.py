@@ -14,6 +14,7 @@ from tkinter import filedialog, font as tkfont, messagebox
 
 try:
     from .catalog import DEVICES, PREMADE_CONFIGS, ROOT, DeviceDefinition
+    from .bridge import BridgeApplyError, EnlinkModbusBridge, load_bridge_table, write_bridge_table
     from .discovery import DiscoveryService, DiscoverySnapshot, PortInfo
     from .enlink import capture_page_windows, parse_sensor_readings
     from .firmware import validate_firmware_manifest
@@ -21,6 +22,7 @@ try:
     from .registers import REGISTER_MAPS
 except ImportError:  # Direct script execution
     from catalog import DEVICES, PREMADE_CONFIGS, ROOT, DeviceDefinition
+    from bridge import BridgeApplyError, EnlinkModbusBridge, load_bridge_table, write_bridge_table
     from discovery import DiscoveryService, DiscoverySnapshot, PortInfo
     from enlink import capture_page_windows, parse_sensor_readings
     from firmware import validate_firmware_manifest
@@ -188,6 +190,25 @@ class App(tk.Tk):
             messagebox.showinfo("Backup created", f"Saved IAQ Plus backup to:\n{payload}", parent=self)
         elif action == "error":
             messagebox.showerror("Device action failed", str(payload), parent=self)
+        elif action == "bridge_apply_complete":
+            result, backup_path = payload  # type: ignore[misc]
+            messagebox.showinfo(
+                "Bridge configuration applied",
+                f"Configuration was written and read back successfully.\n\n"
+                f"Read All: {result.read_summary}\nBackup: {backup_path}",
+                parent=self,
+            )
+            self.refresh()
+        elif action == "bridge_apply_failed":
+            message, backup_path, rollback_ok = payload  # type: ignore[misc]
+            recovery = ("Previous table restored successfully." if rollback_ok else
+                        "Success was not verified. Preserve power and USB, then restore from the saved live backup.")
+            messagebox.showerror(
+                "Bridge configuration failed",
+                f"{message}\n\n{recovery}\nBackup: {backup_path}",
+                parent=self,
+            )
+            self.refresh()
 
     def apply_discovery_snapshot(self, snapshot: DiscoverySnapshot) -> None:
         self.ports = list(snapshot.ports)
@@ -723,7 +744,10 @@ class App(tk.Tk):
         dialog.grab_set()
         tk.Label(dialog, text="Choose a pre-made configuration",
                  font=("Segoe UI", 19, "bold"), fg=INK, bg=BG).pack(anchor="w", padx=28, pady=(24, 4))
-        tk.Label(dialog, text="This copies a TSV for review; it does not write to the bridge.",
+        bridge_ready = "bridge" in self.classified and "bridge" in self.instruments
+        tk.Label(dialog, text=("Review/export a profile, or apply it to the connected firmware 3.6 bridge."
+                               if bridge_ready else
+                               "Connect and identify a firmware 3.6 bridge to enable programming."),
                  fg=MUTED, bg=BG).pack(anchor="w", padx=28, pady=(0, 16))
         selected = tk.StringVar(value="dpt146")
         for key in ("dpt146", "hmd65", "wattnode"):
@@ -745,11 +769,17 @@ class App(tk.Tk):
         tk.Button(buttons, text="Cancel", command=dialog.destroy,
                   bg=SURFACE, fg=INK, relief="flat", padx=18, pady=9,
                   highlightthickness=1, highlightbackground=OUTLINE).pack(side="right")
-        tk.Button(buttons, text="Copy configuration…",
+        tk.Button(buttons, text="Export TSV…",
                   command=lambda: self.copy_configuration(selected.get(), dialog),
-                  bg=ACCENT, fg="white", activebackground="#315A82",
+                  bg=SURFACE, fg=INK, activebackground=SOFT,
                   activeforeground="white", relief="flat", padx=18,
                   pady=9, cursor="hand2").pack(side="right", padx=10)
+        tk.Button(buttons, text="Apply to bridge…",
+                  command=lambda: self.apply_bridge_configuration(selected.get(), dialog),
+                  state="normal" if bridge_ready else "disabled",
+                  bg=ACCENT, fg="white", activebackground="#315A82",
+                  activeforeground="white", relief="flat", padx=18,
+                  pady=9, cursor="hand2").pack(side="right")
 
     def copy_configuration(self, key: str, dialog: tk.Toplevel) -> None:
         source = PREMADE_CONFIGS[key]
@@ -772,6 +802,66 @@ class App(tk.Tk):
             )
         except OSError as exc:
             messagebox.showerror("Copy failed", str(exc), parent=dialog)
+
+    def apply_bridge_configuration(self, key: str, dialog: tk.Toplevel) -> None:
+        bridge_port = self.classified.get("bridge")
+        instrument = self.instruments.get("bridge")
+        if bridge_port is None or instrument is None:
+            messagebox.showwarning("Bridge not ready", "Connect and identify the ENL-MOD-32 first.", parent=dialog)
+            return
+        if str(getattr(instrument, "firmware", "")) != "3.6":
+            messagebox.showerror("Unsupported firmware", "Only validated ENL-MOD-32 firmware 3.6 can be programmed.", parent=dialog)
+            return
+        try:
+            rows = load_bridge_table(PREMADE_CONFIGS[key])
+        except (OSError, ValueError) as exc:
+            messagebox.showerror("Invalid configuration", str(exc), parent=dialog)
+            return
+        stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        backup_path_text = filedialog.asksaveasfilename(
+            parent=dialog, title="Save current bridge table before programming",
+            defaultextension=".tsv", initialfile=f"enl-mod-32-live-backup-{stamp}.tsv",
+            filetypes=[("Tab-delimited configuration", "*.tsv")],
+        )
+        if not backup_path_text:
+            return
+        device = DEVICES[key]
+        if not messagebox.askyesno(
+            "Apply configuration",
+            f"Program {device.name} onto {getattr(instrument, 'display_name')} firmware 3.6?\n\n"
+            f"The current point table will be backed up, replaced, exported for comparison, "
+            f"and tested with Read All Data Points.",
+            parent=dialog,
+        ):
+            return
+        dialog.destroy()
+        self.scan_label.configure(text="Programming bridge — do not disconnect power or USB…")
+        backup_path = Path(backup_path_text)
+
+        def worker() -> None:
+            if not self.discovery.suspend():
+                self.action_queue.put(("bridge_apply_failed", (
+                    "Could not obtain exclusive access to bridge discovery.", backup_path, True,
+                )))
+                self.discovery.resume()
+                return
+            try:
+                bridge = EnlinkModbusBridge(bridge_port.port)
+                result = bridge.apply_verified(rows)
+                write_bridge_table(backup_path, result.backup_rows)
+                self.action_queue.put(("bridge_apply_complete", (result, backup_path)))
+            except BridgeApplyError as exc:
+                try:
+                    write_bridge_table(backup_path, exc.backup_rows)
+                except OSError:
+                    pass
+                self.action_queue.put(("bridge_apply_failed", (str(exc), backup_path, exc.rollback_ok)))
+            except Exception as exc:
+                self.action_queue.put(("bridge_apply_failed", (str(exc), backup_path, False)))
+            finally:
+                self.discovery.resume()
+
+        threading.Thread(target=worker, daemon=True, name="bridge-config-apply").start()
 
     def show_help(self, device: DeviceDefinition) -> None:
         dialog = tk.Toplevel(self)

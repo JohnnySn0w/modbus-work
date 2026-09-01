@@ -37,3 +37,5 @@ This is a rollback artifact, not yet a validated configuration. A read-all test 
 The golden table was imported into the Polygon/Synetica bridge and verified using its detailed read function: 8 successful reads, 0 exceptions. The bridge now contains the corrected configuration.
 
 The point-table reset and rollback workflow has also been validated. Firmware 3.6 deletes an item when a tab-delimited import row uses Slave ID `0`. All eight points were deleted, the golden table was restored, all reads passed, and the restored configuration persisted across a bridge reboot. See `enl-mod-32-config-reset-restore-validation.md`.
+
+The GUI writer workflow was validated live on 2026-09-01: pre-write export, acknowledged replacement, exact exported readback, and Read All verification completed against firmware 3.6. See `enl-mod-32-gui-writer-validation.md`.
