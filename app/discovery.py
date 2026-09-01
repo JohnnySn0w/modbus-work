@@ -218,7 +218,7 @@ class DiscoveryService:
                 except ImportError:
                     message = "Install pyserial to enable Modbus fingerprinting"
             elif adapter and bridge_present:
-                message = "Active probe blocked: bridge and adapter are both present"
+                message = "Adapter polling paused: only one Modbus master can operate at a time"
             snapshot = DiscoverySnapshot(
                 ports=tuple(ports), classified=classified, instruments=tuple(instruments_list),
                 active_probe_allowed=active_allowed, message=message,

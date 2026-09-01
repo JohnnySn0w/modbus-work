@@ -204,17 +204,27 @@ class App(tk.Tk):
         width = max(self.canvas.winfo_width(), 900)
         center_y = 185
         nodes: list[tuple[str, float]] = []
+        disabled_keys: set[str] = set()
+        linked_pair = False
         detected_key = next(iter(self.instruments), None)
         if "bridge" in self.classified:
-            nodes = [("bridge", width * 0.34), ("dpt146", width * 0.66)]
+            if "adapter" in self.classified:
+                nodes = [("bridge", width * 0.22), ("dpt146", width * 0.50),
+                         ("adapter", width * 0.80)]
+                disabled_keys.add("adapter")
+            else:
+                nodes = [("bridge", width * 0.34), ("dpt146", width * 0.66)]
+            linked_pair = True
         elif "synetica_usb" in self.classified and "adapter" in self.classified:
             nodes = [("synetica_usb", width * 0.34), ("adapter", width * 0.66)]
+            disabled_keys.add("adapter")
         elif "synetica_usb" in self.classified:
             nodes = [("synetica_usb", width * 0.50)]
         elif "iaq_plus" in self.classified:
             nodes = [("iaq_plus", width * 0.50)]
         elif "adapter" in self.classified and detected_key:
             nodes = [("adapter", width * 0.34), (detected_key, width * 0.66)]
+            linked_pair = True
         elif "adapter" in self.classified:
             nodes = [("adapter", width * 0.50)]
 
@@ -233,42 +243,58 @@ class App(tk.Tk):
                                         fill=MUTED, font=("Segoe UI", 9))
             return
 
-        if len(nodes) == 2:
+        if disabled_keys:
+            self.canvas.create_text(
+                width / 2, 18,
+                text="USB/RS-485 polling paused — Modbus permits only one active master on the bus at a time.",
+                fill=MUTED, font=self.small_bold,
+            )
+
+        if linked_pair:
             self.canvas.create_line(nodes[0][1] + 112, center_y,
                                     nodes[1][1] - 112, center_y,
                                     fill="#AAB2BD", width=3)
-            self.canvas.create_oval(width / 2 - 5, center_y - 5,
-                                    width / 2 + 5, center_y + 5,
+            midpoint = (nodes[0][1] + nodes[1][1]) / 2
+            self.canvas.create_oval(midpoint - 5, center_y - 5,
+                                    midpoint + 5, center_y + 5,
                                     fill=GOOD, outline=BG, width=3)
-            self.canvas.create_text(width / 2, center_y + 23,
+            self.canvas.create_text(midpoint, center_y + 23,
                                     text="RS-485", fill=MUTED, font=("Segoe UI", 9))
 
         for key, x in nodes:
             port = self.classified.get(key)
             instrument = self.instruments.get(key)
-            if port:
+            disabled = key in disabled_keys
+            if disabled:
+                connection = "Polling paused\nBridge is the active master"
+            elif port:
                 connection = port.port
             elif instrument:
                 connection = f"Detected on {getattr(instrument, 'port')} · {getattr(instrument, 'confidence')} confidence"
             else:
                 connection = "Configured behind bridge"
-            self.draw_device_card(DEVICES[key], x, center_y, connection)
+            self.draw_device_card(DEVICES[key], x, center_y, connection, disabled)
 
     def draw_device_card(self, device: DeviceDefinition, cx: float, cy: float,
-                         connection: str) -> None:
+                         connection: str, disabled: bool = False) -> None:
         x1, y1, x2, y2 = cx - 112, cy - 132, cx + 112, cy + 132
+        card_fill = "#F0F2F4" if disabled else SURFACE
+        icon_fill = "#E2E5E9" if disabled else SOFT
+        device_color = "#9AA1A9" if disabled else device.color
+        text_color = MUTED if disabled else INK
         items: list[int] = []
         items.append(rounded_rect(self.canvas, x1, y1, x2, y2,
-                                  fill=SURFACE, outline=OUTLINE, width=1))
+                                  fill=card_fill, outline=OUTLINE, width=1))
         items.append(self.canvas.create_oval(cx - 49, cy - 94, cx + 49, cy + 4,
-                                             fill=SOFT, outline=""))
-        DeviceIcon.draw(self.canvas, device.kind, cx, cy - 45, device.color)
+                                             fill=icon_fill, outline=""))
+        DeviceIcon.draw(self.canvas, device.kind, cx, cy - 45, device_color)
         items.append(self.canvas.create_text(cx, cy + 28, text=device.name,
-                                             font=self.title_font, fill=INK, width=195))
+                                             font=self.title_font, fill=text_color, width=195))
         items.append(self.canvas.create_text(cx, cy + 58, text=device.subtitle,
                                              fill=MUTED, width=195))
         items.append(self.canvas.create_text(cx, cy + 94, text=connection,
-                                             fill=GOOD, font=self.small_bold))
+                                             fill=MUTED if disabled else GOOD,
+                                             font=self.small_bold, width=195))
         tag = f"device-{device.key}"
         for item in self.canvas.find_enclosed(x1 - 2, y1 - 2, x2 + 2, y2 + 2):
             self.canvas.addtag_withtag(tag, item)
