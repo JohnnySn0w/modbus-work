@@ -265,9 +265,9 @@ class App(tk.Tk):
             disabled = key in disabled_keys
             if disabled:
                 if self.adapter_status == "blocked_by_bridge":
-                    connection = "Unavailable as Modbus master\nBridge currently owns the bus"
+                    connection = "Unavailable as Modbus master\nAnother master interface may be active"
                 else:
-                    connection = "No Modbus device responded\nNothing connected, or another master is active"
+                    connection = "No Modbus response\nNothing connected, or another master may be active"
             elif port:
                 connection = port.port
             elif instrument:

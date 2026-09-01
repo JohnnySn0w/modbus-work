@@ -240,8 +240,8 @@ class DiscoveryService:
                             message = "Completed confirmed isolated Modbus fingerprint"
                         else:
                             adapter_status = "no_response"
-                            message = ("No device response — the bridge may still have external power "
-                                       "and own the RS-485 bus even when its USB is unplugged")
+                            message = ("No device response — nothing may be connected, or another "
+                                       "Modbus master may be active on the RS-485 bus")
                     except ImportError:
                         adapter_status = "no_response"
                         message = "Install pyserial to enable Modbus fingerprinting"
