@@ -16,11 +16,13 @@ try:
     from .catalog import DEVICES, PREMADE_CONFIGS, ROOT, DeviceDefinition
     from .discovery import DiscoveryService, DiscoverySnapshot, PortInfo
     from .enlink import capture_page_windows, parse_sensor_readings
+    from .firmware import validate_firmware_manifest
     from .regions import DEFAULT_REGION, RADIO_REGIONS
 except ImportError:  # Direct script execution
     from catalog import DEVICES, PREMADE_CONFIGS, ROOT, DeviceDefinition
     from discovery import DiscoveryService, DiscoverySnapshot, PortInfo
     from enlink import capture_page_windows, parse_sensor_readings
+    from firmware import validate_firmware_manifest
     from regions import DEFAULT_REGION, RADIO_REGIONS
 
 
@@ -395,6 +397,11 @@ class App(tk.Tk):
                       activebackground=SOFT, relief="flat", padx=14, pady=10,
                       cursor="hand2", highlightthickness=1,
                       highlightbackground=OUTLINE).pack(side="bottom", fill="x", pady=(0, 10))
+            tk.Button(facts, text="Firmware update package…",
+                      command=self.inspect_iaq_firmware_package, bg=SURFACE, fg=INK,
+                      activebackground=SOFT, relief="flat", padx=14, pady=10,
+                      cursor="hand2", highlightthickness=1,
+                      highlightbackground=OUTLINE).pack(side="bottom", fill="x", pady=(0, 10))
 
     def connection_status(self, key: str) -> str:
         instrument = self.instruments.get(key)
@@ -508,6 +515,44 @@ class App(tk.Tk):
                      fg=GOOD if region.enabled else MUTED, bg=SURFACE).pack(anchor="w")
         tk.Button(dialog, text="Close", command=dialog.destroy, bg=ACCENT, fg="white",
                   relief="flat", padx=20, pady=9).pack(side="bottom", anchor="e", padx=28, pady=24)
+
+    def inspect_iaq_firmware_package(self) -> None:
+        instrument = self.instruments.get("iaq_plus")
+        if instrument is None:
+            messagebox.showwarning("Sensor not connected", "Connect and identify the IAQ Plus before selecting firmware.", parent=self)
+            return
+        manifest = filedialog.askopenfilename(
+            parent=self, title="Select vendor firmware manifest",
+            filetypes=[("Firmware manifest", "*.json")],
+        )
+        if not manifest:
+            return
+        region_text = str(getattr(instrument, "region", ""))
+        region_key = "us915_hybrid_fsb1" if "915" in region_text else "eu868" if "868" in region_text else "unknown"
+        result = validate_firmware_manifest(
+            Path(manifest), product_family="Synetica enLink IAQ Plus",
+            firmware_code=str(getattr(instrument, "firmware_code")),
+            current_version=str(getattr(instrument, "firmware")), region_key=region_key,
+        )
+        lines = [
+            f"Connected firmware: {getattr(instrument, 'firmware_code')} {getattr(instrument, 'firmware')}",
+            f"Detected region: {region_key}",
+            f"Target firmware: {result.target_version or 'unknown'}",
+            "",
+        ]
+        if result.valid:
+            lines.extend((
+                "Package validation passed.",
+                "",
+                "Flashing is still disabled until the vendor update and recovery procedures are implemented.",
+            ))
+        else:
+            lines.append("Package blocked:")
+            lines.extend(f"• {error}" for error in result.errors)
+        if result.warnings:
+            lines.append("")
+            lines.extend(f"Warning: {warning}" for warning in result.warnings)
+        messagebox.showinfo("Firmware package inspection", "\n".join(lines), parent=self)
 
     def backup_configuration(self) -> None:
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")

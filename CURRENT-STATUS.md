@@ -176,6 +176,7 @@ It is required again when:
 - The GUI prototype can request current IAQ readings, parse seven engineering/status values, back up Quick Start/radio/configuration pages to JSON, and preview radio profiles without writing the device.
 - The observed unit inventory includes a VOC air-quality module and GSS CO2 module LP26/614548 with auto-calibration enabled. Configure Device page 2 and particle details remain to capture.
 - IAQ commissioning scope is now credential-first: preserve JoinEUI/AppEUI, provision the selected AppKey, and treat measurements as optional verification. The attached IAQ and stored bridge/project JoinEUI values match; their AppKeys do not. Firmware 5.06 exposes no separate NwkKey.
+- Firmware-update preflight is scaffolded: package manifests bind product, firmware code, source/target versions, radio regions, image SHA-256, vendor approval, flash method, and recovery procedure. The GUI can inspect packages, but flashing is blocked because no authoritative IAQ Plus updater/image/bootloader and recovery procedure are currently available.
 
 ## Next work
 

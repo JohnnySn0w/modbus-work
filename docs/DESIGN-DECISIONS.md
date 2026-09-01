@@ -14,6 +14,7 @@ This file records decisions made autonomously for the rough technician prototype
 8. **Firmware is part of compatibility identity.** An IAQ configuration is keyed by product family plus firmware code/version and radio region, just as bridge configurations are keyed by model plus firmware.
 9. **Unexpected readings are shown, not silently corrected.** The observed GSS CO2 value is parsed but called out as unvalidated. Plausibility warnings belong beside the raw engineering value.
 10. **Windows is the first supported bench platform.** The live enLink helper uses PowerShell/.NET serial behavior because it is reliable with this CDC device. Parsing and profile logic remain pure Python and replay-testable.
+11. **Firmware is a separately authorized workflow.** A package must pass exact identity, region, upgrade-path, hash, vendor-approval, and recovery checks. Configuration authorization never implies permission to flash firmware.
 
 ## Open design questions for later review
 

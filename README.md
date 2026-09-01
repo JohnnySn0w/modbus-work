@@ -75,6 +75,7 @@ Features currently implemented:
 - a basic pre-made configuration picker for DPT146, HMD65, and WND-M1-MB that copies a TSV for review without writing to hardware;
 - per-device Help dialogs containing short setup and troubleshooting guidance.
 - IAQ Plus authenticated live-reading refresh, private JSON console backup, and radio-profile preview;
+- firmware-package preflight with exact identity/region/upgrade-path checks and SHA-256 validation; actual flashing remains blocked pending vendor tooling and recovery instructions;
 
 When a direct fingerprint succeeds, the detail page displays the live values returned by that probe. Otherwise, DPT146 values are explicitly labeled as the latest validated bench readings. The transport and fingerprint layer owns register logic; GUI screens do not.
 
@@ -122,6 +123,8 @@ For a command-line IAQ Plus backup on Windows:
 ```
 
 The backup intentionally contains LoRaWAN credentials. Store it only in the private repository or an approved commissioning location.
+
+Firmware update design and current vendor-material blockers are documented in [Firmware updates](docs/FIRMWARE-UPDATES.md). The GUI can inspect a versioned package manifest today, but it will not flash an image until the vendor method and recovery path are bound and tested.
 
 ## Repository map
 

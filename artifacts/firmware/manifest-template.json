@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "package_id": "vendor-product-version-region",
+  "product_family": "Synetica enLink IAQ Plus",
+  "firmware_code": "FW-AQ-VCP+",
+  "target_version": "REPLACE",
+  "allowed_from_versions": ["5.06"],
+  "regions": ["us915_hybrid_fsb1"],
+  "image": "REPLACE_WITH_VENDOR_IMAGE.bin",
+  "image_sha256": "REPLACE_WITH_64_HEX_CHARACTERS",
+  "flash_method": "REPLACE_WITH_VENDOR_DOCUMENTED_METHOD",
+  "vendor_approved": false,
+  "vendor_source": "REPLACE_WITH_VENDOR_DOWNLOAD_OR_SUPPORT_CASE",
+  "release_notes": "REPLACE_WITH_RELEASE_NOTES",
+  "recovery_procedure": null,
+  "post_flash_checks": [
+    "USB banner product and firmware identity",
+    "radio region unchanged",
+    "JoinEUI unchanged",
+    "AppKey restored or preserved",
+    "Loriot join succeeds",
+    "uplink frame counter advances",
+    "optional live measurements remain readable"
+  ]
+}
