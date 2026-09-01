@@ -25,12 +25,16 @@ applicability:
 transport:
   protocol: Modbus RTU
   serial_settings:
-    source: read-from-device-or-front-label-options
+    source: read-from-device-and-front-label-options
     slave_id: 1
     baud: 19200
     data_bits: 8
     parity: none
     stop_bits: 1
+    bounded_discovery_candidates:
+      - {slave_id: 1, baud: 19200, parity: none, stop_bits: 1, basis: current-module-default}
+      - {slave_id: 127, baud: 19200, parity: none, stop_bits: 1, basis: legacy-no-dip-firmware-default}
+    instruction: Front-label communication options override these candidates.
   address_convention:
     manual_logical: preserve-from-source
     pdu_zero_based: manual-register-minus-one
@@ -57,23 +61,29 @@ installation_inputs:
 
 configuration_fields:
   - key: ct_amps_phase_a
-    source_register: 1604
+    manual_register: 1604
+    pdu_address: 1603
+    data_type: uint16
     class: installation
     expected_value: null
     instruction: Set from the physical phase-A CT label.
   - key: ct_amps_phase_b
-    source_register: 1605
+    manual_register: 1605
+    pdu_address: 1604
+    data_type: uint16
     class: installation
     expected_value: null
     instruction: Set from the physical phase-B CT label.
   - key: ct_amps_phase_c
-    source_register: 1606
+    manual_register: 1606
+    pdu_address: 1605
+    data_type: uint16
     class: installation
     expected_value: null
     instruction: Set from the physical phase-C CT label.
   - key: current_integer_scale
     manual_register: 1622
-    pdu_address: null
+    pdu_address: 1621
     data_type: uint16
     class: scaling
     documented_default: 20000
@@ -82,7 +92,7 @@ configuration_fields:
     write_policy: leave-default-unless-legacy-integer-output-requires-a-reviewed-scale
   - key: gain_adjust_phase_a
     manual_register: 1612
-    pdu_address: null
+    pdu_address: 1611
     data_type: uint16
     class: calibration-only
     documented_default: 10000
@@ -90,7 +100,7 @@ configuration_fields:
     write_policy: prohibited-without-traceable-calibration-data
   - key: gain_adjust_phase_b
     manual_register: 1613
-    pdu_address: null
+    pdu_address: 1612
     data_type: uint16
     class: calibration-only
     documented_default: 10000
@@ -98,7 +108,7 @@ configuration_fields:
     write_policy: prohibited-without-traceable-calibration-data
   - key: gain_adjust_phase_c
     manual_register: 1614
-    pdu_address: null
+    pdu_address: 1613
     data_type: uint16
     class: calibration-only
     documented_default: 10000
@@ -106,7 +116,7 @@ configuration_fields:
     write_policy: prohibited-without-traceable-calibration-data
   - key: phase_adjust_phase_a
     manual_register: 1615
-    pdu_address: null
+    pdu_address: 1614
     data_type: int16
     class: calibration-only
     documented_default: -1000
@@ -114,7 +124,7 @@ configuration_fields:
     write_policy: prohibited-without-ct-characterization-data
   - key: phase_adjust_phase_b
     manual_register: 1616
-    pdu_address: null
+    pdu_address: 1615
     data_type: int16
     class: calibration-only
     documented_default: -1000
@@ -122,7 +132,7 @@ configuration_fields:
     write_policy: prohibited-without-ct-characterization-data
   - key: phase_adjust_phase_c
     manual_register: 1617
-    pdu_address: null
+    pdu_address: 1616
     data_type: int16
     class: calibration-only
     documented_default: -1000
@@ -130,7 +140,7 @@ configuration_fields:
     write_policy: prohibited-without-ct-characterization-data
   - key: nominal_ct_volts_phase_a
     manual_register_span: [1629, 1630]
-    pdu_address: null
+    pdu_address: 1628
     data_type: float32
     class: ct-characteristic
     documented_default: 0.33333
@@ -138,7 +148,7 @@ configuration_fields:
     write_policy: change-only-when-physical-ct-output-is-not-standard-0.333V
   - key: nominal_ct_volts_phase_b
     manual_register_span: [1631, 1632]
-    pdu_address: null
+    pdu_address: 1630
     data_type: float32
     class: ct-characteristic
     documented_default: 0.33333
@@ -146,12 +156,62 @@ configuration_fields:
     write_policy: change-only-when-physical-ct-output-is-not-standard-0.333V
   - key: nominal_ct_volts_phase_c
     manual_register_span: [1633, 1634]
-    pdu_address: null
+    pdu_address: 1632
     data_type: float32
     class: ct-characteristic
     documented_default: 0.33333
     units: Vac
     write_policy: change-only-when-physical-ct-output-is-not-standard-0.333V
+  - key: meter_config_phase_a
+    manual_register: 1624
+    pdu_address: 1623
+    data_type: uint16
+    class: installation
+    expected_value: null
+    write_policy: derive-from-documented-service-and-wiring-map
+  - key: meter_config_phase_b
+    manual_register: 1625
+    pdu_address: 1624
+    data_type: uint16
+    class: installation
+    expected_value: null
+    write_policy: derive-from-documented-service-and-wiring-map
+  - key: meter_config_phase_c
+    manual_register: 1626
+    pdu_address: 1625
+    data_type: uint16
+    class: installation
+    expected_value: null
+    write_policy: derive-from-documented-service-and-wiring-map
+  - key: connection_type
+    manual_register: 1636
+    pdu_address: 1635
+    data_type: uint16
+    class: installation
+    expected_value: null
+    allowed_values:
+      1: {name: wye, meter_config: [10, 20, 30]}
+      2: {name: delta, meter_config: [90, 50, 0]}
+      3: {name: branch-circuits, meter_config: [10, 10, 10]}
+      4: {name: house-and-inverter, meter_config: [10, 20, 40]}
+      5: {name: line-to-line, meter_config: [40, 0, 0]}
+    write_policy: derive-from-documented-service-and-wiring-map
+
+read_only_identity_snapshot:
+  function_codes: [3, 4]
+  registers:
+    - {key: serial_number, manual_register_span: [1701, 1702], pdu_address: 1700, type: uint32-low-word-first}
+    - {key: model, manual_register: 1707, pdu_address: 1706, type: uint16, expected_for_module: 530}
+    - {key: firmware_version, manual_register: 1708, pdu_address: 1707, type: uint16, expected_family_range: 1000-1099}
+    - {key: options_bitfield, manual_register: 1709, pdu_address: 1708, type: uint16}
+    - {key: error_status, manual_register_span: [1716, 1723], pdu_address: 1715, type: uint16-array}
+    - {key: factory_ct_amps, manual_register_span: [1724, 1726], pdu_address: 1723, type: uint16-array}
+    - {key: factory_address, manual_register: 1728, pdu_address: 1727, type: uint16}
+    - {key: factory_baud_code, manual_register: 1729, pdu_address: 1728, type: uint16}
+    - {key: factory_parity_mode, manual_register: 1730, pdu_address: 1729, type: uint16}
+    - {key: factory_config_locked, manual_register: 1737, pdu_address: 1736, type: uint16}
+    - {key: change_counter, manual_register: 1628, pdu_address: 1627, type: uint16}
+  exact_model_policy: Model 530 proves the WND meter-module family; the WND-M1-MB front label proves the exact enclosed model.
 
 candidate_measurements:
   policy: Native float32 values, with documented low-word-first register order.

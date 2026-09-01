@@ -1,4 +1,5 @@
 import unittest
+import csv
 
 from app.catalog import DEVICES, PREMADE_CONFIGS
 from app.discovery import PortInfo, classify_ports
@@ -22,6 +23,16 @@ class CatalogTests(unittest.TestCase):
 
     def test_premade_configurations_exist(self) -> None:
         self.assertEqual({"dpt146", "hmd65", "wattnode"}, set(PREMADE_CONFIGS))
+
+    def test_wattnode_bridge_candidate_is_contiguous_and_low_word_first(self) -> None:
+        path = PREMADE_CONFIGS["wattnode"]
+        with path.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(list(range(1, 13)), [int(row["Item"]) for row in rows])
+        self.assertTrue(all(row["Data"] == "F32" and row["Word"] == "HL" for row in rows))
+        self.assertTrue(all(int(row["ID"]) == 1 for row in rows))
+        addresses = [int(row["Addr"]) for row in rows]
+        self.assertEqual(len(addresses), len(set(addresses)))
         for path in PREMADE_CONFIGS.values():
             self.assertTrue(path.is_file(), path)
 

@@ -2,7 +2,13 @@ import math
 import struct
 import unittest
 
-from app.probe import decode_float_words, frame_with_crc, modbus_crc, validate_response
+from app.probe import (
+    decode_float_words,
+    decode_uint32_low_word_first,
+    frame_with_crc,
+    modbus_crc,
+    validate_response,
+)
 
 
 class ProbeProtocolTests(unittest.TestCase):
@@ -29,6 +35,10 @@ class ProbeProtocolTests(unittest.TestCase):
         low_first = high_first[2:] + high_first[:2]
         self.assertEqual(decode_float_words(high_first, False), 42.5)
         self.assertEqual(decode_float_words(low_first, True), 42.5)
+
+    def test_decodes_wattnode_low_word_first_uint32(self) -> None:
+        # Serial 0x12345678 is transmitted as low register 0x5678, then high 0x1234.
+        self.assertEqual(decode_uint32_low_word_first(bytes.fromhex("56 78 12 34")), 0x12345678)
 
     def test_crc_function_matches_appended_crc(self) -> None:
         payload = bytes.fromhex("f0 03 00 14 00 02")

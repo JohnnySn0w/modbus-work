@@ -50,6 +50,14 @@ def decode_float_words(data: bytes, low_word_first: bool) -> float:
     return struct.unpack(">f", ordered)[0]
 
 
+def decode_uint32_low_word_first(data: bytes) -> int:
+    if len(data) != 4:
+        raise ValueError("A 32-bit integer requires exactly four data bytes")
+    low_word = int.from_bytes(data[0:2], "big")
+    high_word = int.from_bytes(data[2:4], "big")
+    return (high_word << 16) | low_word
+
+
 class ModbusClient:
     def __init__(self, port: str, baud: int, parity: str, stopbits: int,
                  timeout: float = 0.14) -> None:
@@ -112,6 +120,7 @@ def probe_adapter(port: PortInfo) -> list[ProbeResult]:
         _probe_dpt146(port.port, 1, "N", 2),
         _probe_hmd65(port.port, 1, "N", 1),
         _probe_wattnode(port.port, 1, "N", 1),
+        _probe_wattnode(port.port, 127, "N", 1),
         _probe_dpt146(port.port, 240, "E", 1),
     )
     results: list[ProbeResult] = []
@@ -206,14 +215,28 @@ def _probe_wattnode(port: str, slave: int, parity: str, stopbits: int):
         text = identity.decode("ascii", errors="ignore")
         if "WattNode" not in text and "Continental Control Systems" not in text:
             return None
-        exact_model = "WND-M1-MB" in text.upper()
+        # Manual registers are one-based; request() takes the zero-based PDU
+        # address. Model=530 identifies the WND meter-module family. The
+        # Report Slave ID string does not identify the exact M1/M0 enclosure.
+        diagnostics = client.request(slave, 3, 1700, 8)
+        if not diagnostics or len(diagnostics) != 16:
+            return None
+        serial_number = decode_uint32_low_word_first(diagnostics[0:4])
+        model = int.from_bytes(diagnostics[12:14], "big")
+        firmware = int.from_bytes(diagnostics[14:16], "big")
+        if model != 530 or not (1000 <= firmware < 1100) or serial_number <= 0:
+            return None
         return ProbeResult(
             key="wattnode", port=port, slave_id=slave,
             serial_format=f"19200 8{parity}{stopbits}",
-            confidence="high" if exact_model else "family",
-            reason=("Report Slave ID identified WND-M1-MB."
-                    if exact_model else
-                    "Report Slave ID identified the WattNode family; confirm WND-M1-MB on the label."),
-            readings={"Identity": (text.strip("\x00"), "")},
+            confidence="family",
+            reason=("Report Slave ID and model register 530 identified a WND meter module; "
+                    "confirm WND-M1-MB on the physical label."),
+            readings={
+                "Identity": (text.strip("\x00"), ""),
+                "Serial number": (serial_number, ""),
+                "Model code": (model, ""),
+                "Firmware": (firmware, ""),
+            },
         )
     return run

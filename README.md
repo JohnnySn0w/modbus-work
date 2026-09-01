@@ -49,6 +49,8 @@ The prepared test profile contains eight metric float measurements and four stat
 
 The target is specifically the **WND-M1-MB WattNode Module for Modbus**, not the Wide-Range meter. The candidate uses 12 native float measurements so current and power do not need integer scaling. CT ratings and electrical service mapping remain installation inputs.
 
+The physical bench gate and evidence sequence are in [docs/WATTNODE-TEST-READINESS.md](docs/WATTNODE-TEST-READINESS.md). It includes bounded first-contact settings, exact identity/config snapshot registers, CT and service mapping decisions, and bridge/Loriot acceptance steps.
+
 ### enLink IAQ Plus
 
 The IAQ Plus is a direct LoRaWAN sensor, not a Modbus instrument behind the bridge. Its unauthenticated USB banner provides a deterministic product-family signature, firmware code/version, radio region, and DevEUI. This is necessary because it shares the STM32 `0483:5740` USB identity with other Synetica products. Its serial login is deterministically derived by normalizing the displayed DevEUI and taking its final four hexadecimal characters; the observed `0004a30b00084f86` therefore yields `4f86`. Background discovery never submits credentials. The application defaults to US915 Hybrid FSB #1. An EU868 profile exists but remains disabled until compatible regional hardware/firmware and Loriot settings are supplied and validated.
@@ -65,7 +67,7 @@ Features currently implemented:
 
 - automatic serial-port discovery every 1.5 seconds, with richer VID/PID identification when `pyserial` is installed;
 - recognition of the known ENL-MOD-32 USB interface and USB-COMi-TB bench adapter;
-- deterministic, read-only Modbus fingerprints when the USB-COMi-TB is the only master present: DPT146 measurement/status layout, HMD65 eight-value/status layout, and WattNode Report Slave ID;
+- deterministic, read-only Modbus fingerprints when the USB-COMi-TB is the only master present: DPT146 measurement/status layout, HMD65 eight-value/status layout, and WattNode identity plus diagnostic model/firmware/serial registers;
 - a connected-device diagram showing the serial interface and attached/configured instrument;
 - clean, clickable device cards with generated device illustrations;
 - detail pages with a top-left back arrow, connection information, readouts, device facts, and links to source artifacts;

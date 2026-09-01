@@ -166,7 +166,8 @@ It is required again when:
 - Active Modbus identification is read-only and runs only when the USB-COMi-TB is present without the bridge USB interface; this avoids creating a second master on the bridge bus.
 - DPT146 identification requires its pressure, moisture, and status registers to decode with the documented low-word-first layout and plausible values.
 - HMD65 identification requires its complete eight-float measurement span plus device, RH, and temperature status layout to agree under one unambiguous word order.
-- WND-M1-MB identification uses Report Slave ID. An exact model string is accepted as high confidence; a WattNode-family response is labeled family-only and requires confirmation from the physical WND-M1-MB label.
+- WND meter-module identification requires the Function 17 manufacturer/family string plus diagnostic model code 530, a nonzero serial number, and a `10xx` firmware version. It tries only addresses 1 and the legacy no-DIP default 127 at 19200 8N1. Protocol evidence remains family-only; the physical `WND-M1-MB` label is required for exact-model confirmation.
+- The complete physical test gate, read-only snapshot scope, CT/service decisions, and acceptance sequence are recorded in `docs/WATTNODE-TEST-READINESS.md`.
 - Successful direct fingerprints feed live readings into the device detail view.
 - COM numbers are no longer treated as device identities. Synetica products sharing USB VID/PID `0483:5740` are distinguished by their unauthenticated console banners.
 - A connected enLink IAQ Plus, observed part 003-ADZ-301, identified on COM5 as `FW-AQ-VCP+` firmware 5.06 with North American Hybrid FSB #1 / 915 MHz and its DevEUI captured in the private profile.
