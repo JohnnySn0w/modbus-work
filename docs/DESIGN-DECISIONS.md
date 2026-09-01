@@ -6,6 +6,7 @@ This file records decisions made autonomously for the rough technician prototype
 
 1. **One application, two device paths.** Modbus instruments are commissioned directly or through a bridge adapter. Native Synetica LoRaWAN sensors such as the IAQ Plus use their USB console adapter and do not pretend to be Modbus devices.
 2. **COM numbers are never identities.** USB metadata selects a candidate transport; a protocol/banner fingerprint establishes the product. Synetica USB VID/PID 0483:5740 is shared and therefore insufficient by itself.
+   The FTDI 0403:6001 identity likewise selects only a candidate serial transport. Neither a remembered COM number nor a particular USB serial number identifies the Modbus instrument connected behind it.
 3. **US is the operational default.** `us915_hybrid_fsb1` is enabled and selected by default. `eu868` exists as a disabled profile until matching hardware/firmware and Loriot configuration are qualified.
 4. **Discovery does not authenticate.** The 1.5-second watcher reads and caches the unauthenticated banner once per USB instance. Login and menu reads happen only after a technician requests them.
 5. **The enLink login is derived, not stored as product data.** Normalize the displayed DevEUI and use the final four hexadecimal characters. A derived value may be included in a private recovery artifact, but the GUI need not display it.

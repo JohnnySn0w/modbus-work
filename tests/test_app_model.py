@@ -30,10 +30,14 @@ class CatalogTests(unittest.TestCase):
         self.assertFalse(active_modbus_probe_allowed(classified))
         self.assertTrue(active_modbus_probe_allowed({"adapter": classified["adapter"]}))
 
-    def test_known_usb_comi_serial_is_detected_with_generic_windows_name(self) -> None:
+    def test_ftdi_transport_is_detected_without_port_or_serial_binding(self) -> None:
         ports = [PortInfo("COM3", "USB Serial Port (COM3)",
-                          "USB VID:PID=0403:6001 SER=A7TLR1HQA")]
+                          "USB VID:PID=0403:6001 SER=ARBITRARY")]
         self.assertEqual("COM3", classify_ports(ports)["adapter"].port)
+
+        moved = [PortInfo("COM19", "USB Serial Port (COM19)",
+                          "USB VID:PID=0403:6001 SER=DIFFERENT")]
+        self.assertEqual("COM19", classify_ports(moved)["adapter"].port)
 
     def test_premade_configurations_exist(self) -> None:
         self.assertEqual({"dpt146", "hmd65", "wattnode"}, set(PREMADE_CONFIGS))

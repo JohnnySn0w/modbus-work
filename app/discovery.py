@@ -119,11 +119,10 @@ def classify_ports(ports: list[PortInfo]) -> dict[str, PortInfo]:
             # The USB console banner, not VID/PID or COM number, identifies it.
             found["synetica_usb"] = port
         elif ("USB-COMI" in text or "USB COMI" in text or "FTDI" in text
-              or ("VID:PID=0403:6001" in text and "A7TLR1HQA" in text)
-              or ("VID_0403&PID_6001" in text and "A7TLR1HQA" in text)):
-            # The observed USB-COMi-TB exposes a generic FTDI description under
-            # Windows. Bind its recorded USB serial as well as named drivers;
-            # VID/PID 0403:6001 alone is shared by many unrelated adapters.
+              or "VID:PID=0403:6001" in text or "VID_0403&PID_6001" in text):
+            # This identifies a candidate serial transport, not the instrument
+            # behind it. Exact instrument identity comes only from a bounded,
+            # read-only protocol fingerprint in probe_adapter().
             found["adapter"] = port
 
     return found

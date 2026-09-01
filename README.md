@@ -65,7 +65,7 @@ The desktop GUI uses Python's built-in Tk toolkit and keeps serial discovery sep
 
 Features currently implemented:
 
-- automatic serial-port discovery every 1.5 seconds, with richer VID/PID identification when `pyserial` is installed;
+- automatic serial-port discovery every 1.5 seconds; COM numbers are routes rather than identities, USB metadata selects candidate transports, and protocol/banner fingerprints identify products;
 - recognition of the known ENL-MOD-32 USB interface and USB-COMi-TB bench adapter;
 - deterministic, read-only Modbus fingerprints when the USB-COMi-TB is the only master present: DPT146 measurement/status layout, HMD65 eight-value/status layout, and WattNode identity plus diagnostic model/firmware/serial registers;
 - a connected-device diagram showing the serial interface and attached/configured instrument;
