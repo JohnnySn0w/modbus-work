@@ -160,6 +160,7 @@ class DiscoveryService:
         self._instrument_cache: dict[tuple[str, str], tuple[object, ...]] = {}
         self._probe_attempted: set[tuple[str, str]] = set()
         self._retry_direct_probe = False
+        self._last_active_probe_allowed = False
 
     def start(self) -> None:
         if self._thread and self._thread.is_alive():
@@ -233,6 +234,8 @@ class DiscoveryService:
             bridge_present = "bridge" in classified or "synetica_usb" in classified
             adapter = classified.get("adapter")
             active_allowed = active_modbus_probe_allowed(classified)
+            bus_became_available = active_allowed and not self._last_active_probe_allowed
+            self._last_active_probe_allowed = active_allowed
             adapter_status = "absent"
             message = console_message or "Passive USB discovery"
             if active_allowed and adapter:
@@ -242,7 +245,8 @@ class DiscoveryService:
                     instruments_list.extend(cached)
                     adapter_status = "identified"
                     message = "Direct Modbus identity retained from confirmed isolated scan"
-                elif adapter_key not in self._probe_attempted or self._retry_direct_probe:
+                elif (adapter_key not in self._probe_attempted or self._retry_direct_probe
+                      or bus_became_available):
                     self._retry_direct_probe = False
                     self._probe_attempted.add(adapter_key)
                     try:
