@@ -40,11 +40,11 @@ Required adapter capabilities:
 - describe LoRaWAN region, activation, join state, reporting interval, payload format, and decoder contract;
 - keep network/application security keys out of routine logs and redacted evidence; when explicitly required for this private project, store them only in clearly named private clone/recovery artifacts;
 - generate a clone-ready bridge artifact and a human-readable configuration summary.
-- ship a machine-readable manifest with every golden configuration, including tested firmware, schema version, source profiles, validation state, and compatibility policy.
+- ship a machine-readable manifest with every approved configuration, including tested firmware, schema version, source profiles, validation state, and compatibility policy.
 
 The first adapter target is Polygon ExactAire-E5 / Synetica ENL-MOD-32 firmware 3.6, which supports 32 Modbus data points.
 
-Golden configurations default to exact-firmware compatibility. A GUI must block import on an unvalidated firmware version unless a reviewed compatibility rule explicitly allows it. Firmware changes can affect menu protocol, address interpretation, word-order codes, point capacity, import/export format, and LoRaWAN payload encoding.
+Approved configurations default to exact-firmware compatibility. A GUI must block import on an unvalidated firmware version unless a reviewed compatibility rule explicitly allows it. Firmware changes can affect menu protocol, address interpretation, word-order codes, point capacity, import/export format, and LoRaWAN payload encoding.
 
 ## 2a. Native-device adapters
 

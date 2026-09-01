@@ -138,6 +138,8 @@ class App(tk.Tk):
         actions.pack(fill="x", padx=42, pady=(8, 0))
         self.action_button(actions, "Back up configuration", self.backup_configuration).pack(side="left")
         self.action_button(actions, "Choose pre-made config", self.choose_configuration).pack(side="left", padx=10)
+        self.action_button(actions, "Identify direct Modbus device",
+                           self.enable_direct_probe).pack(side="left")
 
         tk.Label(self, text="Select a device to view its information and readouts.",
                  fg=MUTED, bg=BG).pack(anchor="w", padx=44)
@@ -160,6 +162,32 @@ class App(tk.Tk):
     def refresh(self) -> None:
         self.scan_label.configure(text="Scanning serial interfaces…")
         self.discovery.scan_now()
+
+    def enable_direct_probe(self) -> None:
+        if "bridge" in self.classified or "synetica_usb" in self.classified:
+            messagebox.showwarning(
+                "Bridge master detected",
+                "Direct polling is disabled while the bridge USB interface is present. "
+                "Only one Modbus master can operate on the RS-485 bus at a time.",
+                parent=self,
+            )
+            return
+        if "adapter" not in self.classified:
+            messagebox.showwarning(
+                "No direct adapter",
+                "Connect a supported USB/RS-485 transport first.", parent=self,
+            )
+            return
+        confirmed = messagebox.askokcancel(
+            "Confirm isolated direct scan",
+            "Confirm that the bridge is powered off or its RS-485 connection is physically "
+            "isolated. Only one Modbus master can operate on the bus at a time.\n\n"
+            "Continue with one bounded, read-only identification scan?",
+            parent=self,
+        )
+        if confirmed:
+            self.scan_label.configure(text="Running confirmed isolated Modbus scan…")
+            self.discovery.authorize_direct_probe_once()
 
     def poll_discovery_results(self) -> None:
         latest = None

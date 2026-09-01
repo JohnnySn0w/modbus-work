@@ -6,7 +6,7 @@ The intended operator experience is: **plug in the hardware, select an approved 
 
 The current Modbus scope is intentionally limited to three instruments, plus one directly connected Synetica LoRaWAN sensor used to extend the same technician workflow:
 
-- **Vaisala DPT146** — golden configuration, validated locally through Modbus, through the bridge, and as a decoded Loriot uplink.
+- **Vaisala DPT146** — validated configuration, tested locally through Modbus, through the bridge, and as a decoded Loriot uplink.
 - **Vaisala HMD65** — documentation-derived test configuration awaiting physical hardware.
 - **Continental Control Systems WND-M1-MB** — documentation-derived test configuration for the WattNode Module for Modbus, awaiting physical hardware.
 - **Synetica enLink IAQ Plus, observed part 003-ADZ-301** — identified live through its USB console as `FW-AQ-VCP+` firmware 5.06 on North American Hybrid FSB #1 / 915 MHz.
@@ -83,6 +83,8 @@ Features currently implemented:
 When a direct fingerprint succeeds, the detail page displays the live values returned by that probe. Otherwise, DPT146 values are explicitly labeled as the latest validated bench readings. The transport and fingerprint layer owns register logic; GUI screens do not.
 
 Active fingerprinting is deliberately gated. It runs only when the direct USB-COMi-TB adapter is present and the bridge USB interface is absent, preventing the tool from becoming a second Modbus master on the bridge bus. A signature requires the documented serial format, slave response, register map, data encoding, status layout, and plausible decoded values to agree. A WattNode family-only identity is shown as such and requires a WND-M1-MB label check rather than being presented as an exact-model match.
+
+Because removing bridge USB does not remove the bridge's external power or RS-485 master, direct polling also requires a technician to confirm that the bridge is powered off or physically isolated. A failed scan explicitly warns that an externally powered bridge may still own the bus; it does not report the downstream instrument as absent.
 
 ## Target technician workflow
 

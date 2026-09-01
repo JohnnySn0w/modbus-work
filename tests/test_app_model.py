@@ -10,7 +10,7 @@ from app.registers import REGISTER_MAPS
 class CatalogTests(unittest.TestCase):
     def test_active_device_scope_is_present(self) -> None:
         self.assertTrue({"dpt146", "hmd65", "wattnode", "iaq_plus", "synetica_usb"}.issubset(DEVICES))
-        self.assertEqual("Golden configuration", DEVICES["dpt146"].status)
+        self.assertEqual("Validated configuration", DEVICES["dpt146"].status)
         self.assertEqual("Ready to test", DEVICES["hmd65"].status)
         self.assertEqual("Ready to test", DEVICES["wattnode"].status)
 

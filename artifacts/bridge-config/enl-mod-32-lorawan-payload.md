@@ -1,6 +1,6 @@
 # ENL-MOD-32 LoRaWAN payload contract
 
-Status: validated for Polygon/Synetica ENL-MOD-32 firmware 3.6 with the Vaisala DPT146 golden configuration.
+Status: validated for Polygon/Synetica ENL-MOD-32 firmware 3.6 with the Vaisala DPT146 reference configuration.
 
 ## Captured Loriot uplink
 
@@ -66,9 +66,8 @@ The radio payload carries every configured point as float32, including integer/b
 
 ## Decoder requirements
 
-- Map indices using the configuration manifest; never assume an index meaning without the matching golden configuration/version.
+- Map indices using the configuration manifest; never assume an index meaning without the matching validated configuration/version.
 - Reject truncated payloads and records whose marker is not `0x10`.
 - Preserve the raw payload, frame counter, receive timestamp, FPort, and decoder version with decoded data.
 - Treat status points as numeric float values on the wire, then coerce them according to the device profile.
 - Firmware or configuration changes require payload revalidation.
-

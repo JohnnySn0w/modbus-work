@@ -53,7 +53,7 @@ The CT amp rating and nominal CT output voltage are different facts. A standard 
 
 ## Proposed 250 A standard-CT baseline
 
-This is a candidate, not yet a golden configuration:
+This is a candidate, not yet a validated configuration:
 
 - exact meter model and firmware: capture first;
 - CT rating per phase: 250 A, but verify each physical CT label;

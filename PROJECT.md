@@ -188,7 +188,7 @@ Registers controlling purge and the Modbus address are deliberately excluded fro
 - wiring/power requirements and termination/bias guidance;
 - sample device or captured known-good responses;
 - expected DSP names, units, precision, alarm limits, and reporting cadence;
-- a signed-off golden configuration and acceptance test.
+- a signed-off validated configuration and acceptance test.
 
 ## Device backlog and documentation status
 

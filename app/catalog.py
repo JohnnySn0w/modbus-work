@@ -93,7 +93,7 @@ DEVICES: dict[str, DeviceDefinition] = {
         name="Vaisala DPT146",
         subtitle="Dewpoint and pressure transmitter",
         kind="humidity",
-        status="Golden configuration",
+        status="Validated configuration",
         description="Validated eight-point profile connected through physical connector II (RS-485/Modbus).",
         color="#38A3A5",
         readouts=(
@@ -114,7 +114,7 @@ DEVICES: dict[str, DeviceDefinition] = {
         help_setup=(
             "Use physical connector II for RS-485/Modbus; CH1 and CH2 are analog-output labels.",
             "The validated unit uses slave 1 at 19200 baud, 8N2.",
-            "Select the DPT146 golden table and verify all eight points before deployment.",
+            "Select the validated DPT146 table and verify all eight points before deployment.",
             "Expected healthy values are fault 1, online 1, and error code 0.",
         ),
         help_troubleshooting=(

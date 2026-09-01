@@ -81,7 +81,7 @@ Validation achieved:
 
 Last readings during rollback validation were approximately 22.89 °C, 7.36 °C dew/frost point, 7.41 °C atmospheric-pressure dew/frost point, 10276 ppmv moisture, and 1.0095 bara pressure. Status values were fault 1, online 1, and error 0.
 
-Current bridge state: DPT146 golden configuration restored and persistent after reboot.
+Current bridge state: DPT146 validated configuration restored and persistent after reboot.
 
 Primary files:
 
@@ -152,7 +152,7 @@ Exact target: Continental Control Systems WND-M1-MB WattNode Module for Modbus (
 
 ## Bridge availability
 
-The physical bridge is not required for current documentation, profile-schema, decoder, simulator, or GUI scaffolding. It can be disconnected and stored with the DPT146 golden configuration installed.
+The physical bridge is not required for current documentation, profile-schema, decoder, simulator, or GUI scaffolding. It can be disconnected and stored with the DPT146 validated configuration installed.
 
 It is required again when:
 

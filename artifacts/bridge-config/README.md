@@ -16,7 +16,7 @@ Bridge-wide Modbus settings observed with this export:
 - Inter-message delay: 150 ms
 - Configured data points: 8/32
 
-This is a rollback artifact, not yet a validated golden configuration. A read-all test produced timeouts on all eight points.
+This is a rollback artifact, not yet a validated configuration. A read-all test produced timeouts on all eight points.
 
 `vaisala-dpt146-direct-validation.md` records the successful read-only direct poll through COM3. It confirms slave ID 1 and serial format 19200 8N2, plus all documented measurements and status values.
 
