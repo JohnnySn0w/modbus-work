@@ -207,6 +207,10 @@ class App(tk.Tk):
         detected_key = next(iter(self.instruments), None)
         if "bridge" in self.classified:
             nodes = [("bridge", width * 0.34), ("dpt146", width * 0.66)]
+        elif "synetica_usb" in self.classified and "adapter" in self.classified:
+            nodes = [("synetica_usb", width * 0.34), ("adapter", width * 0.66)]
+        elif "synetica_usb" in self.classified:
+            nodes = [("synetica_usb", width * 0.50)]
         elif "iaq_plus" in self.classified:
             nodes = [("iaq_plus", width * 0.50)]
         elif "adapter" in self.classified and detected_key:

@@ -33,6 +33,26 @@ class DeviceDefinition:
 
 
 DEVICES: dict[str, DeviceDefinition] = {
+    "synetica_usb": DeviceDefinition(
+        key="synetica_usb",
+        name="Synetica USB device",
+        subtitle="Waiting for console identity banner",
+        kind="bridge",
+        status="Connected · identity pending",
+        description="The shared Synetica STM32 USB interface is present, but the product banner has not yet been read.",
+        color="#7D8597",
+        facts=(("USB identity", "0483:5740"), ("Safety", "Modbus polling blocked")),
+        help_setup=(
+            "Close other copies of the configurator and terminal programs that may hold the COM port.",
+            "Confirm the Synetica device is powered, then reconnect its configuration USB cable.",
+            "Refresh and wait for the unauthenticated console banner to identify the exact product.",
+        ),
+        help_troubleshooting=(
+            "The STM32 VID/PID is shared by bridges and sensors, so USB metadata alone is not an exact identity.",
+            "If identity remains pending, power-cycle the device and reconnect USB with only one GUI running.",
+            "Direct RS-485 polling stays disabled while this possible bridge master is connected.",
+        ),
+    ),
     "bridge": DeviceDefinition(
         key="bridge",
         name="Polygon ExactAire-E5",

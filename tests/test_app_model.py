@@ -2,14 +2,14 @@ import unittest
 import csv
 
 from app.catalog import DEVICES, PREMADE_CONFIGS
-from app.discovery import PortInfo, classify_ports
+from app.discovery import PortInfo, active_modbus_probe_allowed, classify_ports
 from app.regions import DEFAULT_REGION, RADIO_REGIONS
 from app.registers import REGISTER_MAPS
 
 
 class CatalogTests(unittest.TestCase):
     def test_active_device_scope_is_present(self) -> None:
-        self.assertTrue({"dpt146", "hmd65", "wattnode", "iaq_plus"}.issubset(DEVICES))
+        self.assertTrue({"dpt146", "hmd65", "wattnode", "iaq_plus", "synetica_usb"}.issubset(DEVICES))
         self.assertEqual("Golden configuration", DEVICES["dpt146"].status)
         self.assertEqual("Ready to test", DEVICES["hmd65"].status)
         self.assertEqual("Ready to test", DEVICES["wattnode"].status)
@@ -21,6 +21,19 @@ class CatalogTests(unittest.TestCase):
     def test_pyserial_stm32_vid_pid_format_detection(self) -> None:
         ports = [PortInfo("COM5", "USB Serial Device", "USB VID:PID=0483:5740 SER=ABC")]
         self.assertEqual("COM5", classify_ports(ports)["synetica_usb"].port)
+
+    def test_unidentified_synetica_usb_blocks_direct_modbus_polling(self) -> None:
+        classified = classify_ports([
+            PortInfo("COM3", "USB Serial Port", "USB VID:PID=0403:6001 SER=A7TLR1HQA"),
+            PortInfo("COM5", "USB Serial Device", "USB VID:PID=0483:5740"),
+        ])
+        self.assertFalse(active_modbus_probe_allowed(classified))
+        self.assertTrue(active_modbus_probe_allowed({"adapter": classified["adapter"]}))
+
+    def test_known_usb_comi_serial_is_detected_with_generic_windows_name(self) -> None:
+        ports = [PortInfo("COM3", "USB Serial Port (COM3)",
+                          "USB VID:PID=0403:6001 SER=A7TLR1HQA")]
+        self.assertEqual("COM3", classify_ports(ports)["adapter"].port)
 
     def test_premade_configurations_exist(self) -> None:
         self.assertEqual({"dpt146", "hmd65", "wattnode"}, set(PREMADE_CONFIGS))

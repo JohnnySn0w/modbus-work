@@ -118,10 +118,22 @@ def classify_ports(ports: list[PortInfo]) -> dict[str, PortInfo]:
             # Synetica uses this STM32 virtual-COM identity across products.
             # The USB console banner, not VID/PID or COM number, identifies it.
             found["synetica_usb"] = port
-        elif "USB-COMI" in text or "USB COMI" in text or "FTDI" in text:
+        elif ("USB-COMI" in text or "USB COMI" in text or "FTDI" in text
+              or ("VID:PID=0403:6001" in text and "A7TLR1HQA" in text)
+              or ("VID_0403&PID_6001" in text and "A7TLR1HQA" in text)):
+            # The observed USB-COMi-TB exposes a generic FTDI description under
+            # Windows. Bind its recorded USB serial as well as named drivers;
+            # VID/PID 0403:6001 alone is shared by many unrelated adapters.
             found["adapter"] = port
 
     return found
+
+
+def active_modbus_probe_allowed(classified: dict[str, PortInfo]) -> bool:
+    """Allow reads only with an adapter and no known/potential bridge master."""
+    return bool("adapter" in classified
+                and "bridge" not in classified
+                and "synetica_usb" not in classified)
 
 
 @dataclass(frozen=True)
@@ -190,9 +202,13 @@ class DiscoveryService:
                     console_message = f"Identified {console_result.display_name} by USB banner"
                 else:
                     classified["synetica_usb"] = console_port
-            bridge_present = "bridge" in classified
+            # A shared Synetica VID/PID cannot identify the product, but it is
+            # enough to prove that another potential Modbus master is present.
+            # Keep active RS-485 probing disabled until the USB banner proves
+            # whether the unit is a bridge or a sensor.
+            bridge_present = "bridge" in classified or "synetica_usb" in classified
             adapter = classified.get("adapter")
-            active_allowed = bool(adapter and not bridge_present)
+            active_allowed = active_modbus_probe_allowed(classified)
             message = console_message or "Passive USB discovery"
             if active_allowed and adapter:
                 try:
