@@ -106,6 +106,7 @@ class App(tk.Tk):
         self.ports: list[PortInfo] = []
         self.classified: dict[str, PortInfo] = {}
         self.instruments: dict[str, object] = {}
+        self.adapter_status = "absent"
         self.live_readings: dict[str, dict[str, tuple[float | int | str, str]]] = {}
         self.active_key: str | None = None
         self.discovery_queue: queue.Queue[DiscoverySnapshot] = queue.Queue()
@@ -138,8 +139,6 @@ class App(tk.Tk):
         actions.pack(fill="x", padx=42, pady=(8, 0))
         self.action_button(actions, "Back up configuration", self.backup_configuration).pack(side="left")
         self.action_button(actions, "Choose pre-made config", self.choose_configuration).pack(side="left", padx=10)
-        self.action_button(actions, "Identify direct Modbus device",
-                           self.enable_direct_probe).pack(side="left")
 
         tk.Label(self, text="Select a device to view its information and readouts.",
                  fg=MUTED, bg=BG).pack(anchor="w", padx=44)
@@ -161,33 +160,7 @@ class App(tk.Tk):
 
     def refresh(self) -> None:
         self.scan_label.configure(text="Scanning serial interfaces…")
-        self.discovery.scan_now()
-
-    def enable_direct_probe(self) -> None:
-        if "bridge" in self.classified or "synetica_usb" in self.classified:
-            messagebox.showwarning(
-                "Bridge master detected",
-                "Direct polling is disabled while the bridge USB interface is present. "
-                "Only one Modbus master can operate on the RS-485 bus at a time.",
-                parent=self,
-            )
-            return
-        if "adapter" not in self.classified:
-            messagebox.showwarning(
-                "No direct adapter",
-                "Connect a supported USB/RS-485 transport first.", parent=self,
-            )
-            return
-        confirmed = messagebox.askokcancel(
-            "Confirm isolated direct scan",
-            "Confirm that the bridge is powered off or its RS-485 connection is physically "
-            "isolated. Only one Modbus master can operate on the bus at a time.\n\n"
-            "Continue with one bounded, read-only identification scan?",
-            parent=self,
-        )
-        if confirmed:
-            self.scan_label.configure(text="Running confirmed isolated Modbus scan…")
-            self.discovery.authorize_direct_probe_once()
+        self.discovery.retry_direct_probe()
 
     def poll_discovery_results(self) -> None:
         latest = None
@@ -219,6 +192,7 @@ class App(tk.Tk):
     def apply_discovery_snapshot(self, snapshot: DiscoverySnapshot) -> None:
         self.ports = list(snapshot.ports)
         self.classified = snapshot.classified
+        self.adapter_status = snapshot.adapter_status
         self.instruments = {getattr(item, "key"): item for item in snapshot.instruments}
         count = len(self.ports)
         if self.active_key is None and hasattr(self, "canvas") and self.canvas.winfo_exists():
@@ -256,6 +230,9 @@ class App(tk.Tk):
         elif "adapter" in self.classified:
             nodes = [("adapter", width * 0.50)]
 
+        if self.adapter_status in ("blocked_by_bridge", "no_response"):
+            disabled_keys.add("adapter")
+
         if not nodes:
             rounded_rect(self.canvas, width / 2 - 245, center_y - 65,
                          width / 2 + 245, center_y + 65, fill=SURFACE, outline=OUTLINE)
@@ -270,13 +247,6 @@ class App(tk.Tk):
                                         text="Other ports: " + ", ".join(p.port for p in self.ports),
                                         fill=MUTED, font=("Segoe UI", 9))
             return
-
-        if disabled_keys:
-            self.canvas.create_text(
-                width / 2, 18,
-                text="USB/RS-485 polling paused — Modbus permits only one active master on the bus at a time.",
-                fill=MUTED, font=self.small_bold,
-            )
 
         if linked_pair:
             self.canvas.create_line(nodes[0][1] + 112, center_y,
@@ -294,7 +264,10 @@ class App(tk.Tk):
             instrument = self.instruments.get(key)
             disabled = key in disabled_keys
             if disabled:
-                connection = "Polling paused\nBridge is the active master"
+                if self.adapter_status == "blocked_by_bridge":
+                    connection = "Unavailable as Modbus master\nBridge currently owns the bus"
+                else:
+                    connection = "No Modbus device responded\nNothing connected, or another master is active"
             elif port:
                 connection = port.port
             elif instrument:
@@ -306,10 +279,10 @@ class App(tk.Tk):
     def draw_device_card(self, device: DeviceDefinition, cx: float, cy: float,
                          connection: str, disabled: bool = False) -> None:
         x1, y1, x2, y2 = cx - 112, cy - 132, cx + 112, cy + 132
-        card_fill = "#F0F2F4" if disabled else SURFACE
-        icon_fill = "#E2E5E9" if disabled else SOFT
-        device_color = "#9AA1A9" if disabled else device.color
-        text_color = MUTED if disabled else INK
+        card_fill = "#FFF7D6" if disabled else SURFACE
+        icon_fill = "#FCE9A9" if disabled else SOFT
+        device_color = "#B7791F" if disabled else device.color
+        text_color = "#744210" if disabled else INK
         items: list[int] = []
         items.append(rounded_rect(self.canvas, x1, y1, x2, y2,
                                   fill=card_fill, outline=OUTLINE, width=1))
@@ -321,7 +294,7 @@ class App(tk.Tk):
         items.append(self.canvas.create_text(cx, cy + 58, text=device.subtitle,
                                              fill=MUTED, width=195))
         items.append(self.canvas.create_text(cx, cy + 94, text=connection,
-                                             fill=MUTED if disabled else GOOD,
+                                             fill="#975A16" if disabled else GOOD,
                                              font=self.small_bold, width=195))
         tag = f"device-{device.key}"
         for item in self.canvas.find_enclosed(x1 - 2, y1 - 2, x2 + 2, y2 + 2):

@@ -141,6 +141,7 @@ class DiscoverySnapshot:
     classified: dict[str, PortInfo]
     instruments: tuple[object, ...]
     active_probe_allowed: bool
+    adapter_status: str
     message: str
 
 
@@ -156,7 +157,8 @@ class DiscoveryService:
         self._thread: threading.Thread | None = None
         self._console_cache: dict[tuple[str, str], object] = {}
         self._instrument_cache: dict[tuple[str, str], tuple[object, ...]] = {}
-        self._direct_probe_authorized = False
+        self._probe_attempted: set[tuple[str, str]] = set()
+        self._retry_direct_probe = False
 
     def start(self) -> None:
         if self._thread and self._thread.is_alive():
@@ -172,9 +174,9 @@ class DiscoveryService:
         threading.Thread(target=self._scan_once, daemon=True,
                          name="device-discovery-refresh").start()
 
-    def authorize_direct_probe_once(self) -> None:
-        """Authorize one bounded probe after the technician confirms isolation."""
-        self._direct_probe_authorized = True
+    def retry_direct_probe(self) -> None:
+        """Retry once on explicit Refresh; background scans never repeat failures."""
+        self._retry_direct_probe = True
         self.scan_now()
 
     def _run(self) -> None:
@@ -215,15 +217,18 @@ class DiscoveryService:
             bridge_present = "bridge" in classified or "synetica_usb" in classified
             adapter = classified.get("adapter")
             active_allowed = active_modbus_probe_allowed(classified)
+            adapter_status = "absent"
             message = console_message or "Passive USB discovery"
             if active_allowed and adapter:
                 adapter_key = (adapter.port, adapter.hardware_id)
                 cached = self._instrument_cache.get(adapter_key)
                 if cached:
                     instruments_list.extend(cached)
+                    adapter_status = "identified"
                     message = "Direct Modbus identity retained from confirmed isolated scan"
-                elif self._direct_probe_authorized:
-                    self._direct_probe_authorized = False
+                elif adapter_key not in self._probe_attempted or self._retry_direct_probe:
+                    self._retry_direct_probe = False
+                    self._probe_attempted.add(adapter_key)
                     try:
                         from .probe import probe_adapter
 
@@ -231,19 +236,25 @@ class DiscoveryService:
                         instruments_list.extend(results)
                         if results:
                             self._instrument_cache = {adapter_key: results}
+                            adapter_status = "identified"
                             message = "Completed confirmed isolated Modbus fingerprint"
                         else:
+                            adapter_status = "no_response"
                             message = ("No device response — the bridge may still have external power "
                                        "and own the RS-485 bus even when its USB is unplugged")
                     except ImportError:
+                        adapter_status = "no_response"
                         message = "Install pyserial to enable Modbus fingerprinting"
                 else:
-                    message = "Direct polling idle: confirm the bridge is powered off or RS-485 isolated"
+                    adapter_status = "no_response"
+                    message = "No Modbus device responded on the last bounded scan"
             elif adapter and bridge_present:
+                adapter_status = "blocked_by_bridge"
                 message = "Adapter polling paused: only one Modbus master can operate at a time"
             snapshot = DiscoverySnapshot(
                 ports=tuple(ports), classified=classified, instruments=tuple(instruments_list),
-                active_probe_allowed=active_allowed, message=message,
+                active_probe_allowed=active_allowed, adapter_status=adapter_status,
+                message=message,
             )
             self.callback(snapshot)
         finally:
