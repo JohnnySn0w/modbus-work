@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 import threading
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
 
@@ -181,8 +182,15 @@ class DiscoveryService:
 
     def _run(self) -> None:
         while not self._stop.is_set():
-            self._scan_once()
-            self._stop.wait(self.interval_seconds)
+            started = time.monotonic()
+            try:
+                self._scan_once()
+            except Exception:
+                # A transient driver, registry, or serial-console failure must
+                # not kill periodic discovery. The next interval retries it.
+                pass
+            elapsed = time.monotonic() - started
+            self._stop.wait(max(0.0, self.interval_seconds - elapsed))
 
     def _scan_once(self) -> None:
         if not self._scan_lock.acquire(blocking=False):
@@ -190,6 +198,14 @@ class DiscoveryService:
         try:
             ports = discover_ports()
             classified = classify_ports(ports)
+            present_keys = {(item.port, item.hardware_id) for item in classified.values()}
+            self._console_cache = {
+                key: value for key, value in self._console_cache.items() if key in present_keys
+            }
+            self._instrument_cache = {
+                key: value for key, value in self._instrument_cache.items() if key in present_keys
+            }
+            self._probe_attempted.intersection_update(present_keys)
             instruments_list: list[object] = []
             console_port = classified.pop("synetica_usb", None)
             console_message = ""

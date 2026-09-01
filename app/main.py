@@ -198,7 +198,8 @@ class App(tk.Tk):
         if self.active_key is None and hasattr(self, "canvas") and self.canvas.winfo_exists():
             self.draw_topology()
             self.scan_label.configure(
-                text=f"{count} interface{'s' if count != 1 else ''} · {snapshot.message} · 1.5 s",
+                text=(f"{count} interface{'s' if count != 1 else ''} · {snapshot.message} · "
+                      f"checked {datetime.now().strftime('%H:%M:%S')}"),
             )
 
     def draw_topology(self) -> None:
