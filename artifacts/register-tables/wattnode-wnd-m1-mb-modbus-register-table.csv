@@ -1,38 +1,38 @@
 register number,name,units,interpretation,decode,defaults
-1001-1002,Energy total,kWh,IEEE-754 float32; low 16-bit word first. Do not swap bytes within a register.,,
-1009-1010,Active power total,W,IEEE-754 float32; low 16-bit word first. Do not swap bytes within a register.,,
-1011-1012,Active power 1,W,IEEE-754 float32; low 16-bit word first. Do not swap bytes within a register.,,
-1013-1014,Active power 2,W,IEEE-754 float32; low 16-bit word first. Do not swap bytes within a register.,,
-1015-1016,Active power 3,W,IEEE-754 float32; low 16-bit word first. Do not swap bytes within a register.,,
-1019-1020,Voltage AN,V,IEEE-754 float32; low 16-bit word first. Do not swap bytes within a register.,,
-1021-1022,Voltage BN,V,IEEE-754 float32; low 16-bit word first. Do not swap bytes within a register.,,
-1023-1024,Voltage CN,V,IEEE-754 float32; low 16-bit word first. Do not swap bytes within a register.,,
-1033-1034,Frequency,Hz,IEEE-754 float32; low 16-bit word first. Do not swap bytes within a register.,,
-1163-1164,Current 1,A,IEEE-754 float32; low 16-bit word first. Do not swap bytes within a register.,,
-1165-1166,Current 2,A,IEEE-754 float32; low 16-bit word first. Do not swap bytes within a register.,,
-1167-1168,Current 3,A,IEEE-754 float32; low 16-bit word first. Do not swap bytes within a register.,,
+1001-1002,Energy total,kWh,IEEE-754 float32; low 16-bit word first.,,
+1009-1010,Active power total,W,IEEE-754 float32; low 16-bit word first.,,
+1011-1012,Active power 1,W,IEEE-754 float32; low 16-bit word first.,,
+1013-1014,Active power 2,W,IEEE-754 float32; low 16-bit word first.,,
+1015-1016,Active power 3,W,IEEE-754 float32; low 16-bit word first.,,
+1019-1020,Voltage AN,V,IEEE-754 float32; low 16-bit word first.,,
+1021-1022,Voltage BN,V,IEEE-754 float32; low 16-bit word first.,,
+1023-1024,Voltage CN,V,IEEE-754 float32; low 16-bit word first.,,
+1033-1034,Frequency,Hz,IEEE-754 float32; low 16-bit word first.,,
+1163-1164,Current 1,A,IEEE-754 float32; low 16-bit word first.,,
+1165-1166,Current 2,A,IEEE-754 float32; low 16-bit word first.,,
+1167-1168,Current 3,A,IEEE-754 float32; low 16-bit word first.,,
 1221,Integer frequency,0.01 Hz,,,
 1603,CT amps global,A,,,
 1604,CT amps 1,A,,,
 1605,CT amps 2,A,,,
 1606,CT amps 3,A,,,
 1607,CT directions,bitfield,,0x1 = reverse CT1 polarity; 0x2 = reverse CT2 polarity; 0x4 = reverse CT3 polarity,0 = all CTs normal
-1612,Gain adjust 1,1/10000,Gain multiplier = raw unsigned value / 10000. Preserve unless traceable calibration data authorizes a change.,,10000 (multiplier 1.0)
-1613,Gain adjust 2,1/10000,Gain multiplier = raw unsigned value / 10000. Preserve unless traceable calibration data authorizes a change.,,10000 (multiplier 1.0)
-1614,Gain adjust 3,1/10000,Gain multiplier = raw unsigned value / 10000. Preserve unless traceable calibration data authorizes a change.,,10000 (multiplier 1.0)
-1615,Phase adjust 1,0.001deg,,,-1000 (-1.000deg ); preserve unless characterized
-1616,Phase adjust 2,0.001deg,,,-1000 (-1.000deg ); preserve unless characterized
-1617,Phase adjust 3,0.001deg,,,-1000 (-1.000deg ); preserve unless characterized
+1612,Gain adjust 1,1/10000,Gain multiplier = raw unsigned value / 10000.,,10000 (multiplier 1.0)
+1613,Gain adjust 2,1/10000,Gain multiplier = raw unsigned value / 10000.,,10000 (multiplier 1.0)
+1614,Gain adjust 3,1/10000,Gain multiplier = raw unsigned value / 10000.,,10000 (multiplier 1.0)
+1615,Phase adjust 1,0.001deg,,,-1000 (-1.000 deg)
+1616,Phase adjust 2,0.001deg,,,-1000 (-1.000 deg)
+1617,Phase adjust 3,0.001deg,,,-1000 (-1.000 deg)
 1622,Current integer scale,counts,For legacy integer current registers: current_A = raw_current * CT_rated_amps / CurrentIntScale. Documented default is 20000; native float current registers avoid this scale.,,20000 counts
 1624,Meter config 1,code,,,
 1625,Meter config 2,code,,,
 1626,Meter config 3,code,,,
 1628,Change counter,writes,,,
-1629-1630,Nominal CT volts 1,Vac,IEEE-754 float32; low 16-bit word first. Do not swap bytes within a register.,,0.33333 Vac; confirm physical CT label
-1631-1632,Nominal CT volts 2,Vac,IEEE-754 float32; low 16-bit word first. Do not swap bytes within a register.,,0.33333 Vac; confirm physical CT label
-1633-1634,Nominal CT volts 3,Vac,IEEE-754 float32; low 16-bit word first. Do not swap bytes within a register.,,0.33333 Vac; confirm physical CT label
+1629-1630,Nominal CT volts 1,Vac,IEEE-754 float32; low 16-bit word first.,,0.33333 Vac
+1631-1632,Nominal CT volts 2,Vac,IEEE-754 float32; low 16-bit word first.,,0.33333 Vac
+1633-1634,Nominal CT volts 3,Vac,IEEE-754 float32; low 16-bit word first.,,0.33333 Vac
 1636,Connection type,code,,0 = custom mapping; 1 = wye; 2 = delta; 3 = branch circuits; 4 = house and inverter; 5 = line-to-line,
-1651,Apply communication config,state/command,"Read 0/1 as state. Writing decimal 1234 commits pending address/baud/parity changes; this is a command, not a persistent engineering value.",0 = no pending communication changes; 1 = communication changes pending; 1234 = apply requested when written,
+1651,Apply communication config,state/command,"0 and 1 report state; writing 1234 applies pending address, baud, and parity settings.",0 = no pending communication changes; 1 = communication changes pending; 1234 = apply requested when written,
 1652,Address,,,,
 1653,Baud rate,code,,1 = 1200 baud; 2 = 2400 baud; 3 = 4800 baud; 4 = 9600 baud; 5 = 19200 baud; 6 = 38400 baud; 7 = 57600 baud; 8 = 76800 baud; 9 = 115200 baud,
 1654,Parity mode,code,,0 = 8N1; 1 = 8E1; 2 = 8N2,
