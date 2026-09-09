@@ -1,29 +1,28 @@
-# Rust hardware-agent design
+# Native Rust application design
 
 Last updated: 2026-09-09
 
 ## Decision
 
-Move ownership of serial ports and device protocols into a long-running Windows executable named `modbus-agent.exe`. Keep the existing Python/Tk technician GUI as the presentation layer during this migration. A complete Rust GUI rewrite is optional and should wait until the hardware-agent interface is stable.
+Replace the prototype with one native executable named `modbus-configurator.exe`. The GUI and hardware services are both implemented in Rust and packaged as a single binary that can be handed to a technician or reviewer without Python, PowerShell, or a separate runtime.
 
-This is more than a language translation. The main reliability improvement is one persistent process, one owner per COM port, and explicit protocol state machines instead of short PowerShell processes that sleep for fixed intervals and search for one exact prompt.
+This is more than a language translation. The reliability improvement comes from one persistent process, one owner per COM port, and explicit protocol state machines instead of short PowerShell processes that sleep for fixed intervals and search for one exact prompt. The UI and hardware layers remain separate Rust modules even though they ship in one executable.
 
 ## Runtime topology
 
 ```text
-Technician GUI
-    |
-    | JSON Lines over stdin/stdout
-    v
-modbus-agent.exe
-    |-- port inventory and USB metadata
-    |-- ENL-MOD-32 console state machine
-    |-- native enLink console state machine
-    |-- direct Modbus RTU master
-    `-- transcript, backup, and verification services
-            |
-            v
-       Windows COM ports
+modbus-configurator.exe
+    |-- eframe/egui technician UI
+    |       `-- typed commands and events
+    `-- hardware service
+            |-- port inventory and USB metadata
+            |-- ENL-MOD-32 console state machine
+            |-- native enLink console state machine
+            |-- direct Modbus RTU master
+            `-- transcript, backup, and verification services
+                    |
+                    v
+               Windows COM ports
 ```
 
 Device profiles and bridge tables remain data artifacts. They are not compiled into GUI screens and they do not own serial-port behavior.
@@ -51,9 +50,9 @@ The hardware agent owns:
 
 COM numbers are routes, never product identities. Product identification must combine USB metadata with a protocol response, console banner, documented identity register, or a sufficiently specific read-only register fingerprint.
 
-## Initial IPC contract
+## Internal command contract
 
-Use newline-delimited JSON over the child process's standard input and output. It is easy to replay in tests, inspect during development, and consume from the existing Python GUI. A Windows named pipe can replace it later without changing the domain commands.
+Use strongly typed Rust commands and events across channels between the UI thread and hardware-service thread. Serialize the same types as newline-delimited JSON for replay fixtures, diagnostics, and automated tests. No child process or named pipe is required in the shipped application.
 
 Every command includes:
 
@@ -71,7 +70,7 @@ The agent emits:
 - `result` - structured values, backup metadata, or verification evidence;
 - `error` - stable code, plain-language message, recoverability, and optional transcript reference.
 
-Raw PowerShell exception text must not be used as a UI contract.
+Raw serial text and PowerShell exception text must not be used as a UI contract.
 
 ## Serial and console state machines
 
@@ -109,12 +108,13 @@ If the state remains unknown, the adapter may send a harmless line ending and at
 
 ## Rust implementation outline
 
-Start with a small Cargo workspace under `native/modbus-agent/`. Prefer a blocking serial reader per active port and message passing to the coordinator; asynchronous Rust is not required for the first version.
+Start with a Cargo workspace under `native/modbus-configurator/`. Prefer a blocking serial reader per active port and message passing to the coordinator; asynchronous Rust is not required for the first version.
 
 Expected building blocks:
 
+- `eframe` and `egui` for the native cross-platform GUI without a browser or webview runtime;
 - `serialport` for Windows serial access;
-- `serde` and `serde_json` for the IPC schema;
+- `serde` and `serde_json` for the command/event and replay schema;
 - `thiserror` for stable internal error categories;
 - `tracing` and `tracing-subscriber` for structured diagnostic logs.
 
@@ -122,16 +122,16 @@ Keep protocol parsers independent of the real serial transport. A replay transpo
 
 ## Migration plan
 
-1. Define and version the JSON Lines protocol, plus a fake/replay agent used by the current GUI.
-2. Implement port inventory and passive Synetica banner discovery.
-3. Implement ENL-MOD-32 login, menu recovery, read-only export, and Read All using captured transcript fixtures.
-4. Validate those operations on the physical bridge without writes.
-5. Add native backup, guarded import, exported readback comparison, and recovery artifacts.
-6. Move direct USB-COMi-TB Modbus polling and device fingerprinting into the agent.
-7. Move IAQ console reads and credential workflows into the agent.
-8. Retire PowerShell subprocesses from normal GUI operation; retain them only as clearly labeled bench diagnostics until removal.
-9. Package the agent with the existing GUI for technician testing.
-10. Consider a native Rust GUI only after the IPC, profiles, and hardware state machines have remained stable across devices and firmware versions.
+1. Scaffold the eframe/egui application, typed command/event model, and replayable JSON fixture format.
+2. Reproduce the current connected-device diagram, detail pages, register tables, help, and backup/configuration controls in Rust.
+3. Implement port inventory and passive Synetica banner discovery.
+4. Implement ENL-MOD-32 login, menu recovery, read-only export, and Read All using captured transcript fixtures.
+5. Validate those operations on the physical bridge without writes.
+6. Add native backup, guarded import, exported readback comparison, and recovery artifacts.
+7. Move direct USB-COMi-TB Modbus polling and device fingerprinting into the hardware service.
+8. Move IAQ console reads and credential workflows into the hardware service.
+9. Retire the Python/Tk and PowerShell runtime paths after feature parity and hardware validation.
+10. Build a release-mode single executable and verify it on a clean Windows machine.
 
 ## Verification plan
 
@@ -147,4 +147,4 @@ Automated fixtures must cover fragmented prompts, delayed output, stale submenus
 
 ## Packaging direction
 
-The first technician package should contain the current GUI and `modbus-agent.exe` with no PowerShell dependency in its normal hardware path. Signing, an installer, automatic log collection, and firmware-update integration follow bench validation. Firmware flashing remains a separate, explicitly authorized workflow even after the hardware agent exists.
+The first technician delivery is a release build of `modbus-configurator.exe`. Reviewed device profiles, help text, icons, and default configurations are compiled into the executable; operator backups and commissioning reports remain ordinary external files. The Windows release should use a static C runtime where the dependency set permits it and must be smoke-tested on a clean machine. Signing, an optional installer, automatic log collection, and firmware-update integration follow bench validation. Firmware flashing remains a separate, explicitly authorized workflow.

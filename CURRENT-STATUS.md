@@ -189,7 +189,7 @@ It is required again when:
 
 Live GUI testing exposed a structural failure in the current PowerShell console helper. It starts a new process, sleeps for fixed intervals, and requires an exact menu prompt. When the ENL-MOD-32 is already authenticated, remains in a submenu, echoes differently, or returns output in different chunks, a healthy device can be reported as an authentication or menu failure. The latest observed failure expected `Modbus Configuration Menu:` and stopped without a verified write.
 
-The production direction is therefore a persistent Rust hardware agent behind the current Python/Tk GUI. It will exclusively own each COM port, recognize accumulated console state, recover from known menus, serialize discovery and actions, and return structured JSON progress/results. Existing PowerShell helpers are retained only as bench diagnostics while paths are migrated. The detailed design is `docs/RUST-HARDWARE-AGENT.md`.
+The production direction is therefore one native Rust application, `modbus-configurator.exe`, using eframe/egui for the GUI and an internal persistent hardware service. The service will exclusively own each COM port, recognize accumulated console state, recover from known menus, serialize discovery and actions, and return structured typed progress/results to the UI. The current Python/Tk GUI and PowerShell helpers are retained only as prototype references while functionality is migrated. The detailed design is `docs/NATIVE-RUST-APPLICATION.md`.
 
 The corrected CSV/TSV delivery bundle is `artifacts/modbus-csv-tsv-bundle.zip`. It contains 21 strict-ASCII artifacts: nine register-table CSVs, ten bridge TSVs, and two private native bridge backups. The older firmware export is retained only under the explicit name `enl-mod-32-firmware-3.6-historical-precorrection-export.tsv`, so it cannot be mistaken for the validated DPT146 table.
 
@@ -197,10 +197,10 @@ The corrected CSV/TSV delivery bundle is `artifacts/modbus-csv-tsv-bundle.zip`. 
 
 Without hardware:
 
-1. Scaffold `modbus-agent.exe` and its versioned JSON Lines command/event contract.
+1. Scaffold `modbus-configurator.exe` with eframe/egui and a typed command/event contract.
 2. Add replay fixtures for bridge login, prompt fragmentation, stale submenus, native export, and Read All.
 3. Move passive Synetica discovery and read-only ENL-MOD-32 actions behind one exclusive per-port actor.
-4. Integrate agent progress, results, and plain-language error codes into the existing GUI.
+4. Reproduce the connected-device diagram, detail pages, register tables, help, and configuration controls in the Rust GUI.
 5. Implement the profile loader and validation rules.
 6. Turn pre-made selection into a guarded programming workflow: Preflight, Preview, Confirm, Program, Read Back, and Validate.
 7. Move direct Modbus polling and native IAQ console access behind the agent.

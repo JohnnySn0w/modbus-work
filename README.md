@@ -23,7 +23,7 @@ The system is split into three layers so new devices and future bridge firmware 
 
 The important boundary is that device-specific register logic does not live in GUI screens, and bridge import behavior does not live in device profiles. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [the profile lifecycle](artifacts/device-profiles/PROFILE-LIFECYCLE.md).
 
-Live hardware access is now being moved behind a persistent Rust process. The existing Python/Tk GUI will communicate with `modbus-agent.exe` through structured JSON events, while the agent exclusively owns COM ports, prompt recovery, Modbus transactions, backups, writes, and readback. This replaces the current fixed-delay PowerShell console automation that failed when the bridge was already in an unexpected menu state. See [the Rust hardware-agent design](docs/RUST-HARDWARE-AGENT.md).
+The supported deliverable is being rebuilt as one native Rust executable, `modbus-configurator.exe`. An eframe/egui interface and an internal hardware service exchange typed commands and events, while the service exclusively owns COM ports, prompt recovery, Modbus transactions, backups, writes, and readback. This replaces both the current Python/Tk prototype and the fixed-delay PowerShell console automation that failed when the bridge was already in an unexpected menu state. See [the native Rust application design](docs/NATIVE-RUST-APPLICATION.md).
 
 ## Component details
 
@@ -63,7 +63,7 @@ The first approved-target draft is [the US915 IAQ Plus native configuration](art
 
 ## GUI
 
-The desktop GUI uses Python's built-in Tk toolkit and keeps serial discovery separate from device definitions. It remains the presentation shell during the Rust hardware-agent migration; a complete GUI rewrite is deliberately deferred.
+The current desktop GUI uses Python's built-in Tk toolkit and remains available as a behavior reference during migration. The target technician application uses Rust with eframe/egui and ships with its hardware service, reviewed profiles, help text, and assets in one executable.
 
 Features currently implemented:
 
@@ -83,7 +83,7 @@ Features currently implemented:
 - IAQ Plus authenticated live-reading refresh, private JSON console backup, and radio-profile preview;
 - firmware-package preflight with exact identity/region/upgrade-path checks and SHA-256 validation; actual flashing remains blocked pending vendor tooling and recovery instructions;
 
-The present bridge and IAQ actions still reach some devices through short PowerShell subprocesses. Those paths are diagnostic prototypes, not the production transport. Their exact-prompt/fixed-delay behavior can fail even when the hardware is healthy, so configuration writes remain hidden until the persistent agent passes replay and live-hardware validation.
+The present bridge and IAQ actions still reach some devices through short PowerShell subprocesses. Those paths and the Python GUI are diagnostic prototypes, not the production application. Their exact-prompt/fixed-delay behavior can fail even when the hardware is healthy, so configuration writes remain hidden until the Rust hardware service passes replay and live-hardware validation.
 
 When a direct fingerprint succeeds, the detail page displays the live values returned by that probe. Otherwise, DPT146 values are explicitly labeled as the latest validated bench readings. The transport and fingerprint layer owns register logic; GUI screens do not.
 
@@ -109,7 +109,7 @@ The GUI is evolving into a guarded auto-configuration tool. Its normal workflow 
 
 Writes remain profile-driven and safety-classified. Installation settings may be offered through guarded forms; calibration controls remain expert-only; destructive or undocumented writes remain blocked.
 
-### Run on Windows
+### Run the current prototype on Windows
 
 Install Python 3.11 or newer, then from the repository root:
 

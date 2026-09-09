@@ -228,11 +228,11 @@ Every clone-ready configuration must include a machine-readable manifest. Bridge
 
 ### Desktop application
 
-Keep the existing Python/Tk GUI as the technician-facing presentation layer while moving all live hardware access into a persistent Rust executable named `modbus-agent.exe`. The agent will be the single owner of COM ports, direct Modbus work, console navigation, backups, guarded writes, readback, and transcripts. The initial versioned IPC contract is newline-delimited JSON over stdin/stdout.
+Replace the prototype with one native Rust executable named `modbus-configurator.exe`. Use eframe/egui for the technician interface and an internal hardware-service thread as the single owner of COM ports, direct Modbus work, console navigation, backups, guarded writes, readback, and transcripts. Typed Rust commands and events cross that internal boundary; the same types serialize to JSON Lines for replay fixtures and diagnostics.
 
-This migration addresses the observed bridge failure mode: a short PowerShell process used fixed delays and required an exact `Modbus Configuration Menu:` prompt even when the device could be in another valid state. PowerShell remains useful for isolated bench diagnostics, but it is no longer the planned application transport. A native Rust GUI can be considered later; it is not required to gain the reliability benefit.
+This migration addresses the observed bridge failure mode: a short PowerShell process used fixed delays and required an exact `Modbus Configuration Menu:` prompt even when the device could be in another valid state. PowerShell and the Python/Tk GUI remain useful as prototype references, but neither is part of the supported technician runtime.
 
-Package the current GUI and Rust agent together as a signed Windows application after bench validation. Keep profile and protocol logic outside the UI so another presentation layer can reuse the same library and artifacts.
+Build a single release-mode Windows binary after bench validation. Keep profile and protocol logic outside the UI module so the state machines remain replay-testable and reusable.
 
 Suggested layers:
 
@@ -244,7 +244,7 @@ Suggested layers:
 6. **Bridge profile/compiler** — conversion of device measurements into the specific Polygon/enLink channel configuration and payload mapping.
 7. **Evidence and export** — native backups, structured logs, configuration snapshots, test results, and shipment/DSP handoff reports.
 
-The detailed process boundary, state-machine rules, migration steps, and verification gates are in `docs/RUST-HARDWARE-AGENT.md`.
+The detailed internal boundary, state-machine rules, migration steps, and verification gates are in `docs/NATIVE-RUST-APPLICATION.md`.
 
 ### Profile concept
 
@@ -300,7 +300,7 @@ The normal mode should hide register arithmetic. Expert mode should expose raw r
 ### Phase 3 — Bridge integration
 
 - Preserve the validated configuration tables and captured bridge behavior as replay fixtures.
-- Build the persistent Rust hardware agent and JSON Lines interface.
+- Build the native Rust GUI, persistent hardware service, and typed command/event interface.
 - Implement state-aware login, menu recovery, read/export, and Read All through the agent.
 - Validate read-only operations on the physical bridge before exposing writes.
 - Add writes only with native backup, diff, confirmation, exported readback, and recovery evidence.

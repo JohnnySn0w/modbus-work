@@ -4,14 +4,14 @@ The configurator is intentionally divided into three reusable domain layers. Dev
 
 ## Runtime topology
 
-The supported Windows runtime is being separated into two processes:
+The supported runtime is one native Rust process with two internal layers:
 
-- the existing Python/Tk application remains the technician-facing presentation layer during migration;
-- a long-running Rust executable, `modbus-agent.exe`, becomes the sole owner of serial ports, protocol state machines, direct Modbus reads, bridge configuration, native-device configuration, and hardware transcripts.
+- an eframe/egui technician interface owns presentation and operator workflow;
+- a long-running hardware service owns serial ports, protocol state machines, direct Modbus reads, bridge configuration, native-device configuration, and hardware transcripts.
 
-The two processes initially communicate through versioned newline-delimited JSON over standard input and output. This keeps the GUI replaceable, makes hardware conversations replay-testable, and prevents the background scanner and explicit device actions from competing for a COM port. PowerShell console automation is retained only as a temporary bench diagnostic path and is not the target production transport.
+The layers exchange strongly typed commands and events over Rust channels. Those messages can also be serialized as newline-delimited JSON for fixtures and diagnostics. The single executable remains internally testable, prevents the background scanner and explicit device actions from competing for a COM port, and requires no Python or PowerShell runtime. PowerShell console automation is retained only as a temporary bench diagnostic path.
 
-See [RUST-HARDWARE-AGENT.md](RUST-HARDWARE-AGENT.md) for the IPC, state-machine, migration, safety, and verification design.
+See [NATIVE-RUST-APPLICATION.md](NATIVE-RUST-APPLICATION.md) for the command model, state-machine, migration, safety, and verification design.
 
 ## 1. Device profiles
 
