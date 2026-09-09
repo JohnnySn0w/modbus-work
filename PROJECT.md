@@ -93,7 +93,7 @@ The configured measurement registers are recognizably derived from the DPT146 ma
 
 Direct polling confirmed this installed DPT146 was intentionally configured as slave ID 1 at `19200 8N2`. The original bridge table used one-based logical measurement addresses and `HH` word order. Those settings returned plausible but incorrect values because ENL-MOD-32 firmware 3.6 sends the entered address as the zero-based PDU address.
 
-The bridge was corrected to PDU addresses `4, 6, 10, 20, 44, 512, 513, 515`. Vaisala 32-bit values use high byte first and low word first, represented as `HL` by firmware 3.6. The corrected table completed the bridge's detailed test with 8 successful reads and 0 exceptions. The clone-ready table is `artifacts/bridge-config/vaisala-dpt146-golden.tsv`.
+The bridge was corrected to PDU addresses `4, 6, 10, 20, 44, 512, 513, 515`. Vaisala 32-bit values use high byte first and low word first, represented as `HL` by firmware 3.6. The corrected table completed the bridge's detailed test with 8 successful reads and 0 exceptions. The clone-ready table is `artifacts/bridge-config/vaisala-dpt146-validated.tsv`.
 
 ### LoRaWAN state observed (2026-08-28)
 
@@ -101,7 +101,7 @@ The bridge is joined to a public North American hybrid 915 MHz LoRaWAN network. 
 
 A Loriot uplink on frame counter 18 validated the radio payload format. Firmware 3.6 encoded each configured point as a six-byte record: marker `0x10`, zero-based point index, and big-endian IEEE-754 float32 value. All eight DPT146 points decoded correctly. Existing infrastructure normally handles downstream routing after Loriot; DSP work is outside the present scope. See `artifacts/bridge-config/enl-mod-32-lorawan-payload.md`.
 
-The bridge point-table reset and rollback procedure is also validated. Importing a point row with Slave ID `0` deletes that item. All eight points were deleted, the golden table was restored, all eight detailed reads succeeded with zero exceptions, and the restored configuration persisted across a bridge reboot. See `artifacts/bridge-config/enl-mod-32-config-reset-restore-validation.md`.
+The bridge point-table reset and rollback procedure is also validated. Importing a point row with Slave ID `0` deletes that item. All eight points were deleted, the validated table was restored, all eight detailed reads succeeded with zero exceptions, and the restored configuration persisted across a bridge reboot. See `artifacts/bridge-config/enl-mod-32-config-reset-restore-validation.md`.
 
 ### Photo inventory
 
@@ -196,7 +196,7 @@ Most backlog devices are not presently available for bench testing. The standard
 
 ### Initial scope
 
-1. Vaisala DPT146 — validated golden reference.
+1. Vaisala DPT146 — validated reference.
 2. Vaisala HMD65 (HMD60 family) — documentation-derived bridge test prepared; bench validation pending.
 3. Continental Control Systems WattNode WND-M1-MB — documentation-derived bridge test prepared; bench validation pending.
 
@@ -311,7 +311,7 @@ The normal mode should hide register arithmetic. Expert mode should expose raw r
 
 ## Current handoff
 
-The complete dated handoff is `CURRENT-STATUS.md`. The bridge currently contains the restored DPT146 golden table, reports 8 configured points with 8 successful reads and 0 exceptions, and retained that state across reboot.
+The complete dated handoff is `CURRENT-STATUS.md`. The bridge currently contains the restored DPT146 validated table, reports 8 configured points with 8 successful reads and 0 exceptions, and retained that state across reboot.
 
 The bridge can now be disconnected and stored. Continue without hardware by implementing the profile loader, ENL-MOD-32 compiler/preview, replay fixtures, and technician GUI scaffolding. Bring the bridge back when an HMD65 or WND-M1-MB is available or when the real GUI import workflow is ready for hardware validation.
 

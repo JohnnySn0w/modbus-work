@@ -28,6 +28,26 @@ class BridgeApplyError(RuntimeError):
         self.rollback_ok = rollback_ok
 
 
+READ_VALUE_PATTERN = re.compile(
+    r"(?im)^\s*(?:item\s*)?(\d{1,2})\s*(?:[:=\t]|\s{2,})\s*"
+    r"([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?)\s*$"
+)
+
+
+def parse_read_values(text: str, expected_count: int) -> tuple[float | int, ...]:
+    values: dict[int, float | int] = {}
+    for match in READ_VALUE_PATTERN.finditer(text.replace("\r", "")):
+        item = int(match.group(1))
+        raw = float(match.group(2))
+        values[item] = int(raw) if raw.is_integer() else raw
+    expected = set(range(1, expected_count + 1))
+    if set(values) != expected:
+        raise RuntimeError(
+            f"Bridge returned values for items {sorted(values)}; expected 1 through {expected_count}"
+        )
+    return tuple(values[item] for item in range(1, expected_count + 1))
+
+
 def load_bridge_table(path: Path) -> tuple[str, ...]:
     lines = [line.rstrip("\r\n") for line in path.read_text(encoding="utf-8-sig").splitlines()]
     if not lines or tuple(lines[0].split("\t")) != TABLE_HEADER:
@@ -92,6 +112,17 @@ class EnlinkModbusBridge:
         if not rows:
             raise RuntimeError("Bridge export returned no configured point rows")
         return rows
+
+    def read_all_verified(self) -> tuple[tuple[float | int, ...], str]:
+        payload = self._run_transport("Read")
+        rows = tuple(payload["backupRows"])  # type: ignore[arg-type]
+        if not rows:
+            raise RuntimeError("Bridge has no configured point rows")
+        summary = str(payload["readSummary"])
+        expected_summary = f"{len(rows)}/0 (OK/Exceptions)"
+        if summary != expected_summary:
+            raise RuntimeError(f"Read All returned {summary}; expected {expected_summary}")
+        return parse_read_values(str(payload["readText"]), len(rows)), summary
 
     def apply_verified(self, rows: tuple[str, ...]) -> BridgeApplyResult:
         with tempfile.TemporaryDirectory(prefix="modbus-bridge-") as folder:

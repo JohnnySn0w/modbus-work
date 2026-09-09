@@ -14,7 +14,7 @@ This is the supported configuration-reset mechanism for the Modbus point table. 
 
 ## Restore result
 
-The eight rows from `vaisala-dpt146-golden.tsv` were imported again. Every row returned `imported OK`; the bridge reported `8/32` configured points.
+The eight rows from `vaisala-dpt146-validated.tsv` were imported again. Every row returned `imported OK`; the bridge reported `8/32` configured points.
 
 A detailed Read All Data Points test then completed successfully:
 
@@ -34,5 +34,4 @@ The bridge was rebooted through the console's confirmed reboot command. After US
 - 19200 baud, 8 data bits, no parity, 2 stop bits;
 - 1 retry, 500 ms timeout, and 150 ms inter-message delay.
 
-Result: point deletion, golden import, live readback, and reboot persistence are validated. A global factory reset is neither documented nor required for the clone/rollback workflow.
-
+Result: point deletion, validated-table import, live readback, and reboot persistence are validated. A global factory reset is neither documented nor required for the clone/rollback workflow.

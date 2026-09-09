@@ -1,7 +1,7 @@
 register number,name,units,interpretation,decode,defaults
 40001 - 40002,PV or rate display,user units,IEEE-754 float32,-99999 = under range; 999999 = over range,
-40003,Alarm and relay status,,16-bit field; bits 0 through 7 are relay states; bits 8 through 15 are alarm states,0 = inactive; 1 = active,
-40004,Digital I/O status,,16-bit field; bits 0 through 7 are outputs; bits 8 through 15 are inputs,0 = inactive; 1 = active,
+40003,Alarm and relay status,,16-bit field,bit 0 = relay 1; bit 1 = relay 2; bit 2 = relay 3; bit 3 = relay 4; bit 4 = relay 5; bit 5 = relay 6; bit 6 = relay 7; bit 7 = relay 8; bit 8 = alarm 1; bit 9 = alarm 2; bit 10 = alarm 3; bit 11 = alarm 4; bit 12 = alarm 5; bit 13 = alarm 6; bit 14 = alarm 7; bit 15 = alarm 8; 0 = inactive; 1 = active,
+40004,Digital I/O status,,16-bit field,bit 0 = output 1; bit 1 = output 2; bit 2 = output 3; bit 3 = output 4; bit 4 = output 5; bit 5 = output 6; bit 6 = output 7; bit 7 = output 8; bit 8 = input 1; bit 9 = input 2; bit 10 = input 3; bit 11 = input 4; bit 12 = input 5; bit 13 = input 6; bit 14 = input 7; bit 15 = input 8; 0 = inactive; 1 = active,
 40005 - 40006,Maximum display,user units,IEEE-754 float32,,
 40007 - 40008,Minimum display,user units,IEEE-754 float32,,
 40009 - 40010,Total,user units,IEEE-754 float32,,

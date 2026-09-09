@@ -189,6 +189,12 @@ class App(tk.Tk):
             messagebox.showinfo("Backup created", f"Saved IAQ Plus backup to:\n{payload}", parent=self)
         elif action == "bridge_backup_complete":
             messagebox.showinfo("Backup created", f"Saved the bridge's native TSV export to:\n{payload}", parent=self)
+        elif action == "dpt146_live":
+            readings, summary = payload  # type: ignore[misc]
+            self.live_readings["dpt146"] = readings
+            if self.active_key == "dpt146":
+                self.show_detail("dpt146")
+            messagebox.showinfo("Live readings refreshed", f"Bridge Read All completed: {summary}", parent=self)
         elif action == "error":
             messagebox.showerror("Device action failed", str(payload), parent=self)
         elif action == "bridge_apply_complete":
@@ -433,6 +439,13 @@ class App(tk.Tk):
                       cursor="hand2", highlightthickness=1,
                       highlightbackground=OUTLINE).pack(side="bottom", fill="x", pady=(0, 10))
 
+        if key == "dpt146" and "bridge" in self.classified:
+            tk.Button(facts, text="Refresh live readings",
+                      command=self.refresh_dpt146_live, bg=ACCENT, fg="white",
+                      activebackground="#315A82", activeforeground="white",
+                      relief="flat", padx=14, pady=10, cursor="hand2").pack(
+                          side="bottom", fill="x", pady=(0, 10))
+
         if key == "bridge":
             tk.Button(facts, text="Choose pre-made config",
                       command=self.choose_configuration, bg=SURFACE, fg=INK,
@@ -513,13 +526,25 @@ class App(tk.Tk):
 
         table = tk.Frame(canvas, bg=OUTLINE)
         window = canvas.create_window((0, 0), window=table, anchor="nw")
+
+        def scroll_table(event) -> str:
+            units = -1 * int(event.delta / 120)
+            if event.state & 0x0001:
+                canvas.xview_scroll(units, "units")
+            else:
+                canvas.yview_scroll(units, "units")
+            return "break"
+
+        canvas.bind("<MouseWheel>", scroll_table)
+        table.bind("<MouseWheel>", scroll_table)
         for index, column in enumerate(columns):
             table.columnconfigure(index, minsize=widths[column])
-            tk.Label(table, text=headings[column], bg=SOFT, fg=INK,
-                     font=self.small_bold, anchor="w", justify="left",
-                     padx=8, pady=9, width=1,
-                     wraplength=widths[column] - 16).grid(
-                         row=0, column=index, sticky="nsew", padx=(0, 1), pady=(0, 1))
+            heading = tk.Label(table, text=headings[column], bg=SOFT, fg=INK,
+                               font=self.small_bold, anchor="w", justify="left",
+                               padx=8, pady=9, width=1,
+                               wraplength=widths[column] - 16)
+            heading.grid(row=0, column=index, sticky="nsew", padx=(0, 1), pady=(0, 1))
+            heading.bind("<MouseWheel>", scroll_table)
 
         for row_index, register in enumerate(REGISTER_MAPS[key], start=1):
             current = live.get(register.readout_label) if register.readout_label else None
@@ -536,21 +561,30 @@ class App(tk.Tk):
             )
             row_color = SURFACE if row_index % 2 else BG
             for column_index, (column, cell_value) in enumerate(zip(columns, values)):
-                tk.Label(table, text=cell_value, bg=row_color, fg=INK,
-                         anchor="nw", justify="left", padx=8, pady=8,
-                         width=1, wraplength=widths[column] - 16).grid(
-                             row=row_index, column=column_index, sticky="nsew",
-                             padx=(0, 1), pady=(0, 1))
+                cell = tk.Label(table, text=cell_value, bg=row_color, fg=INK,
+                                anchor="nw", justify="left", padx=8, pady=8,
+                                width=1, wraplength=widths[column] - 16)
+                cell.grid(row=row_index, column=column_index, sticky="nsew",
+                          padx=(0, 1), pady=(0, 1))
+                cell.bind("<MouseWheel>", scroll_table)
 
         def update_scroll_region(_event=None) -> None:
             table.update_idletasks()
-            canvas.configure(scrollregion=canvas.bbox("all"))
-            canvas.itemconfigure(window, width=max(table.winfo_reqwidth(), canvas.winfo_width()))
+            required_width = table.winfo_reqwidth()
+            required_height = table.winfo_reqheight()
+            viewport_width = canvas.winfo_width()
+            viewport_height = canvas.winfo_height()
+            content_width = max(required_width, viewport_width)
+            content_height = max(required_height, viewport_height)
+            canvas.itemconfigure(window, width=content_width)
+            canvas.configure(scrollregion=(0, 0, content_width, content_height))
+            if required_width <= viewport_width:
+                canvas.xview_moveto(0)
+            if required_height <= viewport_height:
+                canvas.yview_moveto(0)
 
         table.bind("<Configure>", update_scroll_region)
         canvas.bind("<Configure>", update_scroll_region)
-        canvas.bind("<MouseWheel>",
-                    lambda event: canvas.yview_scroll(-1 * int(event.delta / 120), "units"))
         update_scroll_region()
 
     def connection_status(self, key: str) -> str:
@@ -598,6 +632,41 @@ class App(tk.Tk):
                 self.action_queue.put(("error", exc))
 
         threading.Thread(target=worker, daemon=True, name="iaq-live-readings").start()
+
+    def refresh_dpt146_live(self) -> None:
+        bridge_port = self.classified.get("bridge")
+        if bridge_port is None or self.instruments.get("bridge") is None:
+            messagebox.showwarning("Bridge not ready", "Connect and identify the ENL-MOD-32 first.", parent=self)
+            return
+
+        def worker() -> None:
+            if not self.discovery.suspend():
+                self.action_queue.put(("error", "Could not obtain exclusive access to bridge discovery."))
+                self.discovery.resume()
+                return
+            try:
+                values, summary = EnlinkModbusBridge(bridge_port.port).read_all_verified()
+                labels = (
+                    ("Temperature", "deg C"),
+                    ("Dew / frost point", "deg C"),
+                    ("Atmospheric dew point", "deg C"),
+                    ("Moisture", "ppmv"),
+                    ("Absolute pressure", "bara"),
+                    ("Fault status", ""),
+                    ("Online status", ""),
+                    ("Error code", ""),
+                )
+                readings = {label: (value, unit) for (label, unit), value in zip(labels, values)}
+                fault, online, error = values[5], values[6], values[7]
+                health = "Online" if fault == 1 and online == 1 and error == 0 else "Attention required"
+                readings["Device health"] = (health, "")
+                self.action_queue.put(("dpt146_live", (readings, summary)))
+            except Exception as exc:
+                self.action_queue.put(("error", exc))
+            finally:
+                self.discovery.resume()
+
+        threading.Thread(target=worker, daemon=True, name="dpt146-live-readings").start()
 
     def backup_iaq_configuration(self) -> None:
         port = self.iaq_port()

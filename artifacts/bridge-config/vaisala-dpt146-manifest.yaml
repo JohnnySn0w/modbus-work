@@ -34,7 +34,7 @@ serial:
 
 configuration:
   format: synetica-enlink-tab-delimited-8-column
-  file: vaisala-dpt146-golden.tsv
+  file: vaisala-dpt146-validated.tsv
   configured_points: 8
   address_convention: zero-based-pdu
   float_format: ieee754-f32
@@ -45,7 +45,7 @@ validation:
   local_modbus_exceptions: 0
   post_import_export_match: true
   modbus_point_reset_method_validated: true
-  golden_restore_after_reset_validated: true
+  validated_restore_after_reset: true
   reboot_persistence_validated: true
   lorawan_joined: true
   lorawan_payload_validated: true

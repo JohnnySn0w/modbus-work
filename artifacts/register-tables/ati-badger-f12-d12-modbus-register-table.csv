@@ -1,8 +1,8 @@
 register number,name,units,interpretation,decode,defaults
-40033,Expanded fault flags,,,Bit field defined by detector firmware,
-40034,Expanded status flags,,,Bit field defined by detector firmware,
-40035,Fault flags,,,Bit field defined by detector firmware,
-40036,Status flags,,,Bit field defined by detector firmware,
+40033,Expanded fault flags,,,bit 0 = factory calibration fault; bit 1 = stack overflow; bits 2 through 15 = reserved,
+40034,Expanded status flags,,,bit 0 = gas generator installed; bit 1 = gas generator type valid; bit 2 = gas generator range valid; bit 3 = alarm test active; bit 4 = autotest in progress; bit 5 = autotest pass; bit 6 = cannot begin autotest; bit 7 = autotest failed; bit 8 = auto-clean active; bit 9 = auto-clean recovering; bits 10 through 15 = reserved,
+40035,Fault flags,,,bit 0 = gas sensor ADC read fault; bit 1 = LCD bus fault; bit 2 = SPI bus fault; bit 3 = temperature ADC read fault; bit 4 = gas sensor input fault; bit 5 = gas sensor removed; bit 6 = gas sensor memory checksum fault; bit 7 = gas sensor configuration fault or awaiting verification; bit 8 = gas generator removed; bit 9 = gas generator configuration fault; bit 10 = system setup memory checksum fault; bit 11 = alarm memory checksum fault; bit 12 = operator interface memory checksum fault; bit 13 = HART memory checksum fault; bit 14 = autotest failure; bit 15 = relay option voltage missing,
+40036,Status flags,,,bit 0 = caution active; bit 1 = warning active; bit 2 = alarm active; bit 3 = fault active; bit 4 = CWAF inhibit active; bit 5 = transmitter security active; bit 6 = system data log active; bit 7 = current loop output fixed; bit 8 = temperature input over range; bit 9 = temperature input under range; bit 10 = gas input over range; bit 11 = gas input under range; bit 12 = data log checksum error; bit 13 = calibration history not initialized; bit 14 = power-on delay; bit 15 = reserved,
 40037 - 40038,Unblanked concentration,,IEEE-754 float32,,
 40039 - 40040,Unblanked concentration percent full scale,%,IEEE-754 float32,,
 40041 - 40042,Temperature,deg C,IEEE-754 float32,,

@@ -97,12 +97,12 @@ DEVICES: dict[str, DeviceDefinition] = {
         description="Validated eight-point profile connected through physical connector II (RS-485/Modbus).",
         color="#38A3A5",
         readouts=(
-            Readout("Temperature", "22.89", "°C"),
-            Readout("Dew / frost point", "7.36", "°C"),
-            Readout("Atmospheric dew point", "7.41", "°C"),
-            Readout("Moisture", "10,276", "ppmv"),
-            Readout("Absolute pressure", "1.0095", "bara"),
-            Readout("Device health", "Online", quality="Fault 1 · Error 0"),
+            Readout("Temperature", "Not read", "", "Use Refresh live readings"),
+            Readout("Dew / frost point", "Not read", "", "Use Refresh live readings"),
+            Readout("Atmospheric dew point", "Not read", "", "Use Refresh live readings"),
+            Readout("Moisture", "Not read", "", "Use Refresh live readings"),
+            Readout("Absolute pressure", "Not read", "", "Use Refresh live readings"),
+            Readout("Device health", "Not read", quality="Use Refresh live readings"),
         ),
         facts=(
             ("Slave", "1"),
@@ -264,7 +264,7 @@ DEVICES: dict[str, DeviceDefinition] = {
 
 
 PREMADE_CONFIGS = {
-    "dpt146": ROOT / "artifacts/bridge-config/vaisala-dpt146-golden.tsv",
+    "dpt146": ROOT / "artifacts/bridge-config/vaisala-dpt146-validated.tsv",
     "hmd65": ROOT / "artifacts/bridge-config/hmd65-documentation-test.tsv",
     "wattnode": ROOT / "artifacts/bridge-config/wattnode-wnd-m1-mb-documentation-test.tsv",
 }

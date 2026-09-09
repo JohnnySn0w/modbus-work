@@ -35,7 +35,7 @@ Firmware 3.6 accepts tab-delimited rows with these columns:
 Item  ID  Reg  Addr  Data  Word  Mult  Read
 ```
 
-Entering Slave ID `0` deletes an item. That deletion method, golden restoration, detailed readback, and reboot persistence have all been validated.
+Entering Slave ID `0` deletes an item. That deletion method, validated-table restoration, detailed readback, and reboot persistence have all been validated.
 
 ### DPT146
 

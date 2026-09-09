@@ -89,7 +89,7 @@ Current bridge state: DPT146 validated configuration restored and persistent aft
 
 Primary files:
 
-- `artifacts/bridge-config/vaisala-dpt146-golden.tsv`
+- `artifacts/bridge-config/vaisala-dpt146-validated.tsv`
 - `artifacts/bridge-config/vaisala-dpt146-manifest.yaml`
 - `artifacts/bridge-config/vaisala-dpt146-bridge-settings.md`
 - `artifacts/bridge-config/vaisala-dpt146-clone-checklist.md`

@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)][string]$PortName,
-    [ValidateSet('Export', 'Apply')][string]$Action = 'Export',
+    [ValidateSet('Export', 'Apply', 'Read')][string]$Action = 'Export',
     [string]$ConfigPath = '',
     [string]$BackupPath = ''
 )
@@ -42,7 +42,7 @@ function Open-MainMenu {
     $latest = Read-Serial 1600
     $text = $latest
     $devEui = ''
-    for ($attempt = 0; $attempt -lt 10 -and $text -notmatch 'enLink Main Menu:'; $attempt++) {
+    for ($attempt = 0; $attempt -lt 16 -and $text -notmatch '(?i)enlink Main Menu:'; $attempt++) {
         $eui = [regex]::Match($text, 'DevEui:\s*([0-9A-Fa-f-]+)')
         if ($eui.Success) { $devEui = $eui.Groups[1].Value }
         if ($latest -match 'Password:') {
@@ -58,11 +58,20 @@ function Open-MainMenu {
             $latest = Send-Line 'X' 1800
         }
         else {
-            $latest = Send-Line '' 2400
+            if ($attempt -gt 0 -and ($attempt % 5) -eq 0) {
+                $latest = Reopen-AndRead 3000
+            }
+            else {
+                $latest = Send-Line '' 3000
+            }
         }
         $text += $latest
     }
-    Require-Text $text 'enLink Main Menu:' 'Authentication'
+    if ($text -notmatch '(?i)enlink Main Menu:') {
+        $safe = [regex]::Replace($text, '(?im)^\s*(?:AppKey|NwkKey)\s+.+$', '[key redacted]')
+        $tail = if ($safe.Length -gt 900) { $safe.Substring($safe.Length - 900) } else { $safe }
+        throw "Authentication failed: bridge console did not reach the main menu. Console tail: $tail"
+    }
     $model = [regex]::Match($text, 'Model Number:\s*(\S+)').Groups[1].Value
     $firmware = [regex]::Match($text, 'Firmware Ver:\s*(\S+)').Groups[1].Value
     if ($model -ne 'ENL-MOD-32' -or $firmware -ne '3.6') {
@@ -124,6 +133,29 @@ try {
             ok = $true; model = $identity.Model; firmware = $identity.Firmware
             backupRows = $backupRows; appliedRows = @(); readbackRows = @()
             acknowledgements = @(); readSummary = ''
+        } | ConvertTo-Json -Depth 4 -Compress
+        exit 0
+    }
+
+    if ($Action -eq 'Read') {
+        $menu = Send-Line 'X' 1500
+        Require-Text $menu 'Modbus Configuration Menu:' 'Return to Modbus configuration'
+        $read = Send-Line 'A' 12000
+        if ($read -notmatch 'Modbus read completed') {
+            $read += Reopen-AndRead 6000
+        }
+        Require-Text $read 'Modbus read completed' 'Read All Data Points'
+        $menuAfterRead = Send-Line '' 1800
+        if ($menuAfterRead -notmatch 'Modbus Configuration Menu:') {
+            $menuAfterRead += Reopen-AndRead 3000
+        }
+        $summaryMatches = [regex]::Matches($menuAfterRead, '\d+/\d+\s*\(OK/Exceptions\)')
+        if ($summaryMatches.Count -eq 0) { throw 'Read All Data Points did not return a summary.' }
+        [pscustomobject]@{
+            ok = $true; model = $identity.Model; firmware = $identity.Firmware
+            backupRows = $backupRows; appliedRows = @(); readbackRows = @()
+            acknowledgements = @(); readSummary = $summaryMatches[$summaryMatches.Count - 1].Value
+            readText = $read
         } | ConvertTo-Json -Depth 4 -Compress
         exit 0
     }

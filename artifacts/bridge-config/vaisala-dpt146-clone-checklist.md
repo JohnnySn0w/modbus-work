@@ -36,7 +36,7 @@ Connector II wiring:
 - [ ] Confirm the M8 cable is in connector II.
 - [ ] Confirm 15-28 VDC between brown and blue.
 - [ ] Confirm white to bridge B, black to bridge A, and blue/common reference to C.
-- [ ] Import `vaisala-dpt146-golden.tsv` using `Configure Device > Import/Export > Import (Tab delimited)`; omit its header row and finish with an empty line.
+- [ ] Import `vaisala-dpt146-validated.tsv` using `Configure Device > Import/Export > Import (Tab delimited)`; omit its header row and finish with an empty line.
 - [ ] Apply the confirmed bridge-wide serial settings.
 - [ ] Read all configured points locally and require `8/0 (OK/Exceptions)`.
 - [ ] Validate a Loriot uplink and correct raw-payload decoding; defer DSP mapping during the POC phase.

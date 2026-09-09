@@ -53,4 +53,4 @@ The corrected table was imported into the bench bridge and its detailed “Read 
 | Online status | 1 (data available) |
 | Error code | 0 (no errors) |
 
-The resulting table was exported again and matched `vaisala-dpt146-golden.tsv`.
+The resulting table was exported again and matched `vaisala-dpt146-validated.tsv`.

@@ -10,6 +10,16 @@ ROOT = Path(__file__).resolve().parents[1]
 TABULAR_DIRS = (ROOT / "artifacts/register-tables", ROOT / "artifacts/bridge-config", ROOT / ".secrets")
 REGISTER_HEADERS = ["register number", "name", "units", "interpretation", "decode", "defaults"]
 BRIDGE_HEADERS = ["Item", "ID", "Reg", "Addr", "Data", "Word", "Mult", "Read"]
+EXPECTED_TEST_PROFILES = {
+    "ati-badger-f12-d12-documentation-test.tsv",
+    "hmd65-documentation-test.tsv",
+    "micronics-u1000mkii-hm-documentation-test.tsv",
+    "micronics-u3000-uf3300-documentation-test.tsv",
+    "precision-digital-pd2-6000-documentation-test.tsv",
+    "rki-voc-pro-documentation-test.tsv",
+    "seeed-sensecap-s200-documentation-test.tsv",
+    "wattnode-wnd-m1-mb-documentation-test.tsv",
+}
 
 
 class TabularArtifactTests(unittest.TestCase):
@@ -46,6 +56,7 @@ class TabularArtifactTests(unittest.TestCase):
     def test_native_bridge_tsv_schema_and_supported_types(self) -> None:
         allowed_register_types = {"Hold", "Input"}
         allowed_data_types = {"U16", "S16", "U32", "S32", "F32"}
+        allowed_word_orders = {"HH", "HL", "LH", "LL"}
         for path in self.files(".tsv"):
             with self.subTest(path=path.name):
                 with path.open("r", encoding="ascii", newline="") as stream:
@@ -55,6 +66,19 @@ class TabularArtifactTests(unittest.TestCase):
                 for row in rows:
                     self.assertIn(row["Reg"], allowed_register_types)
                     self.assertIn(row["Data"], allowed_data_types)
+                    self.assertIn(row["Word"], allowed_word_orders)
+
+    def test_documented_devices_have_bridge_test_profiles(self) -> None:
+        actual = {path.name for path in (ROOT / "artifacts/bridge-config").glob("*-documentation-test.tsv")}
+        self.assertEqual(actual, EXPECTED_TEST_PROFILES)
+
+    def test_published_decodes_are_not_left_as_firmware_placeholders(self) -> None:
+        forbidden = ("defined by firmware", "model-dependent sensor enumeration", "firmware enumeration")
+        for path in self.files(".csv"):
+            text = path.read_text(encoding="ascii").lower()
+            with self.subTest(path=path.name):
+                for phrase in forbidden:
+                    self.assertNotIn(phrase, text)
 
 
 if __name__ == "__main__":
