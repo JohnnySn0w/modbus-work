@@ -1,0 +1,9 @@
+register number,name,units,interpretation,decode,defaults
+0x0008 - 0x0009,Minimum wind direction,deg,Signed 32-bit integer divided by 1000,,
+0x000A - 0x000B,Maximum wind direction,deg,Signed 32-bit integer divided by 1000,,
+0x000C - 0x000D,Average wind direction,deg,Signed 32-bit integer divided by 1000,,
+0x000E - 0x000F,Minimum wind speed,m/s,Signed 32-bit integer divided by 1000,,
+0x0010 - 0x0011,Maximum wind speed,m/s,Signed 32-bit integer divided by 1000,,
+0x0012 - 0x0013,Average wind speed,m/s,Signed 32-bit integer divided by 1000,,
+0x1000,Device address,,Valid range 1 through 247,,44
+0x1001,Baud rate code,,,12 = 1200; 24 = 2400; 48 = 4800; 96 = 9600; 192 = 19200; 384 = 38400; 576 = 57600; 1152 = 115200,96

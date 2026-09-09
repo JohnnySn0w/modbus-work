@@ -200,7 +200,7 @@ Most backlog devices are not presently available for bench testing. The standard
 2. Vaisala HMD65 (HMD60 family) — documentation-derived bridge test prepared; bench validation pending.
 3. Continental Control Systems WattNode WND-M1-MB — documentation-derived bridge test prepared; bench validation pending.
 
-All other previously listed devices are deferred. The current deliverable is limited to golden or testable configurations for these three devices.
+All other previously listed devices remain deferred from active bench validation. Documentation-derived register tables are maintained for them so they can enter the profile lifecycle when hardware becomes available. The current configuration deliverable remains limited to tested or testable configurations for the three active devices.
 
 ### WattNode legacy-note assessment
 

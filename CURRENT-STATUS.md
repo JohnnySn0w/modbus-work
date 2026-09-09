@@ -4,13 +4,15 @@ Last updated: 2026-08-28
 
 ## Current scope
 
-Only three Modbus instruments are in the active device scope:
+Three Modbus instruments remain in the active bench-validation scope:
 
 1. Vaisala DPT146 — physical unit available and validated.
 2. Vaisala HMD65 — documentation-derived test configuration prepared; no physical unit available.
 3. Continental Control Systems WND-M1-MB WattNode Module for Modbus — documentation-derived test configuration prepared; no physical unit available.
 
 The GUI now includes register-table pages for all three Modbus instruments. Each table shows the manufacturer/manual address, zero-based PDU address, data type/word order, access, current readout when known, units, and a technician-facing description.
+
+Documentation-derived CSV register tables now also cover the remaining intake list: ATI/Badger F12/D12, Micronics U1000MKII-HM, Micronics U3000/UF3300, Precision Digital PD2-6000, Lighthouse Solair 1100LD, Seeed SenseCAP S200, RKI VOC Pro, and Advantech ADAM-4053. These are reference/test artifacts, not bench-validated profiles. See `docs/REMAINING-DEVICE-REGISTER-ASSESSMENT.md` for protocol and revision constraints.
 
 All other instruments from the original shipment-intake list are deferred.
 
