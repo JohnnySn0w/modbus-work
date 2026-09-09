@@ -40,4 +40,4 @@ Bad option. Try again.
 	E - Export                    8/32
 	X - Exit Menu
 
-Enter Selection: 
+Enter Selection:
