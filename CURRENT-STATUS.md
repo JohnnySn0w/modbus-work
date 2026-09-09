@@ -12,7 +12,9 @@ Three Modbus instruments remain in the active bench-validation scope:
 
 The GUI now includes register-table pages for all three Modbus instruments. Each table shows the manufacturer/manual address, zero-based PDU address, data type/word order, access, current readout when known, units, and a technician-facing description.
 
-Documentation-derived CSV register tables now also cover the compatible or potentially compatible remainder of the intake list: ATI/Badger F12/D12, Micronics U1000MKII-HM, Micronics U3000/UF3300, Precision Digital PD2-6000, Lighthouse Solair 1100LD, Seeed SenseCAP S200, and RKI VOC Pro. These are reference/test artifacts, not bench-validated profiles. The ADAM-4053 is excluded because its useful I/O requires coil/discrete access, which the bridge does not support. See `docs/REMAINING-DEVICE-REGISTER-ASSESSMENT.md` for protocol and revision constraints.
+Documentation-derived CSV register tables now also cover the bridge-compatible or potentially compatible remainder of the intake list: ATI/Badger F12/D12, Micronics U1000MKII-HM, Micronics U3000/UF3300, Precision Digital PD2-6000, Seeed SenseCAP S200, and RKI VOC Pro. These are reference/test artifacts, not bench-validated profiles. The ADAM-4053 is excluded because its useful I/O requires coil/discrete access. The Solair 1100LD is excluded because its serial protocol is Modbus ASCII rather than RTU. See `docs/REMAINING-DEVICE-REGISTER-ASSESSMENT.md` for protocol and revision constraints.
+
+All tracked CSV and native bridge TSV artifacts use plain ASCII without a byte-order mark. Spreadsheet-facing register ranges use spaces around hyphens so Excel does not convert them to dates. Automated tests enforce encoding, headers, safe range text, bridge register classes, and numeric data types.
 
 All other instruments from the original shipment-intake list are deferred.
 

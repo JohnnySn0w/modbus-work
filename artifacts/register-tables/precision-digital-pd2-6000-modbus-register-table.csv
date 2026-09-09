@@ -12,4 +12,3 @@ register number,name,units,interpretation,decode,defaults
 40019 - 40020,Grand total non-overflow,user units,IEEE-754 float32,,
 40021 - 40022,PV or rate integer,user units,Signed 32-bit integer excluding the configured decimal point,,
 40102,PV or rate decimal point,,Decimal-place configuration,,
-49901 - 49908,Product and firmware identification,,Manufacturer identification block,,

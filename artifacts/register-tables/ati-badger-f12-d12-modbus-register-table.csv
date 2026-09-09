@@ -21,6 +21,4 @@ register number,name,units,interpretation,decode,defaults
 40065 - 40066,Heavily filtered temperature ADC,count,Signed 32-bit integer,,
 40067 - 40068,Temperature damping constant,,IEEE-754 float32,,
 40073 - 40074,Concentration full-scale range,,IEEE-754 float32,,
-40561 - 40568,Gas name,,16-character string,,
-40569 - 40572,Concentration units,,8-character string,,
 40883 - 40884,Hardware revision,,IEEE-754 float32,,

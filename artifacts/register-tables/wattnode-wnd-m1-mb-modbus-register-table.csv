@@ -32,7 +32,6 @@ register number,name,units,interpretation,decode,defaults
 1631 - 1632,Nominal CT volts 2,Vac,IEEE-754 float32; low 16-bit word first.,,0.33333 Vac
 1633 - 1634,Nominal CT volts 3,Vac,IEEE-754 float32; low 16-bit word first.,,0.33333 Vac
 1636,Connection type,code,,0 = custom mapping; 1 = wye; 2 = delta; 3 = branch circuits; 4 = house and inverter; 5 = line-to-line,
-1651,Apply communication config,state/command,"0 and 1 report state; writing 1234 applies pending address, baud, and parity settings.",0 = no pending communication changes; 1 = communication changes pending; 1234 = apply requested when written,
 1652,Address,,,,
 1653,Baud rate,code,,1 = 1200 baud; 2 = 2400 baud; 3 = 4800 baud; 4 = 9600 baud; 5 = 19200 baud; 6 = 38400 baud; 7 = 57600 baud; 8 = 76800 baud; 9 = 115200 baud,
 1654,Parity mode,code,,0 = 8N1; 1 = 8E1; 2 = 8N2,
@@ -41,8 +40,17 @@ register number,name,units,interpretation,decode,defaults
 1707,Model,code,,530 = WattNode Module,
 1708,Firmware version,,,,
 1709,Options,bitfield,,0x2 = even parity factory option; 0x4 = factory baud configured; 0x20 = CT amps factory configured; 0x200 = factory Modbus address configured; 0x400 = CT amps locked; 0x800 = configuration locked; 0x1000 = LEDs disabled; 0x2000 = no DIP-switch logic,0 = no option bits reported
-1716 - 1723,Error status 1-8,,,,
-1724 - 1726,Factory CT amps 1-3,A,,,
+1716,Error status 1,,,,
+1717,Error status 2,,,,
+1718,Error status 3,,,,
+1719,Error status 4,,,,
+1720,Error status 5,,,,
+1721,Error status 6,,,,
+1722,Error status 7,,,,
+1723,Error status 8,,,,
+1724,Factory CT amps 1,A,,,
+1725,Factory CT amps 2,A,,,
+1726,Factory CT amps 3,A,,,
 1728,Factory address,,,,
 1729,Factory baud,code,,1 = 1200 baud; 2 = 2400 baud; 3 = 4800 baud; 4 = 9600 baud; 5 = 19200 baud; 6 = 38400 baud; 7 = 57600 baud; 8 = 76800 baud; 9 = 115200 baud,
 1730,Factory parity,code,,0 = no factory parity override / 8N1; 1 = 8E1; 2 = 8N2,

@@ -2,7 +2,6 @@ register number,name,units,interpretation,decode,defaults
 40001,Device ID,,,0x00AC = U1000MKII-FM or U1000MKII-HM,
 40002,Status,,,0 = OK; nonzero = fault,
 40003,System type,,,4 = heating; 12 = chiller,
-40004 - 40006,Serial identifier,,Three 16-bit words,,
 40007 - 40008,Measured velocity,m/s,IEEE-754 float32; most-significant byte first,,
 40009 - 40010,Measured flow,,IEEE-754 float32; units depend on instrument unit setting,,
 40011 - 40012,Calculated power,,IEEE-754 float32; kW in metric mode or BTU/s in imperial mode,,

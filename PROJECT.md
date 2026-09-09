@@ -204,6 +204,8 @@ All other previously listed devices remain deferred from active bench validation
 
 The Advantech ADAM-4053 is outside the bridge target set. Its digital channels require coil/discrete I/O access, while the Synetica bridge is limited to function 3 and function 4 reads from holding and input registers.
 
+The Lighthouse Solair 1100LD is also outside the bridge target set because its documented serial protocol is Modbus ASCII. The Synetica bridge supports Modbus RTU only.
+
 ### WattNode legacy-note assessment
 
 The prior WattNode notes have been checked against the current manufacturer reference and preserved as an assessed device record in `docs/devices/wattnode-wnd-m1-mb-assessed-notes.md`. The key correction is that `CurrentIntScale` is a dimensionless full-scale integer count, not milliamps. With 250 A CTs and the default value 20000, the integer-current multiplier is 0.0125 A/count, not 0.01. Float measurement registers are preferred for the bridge POC because they avoid this integer scaling layer.
