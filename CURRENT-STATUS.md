@@ -12,7 +12,7 @@ Three Modbus instruments remain in the active bench-validation scope:
 
 The GUI now includes register-table pages for all three Modbus instruments. Each table shows the manufacturer/manual address, zero-based PDU address, data type/word order, access, current readout when known, units, and a technician-facing description.
 
-Documentation-derived CSV register tables now also cover the remaining intake list: ATI/Badger F12/D12, Micronics U1000MKII-HM, Micronics U3000/UF3300, Precision Digital PD2-6000, Lighthouse Solair 1100LD, Seeed SenseCAP S200, RKI VOC Pro, and Advantech ADAM-4053. These are reference/test artifacts, not bench-validated profiles. See `docs/REMAINING-DEVICE-REGISTER-ASSESSMENT.md` for protocol and revision constraints.
+Documentation-derived CSV register tables now also cover the compatible or potentially compatible remainder of the intake list: ATI/Badger F12/D12, Micronics U1000MKII-HM, Micronics U3000/UF3300, Precision Digital PD2-6000, Lighthouse Solair 1100LD, Seeed SenseCAP S200, and RKI VOC Pro. These are reference/test artifacts, not bench-validated profiles. The ADAM-4053 is excluded because its useful I/O requires coil/discrete access, which the bridge does not support. See `docs/REMAINING-DEVICE-REGISTER-ASSESSMENT.md` for protocol and revision constraints.
 
 All other instruments from the original shipment-intake list are deferred.
 

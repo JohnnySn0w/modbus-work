@@ -11,7 +11,6 @@ These tables are documentation-derived starting points. They have not been bench
 | Lighthouse Solair 1100LD | Core control and particle-record registers captured | The documented serial protocol is Modbus ASCII at 19200 8N1, not Modbus RTU. Treat bridge compatibility as unverified. |
 | Seeed SenseCAP ONE S200 | Complete S200 wind-measurement map and common communications settings captured | Documentation lists S200 address 44 and 9600 8N1. Read measurements with function 04. |
 | RKI VOC Pro | Documented operating, calibration, fault, and relay registers captured | Confirm sensor type and gas-specific units from the installed instrument. |
-| Advantech ADAM-4053 | Digital inputs and identity registers captured | Current documentation lists Modbus RTU support, while older manual revisions conflict. Track hardware and firmware revision during testing. |
 
 ## Source documents
 
@@ -22,7 +21,10 @@ These tables are documentation-derived starting points. They have not been bench
 - Lighthouse Worldwide Solutions: SOLAIR 1100LD Operating Manual, Modbus map version 1.48.
 - Seeed Studio: SenseCAP ONE Compact Weather Sensor User Guide.
 - RKI Instruments: VOC Pro Operator's Manual, Appendix C.
-- Advantech: ADAM-4000 Series User Manual and current ADAM-4053 product data.
+
+## Excluded device
+
+The Advantech ADAM-4053 is intentionally excluded. Its useful field data is exposed as coil/discrete I/O, while the Synetica Modbus Bridge supports only function 3 and function 4 reads from holding and input registers. The bridge does not support coils or discrete inputs, so a readable identity block would not provide the required channel data.
 
 ## Next validation pass
 

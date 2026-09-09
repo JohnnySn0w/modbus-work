@@ -202,6 +202,8 @@ Most backlog devices are not presently available for bench testing. The standard
 
 All other previously listed devices remain deferred from active bench validation. Documentation-derived register tables are maintained for them so they can enter the profile lifecycle when hardware becomes available. The current configuration deliverable remains limited to tested or testable configurations for the three active devices.
 
+The Advantech ADAM-4053 is outside the bridge target set. Its digital channels require coil/discrete I/O access, while the Synetica bridge is limited to function 3 and function 4 reads from holding and input registers.
+
 ### WattNode legacy-note assessment
 
 The prior WattNode notes have been checked against the current manufacturer reference and preserved as an assessed device record in `docs/devices/wattnode-wnd-m1-mb-assessed-notes.md`. The key correction is that `CurrentIntScale` is a dimensionless full-scale integer count, not milliamps. With 250 A CTs and the default value 20000, the integer-current multiplier is 0.0125 A/count, not 0.01. Float measurement registers are preferred for the bridge POC because they avoid this integer scaling layer.
