@@ -228,17 +228,23 @@ Every clone-ready configuration must include a machine-readable manifest. Bridge
 
 ### Desktop application
 
-Use Python with PySide6 for a native Windows GUI and `pymodbus`/`pyserial` for direct Modbus work. Package it as a signed Windows executable after bench validation. Keep protocol logic outside the UI so a future auto-programmer can reuse the same library and profiles.
+Keep the existing Python/Tk GUI as the technician-facing presentation layer while moving all live hardware access into a persistent Rust executable named `modbus-agent.exe`. The agent will be the single owner of COM ports, direct Modbus work, console navigation, backups, guarded writes, readback, and transcripts. The initial versioned IPC contract is newline-delimited JSON over stdin/stdout.
+
+This migration addresses the observed bridge failure mode: a short PowerShell process used fixed delays and required an exact `Modbus Configuration Menu:` prompt even when the device could be in another valid state. PowerShell remains useful for isolated bench diagnostics, but it is no longer the planned application transport. A native Rust GUI can be considered later; it is not required to gain the reliability benefit.
+
+Package the current GUI and Rust agent together as a signed Windows application after bench validation. Keep profile and protocol logic outside the UI so another presentation layer can reuse the same library and artifacts.
 
 Suggested layers:
 
-1. **Port and hardware discovery** — identify COM ports by USB VID/PID and serial number, not by unstable COM number alone.
-2. **Transport adapters** — direct RS-485 polling through COM3; bridge-configuration transport through COM5 once its protocol is understood.
-3. **Modbus engine** — bounded reads, timeouts, retries, decoding, and read-only safety mode.
-4. **Device profiles** — versioned YAML/JSON definitions for serial defaults, identity probes, measurements, register spans, decoding, units, and validation ranges.
-5. **Bridge profile/compiler** — convert device measurements into the specific Polygon/enLink channel configuration and payload mapping.
-6. **Workflow UI** — a guided commissioning wizard plus an expert diagnostics page.
-7. **Evidence and export** — sanitized logs, configuration snapshot, test results, and shipment/DSP handoff report.
+1. **Workflow GUI** — guided commissioning, durable device states, plain-language failures, and expert diagnostics.
+2. **Agent IPC** — versioned commands and events with request IDs, progress, results, cancellation, and stable error codes.
+3. **Port actors** — one exclusive owner and operation queue per COM port so scanning cannot collide with a live action.
+4. **Protocol adapters** — tolerant state machines for ENL-MOD-32 and native enLink consoles, plus direct Modbus RTU.
+5. **Device profiles** — versioned YAML/JSON definitions for serial defaults, identity probes, measurements, register spans, decoding, units, and validation ranges.
+6. **Bridge profile/compiler** — conversion of device measurements into the specific Polygon/enLink channel configuration and payload mapping.
+7. **Evidence and export** — native backups, structured logs, configuration snapshots, test results, and shipment/DSP handoff reports.
+
+The detailed process boundary, state-machine rules, migration steps, and verification gates are in `docs/RUST-HARDWARE-AGENT.md`.
 
 ### Profile concept
 
@@ -293,10 +299,11 @@ The normal mode should hide register arithmetic. Expert mode should expose raw r
 
 ### Phase 3 — Bridge integration
 
-- Reverse-engineer nothing until the vendor utility and documentation have been exhausted.
-- Read/export configuration through COM5.
-- Implement bridge configuration preview and validation.
-- Add writes only with backup, diff, confirmation, readback, and rollback.
+- Preserve the validated configuration tables and captured bridge behavior as replay fixtures.
+- Build the persistent Rust hardware agent and JSON Lines interface.
+- Implement state-aware login, menu recovery, read/export, and Read All through the agent.
+- Validate read-only operations on the physical bridge before exposing writes.
+- Add writes only with native backup, diff, confirmation, exported readback, and recovery evidence.
 - Validate the LoRa uplink and raw-payload decoding in Loriot.
 
 **Exit:** one-click deployment of a known-good DPT146 channel set with proof of correctly decoded Loriot values.
@@ -304,7 +311,7 @@ The normal mode should hide register arithmetic. Expert mode should expose raw r
 ### Phase 4 — Shipment intake system
 
 - Bench-validate the prepared WND-M1-MB and HMD65 profiles when physical units become available.
-- Create guided intake checks, golden fixtures, acceptance criteria, and printable/exportable reports.
+- Create guided intake checks, validated fixtures, acceptance criteria, and printable/exportable reports.
 - Integrate the profile/compiler library into the auto-programmer system if its ownership and interface are confirmed.
 
 **Exit:** a repeatable shipment-to-Loriot workflow that can grow one reviewed device profile at a time; downstream DSP routing remains a separate concern.
@@ -313,7 +320,7 @@ The normal mode should hide register arithmetic. Expert mode should expose raw r
 
 The complete dated handoff is `CURRENT-STATUS.md`. The bridge currently contains the restored DPT146 validated table, reports 8 configured points with 8 successful reads and 0 exceptions, and retained that state across reboot.
 
-The bridge can now be disconnected and stored. Continue without hardware by implementing the profile loader, ENL-MOD-32 compiler/preview, replay fixtures, and technician GUI scaffolding. Bring the bridge back when an HMD65 or WND-M1-MB is available or when the real GUI import workflow is ready for hardware validation.
+The bridge can be disconnected while the agent contract, parsers, replay fixtures, and GUI integration are built. Bring it back for each read-only state-machine gate and again before any write path is exposed. HMD65 and WND-M1-MB promotion still requires their physical hardware.
 
 ## Sources
 

@@ -1,6 +1,6 @@
 # Current project status
 
-Last updated: 2026-08-28
+Last updated: 2026-09-09
 
 ## Current scope
 
@@ -79,7 +79,7 @@ Validation achieved:
 - Detailed bridge test succeeded: 8 reads, 0 exceptions.
 - Loriot uplink and payload format were decoded successfully.
 - Point-table deletion was validated by importing Slave ID 0 for items 1–8; the bridge reported 0/32.
-- Golden-table restoration succeeded for all eight rows.
+- Validated-table restoration succeeded for all eight rows.
 - Restored readings succeeded: 8 reads, 0 exceptions.
 - Bridge reboot persistence succeeded: table remained 8/32 and status remained 8/0.
 
@@ -185,18 +185,29 @@ It is required again when:
 - IAQ commissioning scope is now credential-first: preserve JoinEUI/AppEUI, provision the selected AppKey, and treat measurements as optional verification. The attached IAQ and stored bridge/project JoinEUI values match; their AppKeys do not. Firmware 5.06 exposes no separate NwkKey.
 - Firmware-update preflight is scaffolded: package manifests bind product, firmware code, source/target versions, radio regions, image SHA-256, vendor approval, flash method, and recovery procedure. The GUI can inspect packages, but flashing is blocked because no authoritative IAQ Plus updater/image/bootloader and recovery procedure are currently available.
 
+## Transport reliability finding
+
+Live GUI testing exposed a structural failure in the current PowerShell console helper. It starts a new process, sleeps for fixed intervals, and requires an exact menu prompt. When the ENL-MOD-32 is already authenticated, remains in a submenu, echoes differently, or returns output in different chunks, a healthy device can be reported as an authentication or menu failure. The latest observed failure expected `Modbus Configuration Menu:` and stopped without a verified write.
+
+The production direction is therefore a persistent Rust hardware agent behind the current Python/Tk GUI. It will exclusively own each COM port, recognize accumulated console state, recover from known menus, serialize discovery and actions, and return structured JSON progress/results. Existing PowerShell helpers are retained only as bench diagnostics while paths are migrated. The detailed design is `docs/RUST-HARDWARE-AGENT.md`.
+
+The corrected CSV/TSV delivery bundle is `artifacts/modbus-csv-tsv-bundle.zip`. It contains 21 strict-ASCII artifacts: nine register-table CSVs, ten bridge TSVs, and two private native bridge backups. The older firmware export is retained only under the explicit name `enl-mod-32-firmware-3.6-historical-precorrection-export.tsv`, so it cannot be mistaken for the validated DPT146 table.
+
 ## Next work
 
 Without hardware:
 
-1. Implement the profile loader and validation rules.
-2. Turn pre-made selection into a guarded programming workflow: Preflight, Preview, Confirm, Program, Read Back, and Validate.
-3. Implement ENL-MOD-32 TSV compilation/import plus deletion and rollback generation behind the GUI.
-4. Add safe device-configuration writers only for fields classified as installation settings.
-5. Add replay fixtures for DPT146 local readings and Loriot payloads.
-6. Add live engineering-value confirmation and a commissioning pass/fail export.
-7. Keep writes disabled by default and require backup, diff, confirmation, readback, and recovery evidence.
-8. Add the final DSP how-to only after the Modbus and Loriot workflow is proven for all three active devices.
+1. Scaffold `modbus-agent.exe` and its versioned JSON Lines command/event contract.
+2. Add replay fixtures for bridge login, prompt fragmentation, stale submenus, native export, and Read All.
+3. Move passive Synetica discovery and read-only ENL-MOD-32 actions behind one exclusive per-port actor.
+4. Integrate agent progress, results, and plain-language error codes into the existing GUI.
+5. Implement the profile loader and validation rules.
+6. Turn pre-made selection into a guarded programming workflow: Preflight, Preview, Confirm, Program, Read Back, and Validate.
+7. Move direct Modbus polling and native IAQ console access behind the agent.
+8. Add safe device-configuration writers only for fields classified as installation settings.
+9. Add live engineering-value confirmation and a commissioning pass/fail export.
+10. Keep writes disabled by default and require backup, diff, confirmation, readback, and recovery evidence.
+11. Add the final DSP how-to only after the Modbus and Loriot workflow is proven for all three active devices.
 
 When HMD65 or WND-M1-MB hardware arrives:
 

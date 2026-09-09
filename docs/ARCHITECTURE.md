@@ -1,6 +1,17 @@
 # Configurator architecture
 
-The configurator is intentionally divided into three reusable layers. Device knowledge, bridge behavior, and technician workflow must remain separate so new instruments and new bridge families can be added without duplicating screens or protocol logic.
+The configurator is intentionally divided into three reusable domain layers. Device knowledge, bridge behavior, and technician workflow must remain separate so new instruments and new bridge families can be added without duplicating screens or protocol logic.
+
+## Runtime topology
+
+The supported Windows runtime is being separated into two processes:
+
+- the existing Python/Tk application remains the technician-facing presentation layer during migration;
+- a long-running Rust executable, `modbus-agent.exe`, becomes the sole owner of serial ports, protocol state machines, direct Modbus reads, bridge configuration, native-device configuration, and hardware transcripts.
+
+The two processes initially communicate through versioned newline-delimited JSON over standard input and output. This keeps the GUI replaceable, makes hardware conversations replay-testable, and prevents the background scanner and explicit device actions from competing for a COM port. PowerShell console automation is retained only as a temporary bench diagnostic path and is not the target production transport.
+
+See [RUST-HARDWARE-AGENT.md](RUST-HARDWARE-AGENT.md) for the IPC, state-machine, migration, safety, and verification design.
 
 ## 1. Device profiles
 
@@ -78,4 +89,4 @@ The product succeeds when an operations technician can connect known hardware, s
 
 ## Core rule
 
-No device-specific register logic belongs in GUI screens, and no bridge-specific import logic belongs in device profiles. The workflow layer composes the two through a stable internal model.
+No device-specific register logic belongs in GUI screens, and no bridge-specific import logic belongs in device profiles. The workflow layer composes the two through a stable internal model. Only the hardware agent owns live COM ports; the GUI consumes structured events and results rather than console text or PowerShell exceptions.

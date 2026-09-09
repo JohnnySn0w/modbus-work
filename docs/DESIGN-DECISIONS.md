@@ -14,8 +14,12 @@ This file records decisions made autonomously for the rough technician prototype
 7. **Secrets travel only in explicitly private artifacts.** This repository is intentionally private and carries recovery credentials per project direction. Normal logs, redacted evidence, and routine UI screens do not display keys.
 8. **Firmware is part of compatibility identity.** An IAQ configuration is keyed by product family plus firmware code/version and radio region, just as bridge configurations are keyed by model plus firmware.
 9. **Unexpected readings are shown, not silently corrected.** The observed GSS CO2 value is parsed but called out as unvalidated. Plausibility warnings belong beside the raw engineering value.
-10. **Windows is the first supported bench platform.** The live enLink helper uses PowerShell/.NET serial behavior because it is reliable with this CDC device. Parsing and profile logic remain pure Python and replay-testable.
+10. **Windows is the first supported bench platform.** The existing Python/Tk GUI remains in place during transport migration. PowerShell/.NET console scripts are now legacy bench diagnostics: live tests showed that their fixed delays and exact prompt matching cannot reliably recover the current device menu state.
 11. **Firmware is a separately authorized workflow.** A package must pass exact identity, region, upgrade-path, hash, vendor-approval, and recovery checks. Configuration authorization never implies permission to flash firmware.
+12. **A persistent Rust process is the hardware boundary.** `modbus-agent.exe` will own port enumeration, exclusive per-port sessions, console and Modbus state machines, backup/write/readback operations, and structured transcripts. The GUI will not open COM ports directly after migration.
+13. **The first agent protocol is JSON Lines.** Versioned newline-delimited JSON over stdin/stdout is the simplest replayable contract for the current GUI. Commands carry request IDs and expected identities; results use stable event and error types rather than raw console text.
+14. **The GUI is not being rewritten first.** A full Rust GUI may be considered after the agent contract and hardware adapters are proven. Replacing Tk before stabilizing the protocol boundary would combine two migrations without improving serial reliability.
+15. **Prompt recognition is state-based and tolerant.** Console adapters parse accumulated streams, normalize transport noise and line endings, use monotonic deadlines, and recover from known menus. No configuration write begins until identity and a native backup are verified.
 
 ## Open design questions for later review
 
@@ -29,8 +33,9 @@ This file records decisions made autonomously for the rough technician prototype
 
 ## Next implementation slice
 
-- Capture Configure Device page 2 and particle options without writes.
+- Scaffold the Rust hardware agent and versioned JSON Lines contract.
+- Add replay fixtures for bridge login, stale submenu recovery, configuration export, and Read All.
+- Move read-only ENL-MOD-32 access behind the agent and validate it on hardware before enabling writes.
 - Add a plain-language credential diff that always marks JoinEUI/AppEUI as preserved and shows only whether the AppKey will change, without revealing it.
-- Implement writes one field at a time with backup, confirmation, reboot when required, readback, and rollback evidence.
-- Add Loriot payload replay fixtures and compare them with USB live readings.
-- Package the Windows application for technicians who do not have Python installed.
+- Capture Configure Device page 2 and particle options without writes.
+- Package the GUI and agent for technicians who do not have Python or PowerShell tooling installed.

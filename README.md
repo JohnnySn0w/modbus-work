@@ -23,6 +23,8 @@ The system is split into three layers so new devices and future bridge firmware 
 
 The important boundary is that device-specific register logic does not live in GUI screens, and bridge import behavior does not live in device profiles. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [the profile lifecycle](artifacts/device-profiles/PROFILE-LIFECYCLE.md).
 
+Live hardware access is now being moved behind a persistent Rust process. The existing Python/Tk GUI will communicate with `modbus-agent.exe` through structured JSON events, while the agent exclusively owns COM ports, prompt recovery, Modbus transactions, backups, writes, and readback. This replaces the current fixed-delay PowerShell console automation that failed when the bridge was already in an unexpected menu state. See [the Rust hardware-agent design](docs/RUST-HARDWARE-AGENT.md).
+
 ## Component details
 
 ### Bridge
@@ -61,7 +63,7 @@ The first approved-target draft is [the US915 IAQ Plus native configuration](art
 
 ## GUI
 
-The desktop GUI uses Python's built-in Tk toolkit and keeps serial discovery separate from device definitions.
+The desktop GUI uses Python's built-in Tk toolkit and keeps serial discovery separate from device definitions. It remains the presentation shell during the Rust hardware-agent migration; a complete GUI rewrite is deliberately deferred.
 
 Features currently implemented:
 
@@ -80,6 +82,8 @@ Features currently implemented:
 - per-device Help dialogs containing short setup and troubleshooting guidance.
 - IAQ Plus authenticated live-reading refresh, private JSON console backup, and radio-profile preview;
 - firmware-package preflight with exact identity/region/upgrade-path checks and SHA-256 validation; actual flashing remains blocked pending vendor tooling and recovery instructions;
+
+The present bridge and IAQ actions still reach some devices through short PowerShell subprocesses. Those paths are diagnostic prototypes, not the production transport. Their exact-prompt/fixed-delay behavior can fail even when the hardware is healthy, so configuration writes remain hidden until the persistent agent passes replay and live-hardware validation.
 
 When a direct fingerprint succeeds, the detail page displays the live values returned by that probe. Otherwise, DPT146 values are explicitly labeled as the latest validated bench readings. The transport and fingerprint layer owns register logic; GUI screens do not.
 
@@ -136,7 +140,7 @@ Firmware update design and current vendor-material blockers are documented in [F
 
 ```text
 app/                         GUI, device catalog, and hardware discovery
-artifacts/bridge-config/     Golden and documentation-derived bridge tables
+artifacts/bridge-config/     Validated and documentation-derived bridge tables
 artifacts/device-profiles/   Profile lifecycle and machine-readable profiles
 artifacts/native-config/     Native LoRaWAN device target configurations
 docs/evidence/               Bench photographs and screenshots
