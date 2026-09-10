@@ -1,4 +1,6 @@
-# HMD65 documentation-derived bridge test
+> Current addition: a separate non-metric float32 profile is available. See docs/devices/hmd65-representation-review.md for bank addresses and units. Physical word-order validation remains pending.
+
+# HMD65 documentation-derived E5 bridge test
 
 Status: **testable, not validated, not deployable**.
 

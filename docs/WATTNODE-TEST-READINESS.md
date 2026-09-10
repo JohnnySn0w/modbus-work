@@ -1,3 +1,5 @@
+> Review 2026-09-10: documentation-derived register/bench planning material. Physical HMD65, WattNode and ATI acceptance remains pending at the colleague site. ATI F12/PAA now has a native E5 profile; direct ATI adapter support is still pending. Current support: [status](../CURRENT-STATUS.md).
+
 # WattNode WND-M1-MB bench readiness
 
 This is the go/no-go checklist for the first physical WND-M1-MB. The software artifacts are ready for a read-only bench test; the profile remains **to-test** until evidence from a real unit is saved.

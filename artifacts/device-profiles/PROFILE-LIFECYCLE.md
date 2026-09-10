@@ -8,11 +8,11 @@ Every supported or candidate Modbus instrument uses the same profile structure a
 
 Documentation-backed hypothesis for a device that is not presently available.
 
-- May contain authoritative register definitions, candidate serial settings, wiring notes, and a proposed bridge point set.
+- May contain authoritative register definitions, candidate serial settings, wiring notes, and a proposed E5 bridge point set.
 - Unknowns remain explicit as `null`, `unresolved`, or preflight blockers.
 - Must set `deployment_allowed: false` and `golden_configuration: false`.
 - Must distinguish safe reads, installation writes, calibration-only controls, and hazardous actions.
-- Cannot be imported into a production bridge through the normal technician workflow.
+- Not qualified for field deployment. The Rust configuration selector exposes documentation candidates for controlled bench testing; software selection is not a deployment approval.
 
 ### `bench-validated`
 
@@ -25,11 +25,11 @@ Tested against an identified physical instrument.
 
 ### `bridge-validated`
 
-The device profile has been compiled into an identified bridge and tested locally.
+The device profile has been compiled into an identified E5 bridge and tested locally.
 
-- Exact bridge model and firmware are recorded.
+- Exact E5 bridge model and firmware are recorded.
 - Baseline backup, configuration diff, write/import, readback, and rollback path are available.
-- All configured points pass the bridge's local read test.
+- All configured points pass the E5 bridge's local read test.
 
 ### `clone-ready`
 
@@ -37,7 +37,7 @@ Approved golden package for technician deployment.
 
 - LoRaWAN join and correctly decoded Loriot raw payload are proven.
 - Exact firmware compatibility policy is recorded.
-- Package includes the device profile, bridge configuration, manifest, wiring notes, screenshots/log evidence, acceptance checklist, and secrets handling instructions.
+- Package includes the device profile, E5 bridge configuration, manifest, wiring notes, screenshots/log evidence, acceptance checklist, and secrets handling instructions.
 - DSP routing after Loriot is outside the current POC acceptance boundary.
 
 ## Promotion rule

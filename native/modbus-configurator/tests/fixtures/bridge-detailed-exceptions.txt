@@ -1,0 +1,56 @@
+Read All Data Points Options:
+	==============================================================================
+	N - Normal   <==
+	D - Detailed
+
+Enter Selection [Normal]: 
+--> TX:      01 03 02 03 00 02
+<-- RX:      01 03 04 00 00 00 00
+--- Raw:     0000 0000
+--- Swap:    0000 0000
+--- Reading: 0
+--------------------------------------------------------------------------------------
+--- [ 9]  ID:1  Reg:Hold  Addr:1032  Data:F32 HL
+--> TX:      01 03 04 08 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+
+--- [ 9]  ID:1  Reg:Hold  Addr:1032  Data:F32 HL  Retry:1
+--> TX:      01 03 04 08 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+--------------------------------------------------------------------------------------
+--- [10]  ID:1  Reg:Hold  Addr:1162  Data:F32 HL
+--> TX:      01 03 04 8A 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+
+--- [10]  ID:1  Reg:Hold  Addr:1162  Data:F32 HL  Retry:1
+--> TX:      01 03 04 8A 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+--------------------------------------------------------------------------------------
+--- [11]  ID:1  Reg:Hold  Addr:1164  Data:F32 HL
+--> TX:      01 03 04 8C 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+
+--- [11]  ID:1  Reg:Hold  Addr:1164  Data:F32 HL  Retry:1
+--> TX:      01 03 04 8C 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+--------------------------------------------------------------------------------------
+--- [12]  ID:1  Reg:Hold  Addr:1166  Data:F32 HL
+--> TX:      01 03 04 8E 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+
+--- [12]  ID:1  Reg:Hold  Addr:1166  Data:F32 HL  Retry:1
+--> TX:      01 03 04 8E 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+--------------------------------------------------------------------------------------
+
+Modbus read completed
+
+Press a key to continue: 

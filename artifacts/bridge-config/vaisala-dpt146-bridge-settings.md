@@ -38,11 +38,11 @@ Status: **validated on Polygon/Synetica ENL-MOD-32 firmware 3.6** on 2026-08-28.
 
 The Vaisala manual shows both one-based logical register numbers and zero-based PDU addresses. ENL-MOD-32 firmware 3.6 transmits the address exactly as entered, so use the PDU addresses above. The original bridge table used the logical measurement addresses with `HH`, producing plausible-looking but incorrect values assembled from adjacent register words.
 
-## Bridge validation result
+## E5 bridge validation result
 
-The corrected table was imported into the bench bridge and its detailed “Read All Data Points” test completed with **8 successful reads and 0 exceptions**.
+The corrected table was imported into the bench E5 bridge and its detailed “Read All Data Points” test completed with **8 successful reads and 0 exceptions**.
 
-| Quantity | Validated bridge reading |
+| Quantity | Validated E5 bridge reading |
 |---|---:|
 | Temperature | 27.994858 °C |
 | Dew/frost point | 9.879358 °C |

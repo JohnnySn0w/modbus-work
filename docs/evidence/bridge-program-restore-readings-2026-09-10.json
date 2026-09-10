@@ -1,0 +1,327 @@
+{
+  "restored": [
+    {
+      "identity": {
+        "model": "ENL-MOD-32",
+        "firmware": "3.6"
+      },
+      "native_tsv": "Item\tID\tReg\tAddr\tData\tWord\tMult\tRead\r\n1\t1\tHold\t4\tF32\tHL\t1\tInt\r\n2\t1\tHold\t6\tF32\tHL\t1\tInt\r\n3\t1\tHold\t10\tF32\tHL\t1\tInt\r\n4\t1\tHold\t20\tF32\tHL\t1\tInt\r\n5\t1\tHold\t44\tF32\tHL\t1\tInt\r\n6\t1\tHold\t512\tU16\tHH\t1\tInt\r\n7\t1\tHold\t513\tU16\tHH\t1\tInt\r\n8\t1\tHold\t515\tU32\tHL\t1\tInt\r\n9\t1\tHold\t1032\tF32\tHL\t1\tInt\r\n10\t1\tHold\t1162\tF32\tHL\t1\tInt\r\n11\t1\tHold\t1164\tF32\tHL\t1\tInt\r\n12\t1\tHold\t1166\tF32\tHL\t1\tInt\r\n",
+      "readings": [
+        {
+          "item": 1,
+          "value": 24.553879
+        },
+        {
+          "item": 2,
+          "value": 10.121625
+        },
+        {
+          "item": 3,
+          "value": 10.123832
+        },
+        {
+          "item": 4,
+          "value": 12370.702148
+        },
+        {
+          "item": 5,
+          "value": 1.013158
+        },
+        {
+          "item": 6,
+          "value": 1.0
+        },
+        {
+          "item": 7,
+          "value": 1.0
+        },
+        {
+          "item": 8,
+          "value": 0.0
+        }
+      ],
+      "successful_reads": 8,
+      "exceptions": [
+        {
+          "item": 9,
+          "code": 2,
+          "message": "Illegal Data Address"
+        },
+        {
+          "item": 10,
+          "code": 2,
+          "message": "Illegal Data Address"
+        },
+        {
+          "item": 11,
+          "code": 2,
+          "message": "Illegal Data Address"
+        },
+        {
+          "item": 12,
+          "code": 2,
+          "message": "Illegal Data Address"
+        }
+      ]
+    },
+    {
+      "identity": {
+        "model": "ENL-MOD-32",
+        "firmware": "3.6"
+      },
+      "native_tsv": "Item\tID\tReg\tAddr\tData\tWord\tMult\tRead\r\n1\t1\tHold\t4\tF32\tHL\t1\tInt\r\n2\t1\tHold\t6\tF32\tHL\t1\tInt\r\n3\t1\tHold\t10\tF32\tHL\t1\tInt\r\n4\t1\tHold\t20\tF32\tHL\t1\tInt\r\n5\t1\tHold\t44\tF32\tHL\t1\tInt\r\n6\t1\tHold\t512\tU16\tHH\t1\tInt\r\n7\t1\tHold\t513\tU16\tHH\t1\tInt\r\n8\t1\tHold\t515\tU32\tHL\t1\tInt\r\n9\t1\tHold\t1032\tF32\tHL\t1\tInt\r\n10\t1\tHold\t1162\tF32\tHL\t1\tInt\r\n11\t1\tHold\t1164\tF32\tHL\t1\tInt\r\n12\t1\tHold\t1166\tF32\tHL\t1\tInt\r\n",
+      "readings": [
+        {
+          "item": 1,
+          "value": 24.545609
+        },
+        {
+          "item": 2,
+          "value": 10.114684
+        },
+        {
+          "item": 3,
+          "value": 10.115024
+        },
+        {
+          "item": 4,
+          "value": 12363.049805
+        },
+        {
+          "item": 5,
+          "value": 1.013237
+        },
+        {
+          "item": 6,
+          "value": 1.0
+        },
+        {
+          "item": 7,
+          "value": 1.0
+        },
+        {
+          "item": 8,
+          "value": 0.0
+        }
+      ],
+      "successful_reads": 8,
+      "exceptions": [
+        {
+          "item": 9,
+          "code": 2,
+          "message": "Illegal Data Address"
+        },
+        {
+          "item": 10,
+          "code": 2,
+          "message": "Illegal Data Address"
+        },
+        {
+          "item": 11,
+          "code": 2,
+          "message": "Illegal Data Address"
+        },
+        {
+          "item": 12,
+          "code": 2,
+          "message": "Illegal Data Address"
+        }
+      ]
+    },
+    {
+      "identity": {
+        "model": "ENL-MOD-32",
+        "firmware": "3.6"
+      },
+      "native_tsv": "Item\tID\tReg\tAddr\tData\tWord\tMult\tRead\r\n1\t1\tHold\t4\tF32\tHL\t1\tInt\r\n2\t1\tHold\t6\tF32\tHL\t1\tInt\r\n3\t1\tHold\t10\tF32\tHL\t1\tInt\r\n4\t1\tHold\t20\tF32\tHL\t1\tInt\r\n5\t1\tHold\t44\tF32\tHL\t1\tInt\r\n6\t1\tHold\t512\tU16\tHH\t1\tInt\r\n7\t1\tHold\t513\tU16\tHH\t1\tInt\r\n8\t1\tHold\t515\tU32\tHL\t1\tInt\r\n9\t1\tHold\t1032\tF32\tHL\t1\tInt\r\n10\t1\tHold\t1162\tF32\tHL\t1\tInt\r\n11\t1\tHold\t1164\tF32\tHL\t1\tInt\r\n12\t1\tHold\t1166\tF32\tHL\t1\tInt\r\n",
+      "readings": [
+        {
+          "item": 1,
+          "value": 24.542068
+        },
+        {
+          "item": 2,
+          "value": 10.110388
+        },
+        {
+          "item": 3,
+          "value": 10.11939
+        },
+        {
+          "item": 4,
+          "value": 12367.222656
+        },
+        {
+          "item": 5,
+          "value": 1.012624
+        },
+        {
+          "item": 6,
+          "value": 1.0
+        },
+        {
+          "item": 7,
+          "value": 1.0
+        },
+        {
+          "item": 8,
+          "value": 0.0
+        }
+      ],
+      "successful_reads": 8,
+      "exceptions": [
+        {
+          "item": 9,
+          "code": 2,
+          "message": "Illegal Data Address"
+        },
+        {
+          "item": 10,
+          "code": 2,
+          "message": "Illegal Data Address"
+        },
+        {
+          "item": 11,
+          "code": 2,
+          "message": "Illegal Data Address"
+        },
+        {
+          "item": 12,
+          "code": 2,
+          "message": "Illegal Data Address"
+        }
+      ]
+    }
+  ],
+  "dpt146": [
+    {
+      "identity": {
+        "model": "ENL-MOD-32",
+        "firmware": "3.6"
+      },
+      "native_tsv": "Item\tID\tReg\tAddr\tData\tWord\tMult\tRead\r\n1\t1\tHold\t4\tF32\tHL\t1\tInt\r\n2\t1\tHold\t6\tF32\tHL\t1\tInt\r\n3\t1\tHold\t10\tF32\tHL\t1\tInt\r\n4\t1\tHold\t20\tF32\tHL\t1\tInt\r\n5\t1\tHold\t44\tF32\tHL\t1\tInt\r\n6\t1\tHold\t512\tU16\tHH\t1\tInt\r\n7\t1\tHold\t513\tU16\tHH\t1\tInt\r\n8\t1\tHold\t515\tU32\tHL\t1\tInt\r\n",
+      "readings": [
+        {
+          "item": 1,
+          "value": 24.550674
+        },
+        {
+          "item": 2,
+          "value": 10.126137
+        },
+        {
+          "item": 3,
+          "value": 10.121772
+        },
+        {
+          "item": 4,
+          "value": 12371.414063
+        },
+        {
+          "item": 5,
+          "value": 1.013385
+        },
+        {
+          "item": 6,
+          "value": 1.0
+        },
+        {
+          "item": 7,
+          "value": 1.0
+        },
+        {
+          "item": 8,
+          "value": 0.0
+        }
+      ],
+      "successful_reads": 8,
+      "exceptions": []
+    },
+    {
+      "identity": {
+        "model": "ENL-MOD-32",
+        "firmware": "3.6"
+      },
+      "native_tsv": "Item\tID\tReg\tAddr\tData\tWord\tMult\tRead\r\n1\t1\tHold\t4\tF32\tHL\t1\tInt\r\n2\t1\tHold\t6\tF32\tHL\t1\tInt\r\n3\t1\tHold\t10\tF32\tHL\t1\tInt\r\n4\t1\tHold\t20\tF32\tHL\t1\tInt\r\n5\t1\tHold\t44\tF32\tHL\t1\tInt\r\n6\t1\tHold\t512\tU16\tHH\t1\tInt\r\n7\t1\tHold\t513\tU16\tHH\t1\tInt\r\n8\t1\tHold\t515\tU32\tHL\t1\tInt\r\n",
+      "readings": [
+        {
+          "item": 1,
+          "value": 24.549423
+        },
+        {
+          "item": 2,
+          "value": 10.125895
+        },
+        {
+          "item": 3,
+          "value": 10.129203
+        },
+        {
+          "item": 4,
+          "value": 12374.935547
+        },
+        {
+          "item": 5,
+          "value": 1.013194
+        },
+        {
+          "item": 6,
+          "value": 1.0
+        },
+        {
+          "item": 7,
+          "value": 1.0
+        },
+        {
+          "item": 8,
+          "value": 0.0
+        }
+      ],
+      "successful_reads": 8,
+      "exceptions": []
+    },
+    {
+      "identity": {
+        "model": "ENL-MOD-32",
+        "firmware": "3.6"
+      },
+      "native_tsv": "Item\tID\tReg\tAddr\tData\tWord\tMult\tRead\r\n1\t1\tHold\t4\tF32\tHL\t1\tInt\r\n2\t1\tHold\t6\tF32\tHL\t1\tInt\r\n3\t1\tHold\t10\tF32\tHL\t1\tInt\r\n4\t1\tHold\t20\tF32\tHL\t1\tInt\r\n5\t1\tHold\t44\tF32\tHL\t1\tInt\r\n6\t1\tHold\t512\tU16\tHH\t1\tInt\r\n7\t1\tHold\t513\tU16\tHH\t1\tInt\r\n8\t1\tHold\t515\tU32\tHL\t1\tInt\r\n",
+      "readings": [
+        {
+          "item": 1,
+          "value": 24.570816
+        },
+        {
+          "item": 2,
+          "value": 10.144803
+        },
+        {
+          "item": 3,
+          "value": 10.121432
+        },
+        {
+          "item": 4,
+          "value": 12363.224609
+        },
+        {
+          "item": 5,
+          "value": 1.015037
+        },
+        {
+          "item": 6,
+          "value": 1.0
+        },
+        {
+          "item": 7,
+          "value": 1.0
+        },
+        {
+          "item": 8,
+          "value": 0.0
+        }
+      ],
+      "successful_reads": 8,
+      "exceptions": []
+    }
+  ]
+}

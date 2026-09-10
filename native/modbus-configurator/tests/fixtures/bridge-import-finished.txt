@@ -1,0 +1,15 @@
+Import Finished. Results:
+
+Item	ID	Reg	Addr	Data	Word	Mult	Read
+1	1	Hold	4	F32	HL	1	Int
+2	1	Hold	6	F32	HL	1	Int
+3	1	Hold	10	F32	HL	1	Int
+4	1	Hold	20	F32	HL	1	Int
+5	1	Hold	44	F32	HL	1	Int
+6	1	Hold	512	U16	HH	1	Int
+7	1	Hold	513	U16	HH	1	Int
+8	1	Hold	515	U32	HL	1	Int
+
+
+
+Press a key to continue: 

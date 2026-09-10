@@ -1,0 +1,232 @@
+[
+  {
+    "path": "artifacts/bridge-config/documentation-test-profiles.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "artifacts/bridge-config/enl-mod-32-config-reset-restore-validation.md",
+    "classification": "historical evidence",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "artifacts/bridge-config/enl-mod-32-gui-writer-validation.md",
+    "classification": "historical evidence",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "artifacts/bridge-config/enl-mod-32-lorawan-payload.md",
+    "classification": "historical evidence",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "artifacts/bridge-config/enl-mod-32-lorawan-status.md",
+    "classification": "historical evidence",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "artifacts/bridge-config/hmd65-documentation-test.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "artifacts/bridge-config/README.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "artifacts/bridge-config/vaisala-dpt146-bridge-settings.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "artifacts/bridge-config/vaisala-dpt146-clone-checklist.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "artifacts/bridge-config/vaisala-dpt146-direct-validation.md",
+    "classification": "historical evidence",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "artifacts/bridge-config/wattnode-wnd-m1-mb-documentation-test.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "artifacts/device-profiles/PROFILE-LIFECYCLE.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "artifacts/device-profiles/to-test/README.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "artifacts/README.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "CURRENT-STATUS.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/ARCHITECTURE.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/bugs/chat-attachment-retrieval.md",
+    "classification": "historical evidence",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/CONFIGURATION-UI-AUDIT.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/DESIGN-DECISIONS.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/DEVICE-ARTWORK.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/devices/hmd65-representation-review.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/devices/wattnode-wnd-m1-mb-assessed-notes.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/evidence/enlink-iaq-plus-live-readings.md",
+    "classification": "historical evidence",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/evidence/history-recovery-2026-09-10.md",
+    "classification": "historical evidence",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/evidence/native-rust-dpt146-bench-check.md",
+    "classification": "historical evidence",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/evidence/native-rust-gui-config-2026-09-10.md",
+    "classification": "historical evidence",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/evidence/native-rust-persistent-session-2026-09-10.md",
+    "classification": "historical evidence",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/evidence/native-rust-program-restore-2026-09-10.md",
+    "classification": "historical evidence",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/evidence/ui-storage-acceptance-2026-09-10.md",
+    "classification": "historical evidence",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/evidence/windows-package-2026-09-10.md",
+    "classification": "historical evidence",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/FIRMWARE-UPDATES.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/NATIVE-RUST-APPLICATION.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/OPERATOR-GUIDE.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/README.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/reference/README.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/REMAINING-DEVICE-REGISTER-ASSESSMENT.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/RUST-COVERAGE.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/RUST-PARITY.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/UI-INFORMATION-ARCHITECTURE.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "docs/WATTNODE-TEST-READINESS.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "GOALS.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "native/modbus-configurator/assets/branding/README.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "native/modbus-configurator/assets/devices/README.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "native/modbus-configurator/README.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "PROJECT.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  },
+  {
+    "path": "README.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-10"
+  }
+]

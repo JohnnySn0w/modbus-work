@@ -1,3 +1,5 @@
+> Review 2026-09-10: documentation-derived register/bench planning material. Physical HMD65, WattNode and ATI acceptance remains pending at the colleague site. ATI F12/PAA now has a native E5 profile; direct ATI adapter support is still pending. Current support: [status](../CURRENT-STATUS.md).
+
 # Remaining device register assessment
 
 These tables are documentation-derived starting points. They have not been bench-tested with the listed hardware.

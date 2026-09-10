@@ -1,0 +1,13 @@
+register number,name,units,interpretation,decode,defaults
+129 - 130,Relative humidity,%RH,IEEE-754 float32; word order unspecified.,,
+131 - 132,Temperature,deg F,IEEE-754 float32; word order unspecified.,,
+133 - 134,Dew point,deg F,IEEE-754 float32; word order unspecified.,,
+135 - 136,Dew/frost point,deg F,IEEE-754 float32; word order unspecified.,,
+137 - 138,Absolute humidity,gr/ft3,IEEE-754 float32; word order unspecified.,,
+139 - 140,Mixing ratio,gr/lb,IEEE-754 float32; word order unspecified.,,
+141 - 142,Wet-bulb temperature,deg F,IEEE-754 float32; word order unspecified.,,
+143 - 144,Enthalpy,Btu/lb,IEEE-754 float32; word order unspecified.,,
+513,Device status,,,0x1 = critical error; maintenance needed; 0x2 = error; device may recover; 0x4 = warning; 0x8 = notification; 0x10 = calibration mode active,0 = status OK
+514 - 515,Error code,,Signed 32-bit value across two registers; interpret status bits as a mask.,0x1 = T sensor measurement failure; 0x4 = RH sensor measurement failure; 0x8 = reference capacitance failure; 0x10 = ambient temperature too high; 0x40 = device settings corrupted; 0x400 = factory settings corrupted; 0x8000 = calibration expired; 0x10000 = calibration about to expire,0 = status OK
+518,RH measurement status,,,0x2 = reading unreliable; 0x4 = under range; 0x8 = over range; 0x20 = value locked; 0x40 = calibration expired; 0x80 = sensor failure; 0x100 = measurement not ready,0 = status OK
+519,Temperature status,,,0x2 = reading unreliable; 0x4 = under range; 0x8 = over range; 0x20 = value locked; 0x40 = calibration expired; 0x80 = sensor failure; 0x100 = measurement not ready,0 = status OK

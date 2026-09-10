@@ -1,0 +1,2139 @@
+{
+  "schema_version": 1,
+  "source": [
+    "app/catalog.py",
+    "app/registers.py",
+    "app/regions.py"
+  ],
+  "devices": {
+    "synetica_usb": {
+      "key": "synetica_usb",
+      "name": "E5 bridge",
+      "subtitle": "USB interface awaiting identification",
+      "kind": "bridge",
+      "status": "Connected · identity pending",
+      "description": "The shared Synetica STM32 USB interface is present, but the product banner has not yet been read.",
+      "color": "#7D8597",
+      "readouts": [],
+      "artifact": null,
+      "detect_tokens": [],
+      "help_setup": [
+        "Close other copies of the configurator and terminal programs that may hold the COM port.",
+        "Confirm the Synetica device is powered, then reconnect its configuration USB cable.",
+        "Refresh and wait for the unauthenticated console banner to identify the exact product."
+      ],
+      "help_troubleshooting": [
+        "The STM32 VID/PID is shared by bridges and sensors, so USB metadata alone is not an exact identity.",
+        "If identity remains pending, power-cycle the device and reconnect USB with only one GUI running.",
+        "Direct RS-485 polling stays disabled while this possible E5 bridge master is connected."
+      ]
+    },
+    "bridge": {
+      "key": "bridge",
+      "name": "E5 bridge",
+      "subtitle": "Synetica ENL-MOD-32 E5 bridge",
+      "kind": "bridge",
+      "status": "Validated",
+      "description": "32-point Modbus RTU master and North American 915 MHz LoRaWAN E5 bridge.",
+      "color": "#4C78A8",
+      "readouts": [
+        {
+          "label": "Configured points",
+          "unit": ""
+        },
+        {
+          "label": "Successful reads",
+          "unit": "OK / exceptions"
+        },
+        {
+          "label": "Transmit interval",
+          "unit": "minutes"
+        },
+        {
+          "label": "LoRaWAN",
+          "unit": ""
+        }
+      ],
+      "artifact": null,
+      "detect_tokens": [
+        "VID_0483&PID_5740",
+        "STM32",
+        "ENL-MOD-32"
+      ],
+      "help_setup": [
+        "Power the E5 bridge from 12–24 VDC; USB is configuration-only.",
+        "Connect the Modbus instrument to RS485 IN and keep only one active master on the bus.",
+        "Back up the existing table before selecting or importing a configuration.",
+        "After import, use Read All Data Points and require zero exceptions."
+      ],
+      "help_troubleshooting": [
+        "If no COM port appears, reconnect USB and refresh device discovery.",
+        "If all reads time out, check slave ID, serial format, common, and A/B polarity.",
+        "Implausible float values usually indicate the wrong PDU address or word order.",
+        "A row with Slave ID 0 deletes that item; restore from a backup or pre-made table."
+      ]
+    },
+    "dpt146": {
+      "key": "dpt146",
+      "name": "Vaisala DPT146",
+      "subtitle": "Dewpoint and pressure transmitter",
+      "kind": "humidity",
+      "status": "Validated configuration",
+      "description": "Validated eight-point profile connected through physical connector II (RS-485/Modbus).",
+      "color": "#38A3A5",
+      "readouts": [
+        {
+          "label": "Temperature",
+          "unit": ""
+        },
+        {
+          "label": "Dew / frost point",
+          "unit": ""
+        },
+        {
+          "label": "Atmospheric dew point",
+          "unit": ""
+        },
+        {
+          "label": "Moisture",
+          "unit": ""
+        },
+        {
+          "label": "Absolute pressure",
+          "unit": ""
+        },
+        {
+          "label": "Device health",
+          "unit": ""
+        }
+      ],
+      "artifact": "artifacts/bridge-config/vaisala-dpt146-manifest.yaml",
+      "detect_tokens": [],
+      "help_setup": [
+        "Use physical connector II for RS-485/Modbus; CH1 and CH2 are analog-output labels.",
+        "The validated unit uses slave 1 at 19200 baud, 8N2.",
+        "Select the validated DPT146 table and verify all eight points before deployment.",
+        "Expected healthy values are fault 1, online 1, and error code 0."
+      ],
+      "help_troubleshooting": [
+        "No response: confirm connector II, supply power, common wiring, and slave ID 1.",
+        "Plausible but wrong readings: use zero-based PDU addresses and HL word order.",
+        "Do not connect the USB adapter as another active master while the E5 bridge is energized.",
+        "If status is unhealthy, record raw status registers before changing configuration."
+      ]
+    },
+    "hmd65": {
+      "key": "hmd65",
+      "name": "Vaisala HMD65",
+      "subtitle": "Humidity and temperature transmitter",
+      "kind": "humidity",
+      "status": "Ready to test",
+      "description": "Documentation-derived 12-point profile. Hardware validation is still required.",
+      "color": "#73A942",
+      "readouts": [
+        {
+          "label": "Relative humidity",
+          "unit": "%RH"
+        },
+        {
+          "label": "Temperature",
+          "unit": "°C"
+        },
+        {
+          "label": "Dew point",
+          "unit": "°C"
+        },
+        {
+          "label": "Device status",
+          "unit": ""
+        }
+      ],
+      "artifact": "artifacts/device-profiles/to-test/vaisala-hmd65.yaml",
+      "detect_tokens": [],
+      "help_setup": [
+        "Suggested: confirm Modbus RTU mode, slave address, baud and parity from the HMD65 DIP settings (Vaisala M212264EN-B).",
+        "Suggested: prefer the documented float32 bank; metric starts at 1 and non-metric starts at 129. Addresses sent on the wire are one lower."
+      ],
+      "help_troubleshooting": [
+        "Suggested: check device and measurement status bitfields; error code occupies 514–515.",
+        "Suggested: confirm unit bank and word order against a known measurement before programming an E5 bridge profile."
+      ]
+    },
+    "wattnode": {
+      "key": "wattnode",
+      "name": "WattNode WND-M1-MB",
+      "subtitle": "Module for Modbus",
+      "kind": "meter",
+      "status": "Ready to test",
+      "description": "Documentation-derived 12-point float profile for the specific WND-M1-MB module.",
+      "color": "#E0A458",
+      "readouts": [
+        {
+          "label": "Total active power",
+          "unit": "W"
+        },
+        {
+          "label": "Total energy",
+          "unit": "kWh"
+        },
+        {
+          "label": "Line frequency",
+          "unit": "Hz"
+        },
+        {
+          "label": "CT currents",
+          "unit": "A"
+        }
+      ],
+      "artifact": "artifacts/device-profiles/to-test/wattnode-wnd-m1-mb.yaml",
+      "detect_tokens": [],
+      "help_setup": [
+        "Suggested: confirm the WND-M1-MB label and communication settings using WND-M1-MB-Ref-1.10.",
+        "Suggested: check CT primary ratings and electrical service mapping before interpreting current and power."
+      ],
+      "help_troubleshooting": [
+        "Suggested: compare native float readings and status with the WND-M1-MB reference manual.",
+        "Suggested: preserve existing calibration values; do not treat CurrentIntScale as milliamps."
+      ]
+    },
+    "iaq_plus": {
+      "key": "iaq_plus",
+      "name": "Synetica enLink IAQ Plus",
+      "subtitle": "LoRaWAN indoor air-quality monitor",
+      "kind": "air_quality",
+      "status": "Connected · identified",
+      "description": "Direct LoRaWAN sensor with a USB configuration console; observed part 003-ADZ-301.",
+      "color": "#6D5BD0",
+      "readouts": [
+        {
+          "label": "Device state",
+          "unit": ""
+        },
+        {
+          "label": "Temperature",
+          "unit": "°C"
+        },
+        {
+          "label": "Relative humidity",
+          "unit": "%RH"
+        },
+        {
+          "label": "Pressure",
+          "unit": "mbar"
+        },
+        {
+          "label": "CO₂",
+          "unit": "ppm"
+        },
+        {
+          "label": "CO₂ equivalent",
+          "unit": "ppm"
+        },
+        {
+          "label": "bVOC estimate",
+          "unit": "ppm"
+        },
+        {
+          "label": "IAQ",
+          "unit": ""
+        }
+      ],
+      "artifact": "artifacts/device-profiles/synetica-enlink-iaq-plus.yaml",
+      "detect_tokens": [
+        "FW-AQ-VCP+",
+        "Air Quality - Environmental Sensors"
+      ],
+      "help_setup": [
+        "TBD"
+      ],
+      "help_troubleshooting": [
+        "TBD"
+      ]
+    },
+    "adapter": {
+      "key": "adapter",
+      "name": "Serial transport",
+      "subtitle": "USB/RS-485 candidate",
+      "kind": "adapter",
+      "status": "Transport detected",
+      "description": "Candidate direct Modbus transport. The attached instrument is identified independently from protocol responses.",
+      "color": "#7D8597",
+      "readouts": [],
+      "artifact": "docs/reference/usb-comi-tb-manual.pdf",
+      "detect_tokens": [
+        "USB-COMI",
+        "USB COMI",
+        "FTDI"
+      ],
+      "help_setup": [
+        "Power down or isolate the E5 bridge master before direct polling.",
+        "Connect D−, D+, and common according to the adapter terminal labels.",
+        "Set the adapter for two-wire RS-485 and match the instrument serial format."
+      ],
+      "help_troubleshooting": [
+        "If no serial transport appears, reconnect USB and inspect Windows Device Manager.",
+        "If reads time out, check A/B naming differences and common wiring.",
+        "Never diagnose by transmitting from both the E5 bridge and adapter at once."
+      ]
+    },
+    "ati-f12": {
+      "key": "ati-f12",
+      "name": "ATI F12 — PAA",
+      "subtitle": "Toxic gas transmitter · PAA sensor module",
+      "kind": "sensor",
+      "status": "Ready to test",
+      "description": "Modbus gas measurements and transmitter status. PAA is the initial sensor variant; other modules use the same transmitter register interface with module-specific units and range.",
+      "color": "#73A942",
+      "readouts": [
+        {
+          "label": "Gas concentration",
+          "unit": "sensor units"
+        },
+        {
+          "label": "Temperature",
+          "unit": "°C"
+        },
+        {
+          "label": "Loop output",
+          "unit": "mA"
+        }
+      ],
+      "artifact": "artifacts/bridge-config/ati-badger-f12-d12-documentation-test.tsv",
+      "detect_tokens": [],
+      "help_setup": [
+        "TBD"
+      ],
+      "help_troubleshooting": [
+        "TBD"
+      ]
+    }
+  },
+  "registers": {
+    "dpt146": [
+      {
+        "name": "Temperature",
+        "logical": "5–6",
+        "pdu": "4–5",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "°C",
+        "description": "Measured gas temperature.",
+        "readout_label": "Temperature",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Dew/frost point",
+        "logical": "7–8",
+        "pdu": "6–7",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "°C",
+        "description": "Dew point or frost point temperature.",
+        "readout_label": "Dew / frost point",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Atmospheric dew point",
+        "logical": "11–12",
+        "pdu": "10–11",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "°C",
+        "description": "Dew point converted to atmospheric pressure.",
+        "readout_label": "Atmospheric dew point",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Moisture",
+        "logical": "21–22",
+        "pdu": "20–21",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "ppmv",
+        "description": "Water-vapor volume concentration.",
+        "readout_label": "Moisture",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Absolute pressure",
+        "logical": "45–46",
+        "pdu": "44–45",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "bara",
+        "description": "Absolute process pressure.",
+        "readout_label": "Absolute pressure",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Fault status",
+        "logical": "513",
+        "pdu": "512",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "",
+        "description": "Device fault indicator.",
+        "readout_label": "Fault status",
+        "enum_values": [
+          [
+            0,
+            "one or more errors active"
+          ],
+          [
+            1,
+            "no errors"
+          ]
+        ],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Online status",
+        "logical": "514",
+        "pdu": "513",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "",
+        "description": "Measurement availability indicator.",
+        "readout_label": "Online status",
+        "enum_values": [
+          [
+            0,
+            "online data unavailable"
+          ],
+          [
+            1,
+            "online data available"
+          ]
+        ],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Error code",
+        "logical": "516–517",
+        "pdu": "515–516",
+        "data_type": "U32 HL",
+        "access": "R",
+        "unit": "",
+        "description": "Thirty-two-bit active-error bitfield; individual bit meanings are not published in this register table.",
+        "readout_label": "Error code",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": "no errors"
+      }
+    ],
+    "hmd65": [
+      {
+        "name": "Relative humidity",
+        "logical": "1–2",
+        "pdu": "0–1",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "%RH",
+        "description": "Relative humidity measurement.",
+        "readout_label": "Relative humidity",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Temperature",
+        "logical": "3–4",
+        "pdu": "2–3",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "°C",
+        "description": "Air temperature measurement.",
+        "readout_label": "Temperature",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Dew point",
+        "logical": "5–6",
+        "pdu": "4–5",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "°C",
+        "description": "Calculated dew-point temperature.",
+        "readout_label": "Dew point",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Dew/frost point",
+        "logical": "7–8",
+        "pdu": "6–7",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "°C",
+        "description": "Calculated dew/frost-point temperature.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Absolute humidity",
+        "logical": "9–10",
+        "pdu": "8–9",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "g/m³",
+        "description": "Calculated absolute humidity.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Mixing ratio",
+        "logical": "11–12",
+        "pdu": "10–11",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "g/kg",
+        "description": "Calculated water-vapor mixing ratio.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Wet-bulb temperature",
+        "logical": "13–14",
+        "pdu": "12–13",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "°C",
+        "description": "Calculated wet-bulb temperature.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Enthalpy",
+        "logical": "15–16",
+        "pdu": "14–15",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "kJ/kg",
+        "description": "Calculated moist-air enthalpy.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Device status",
+        "logical": "513",
+        "pdu": "512",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "",
+        "description": "Overall device-status bitfield.",
+        "readout_label": "Device status",
+        "enum_values": [],
+        "bit_values": [
+          [
+            1,
+            "critical error; maintenance needed"
+          ],
+          [
+            2,
+            "error; device may recover"
+          ],
+          [
+            4,
+            "warning"
+          ],
+          [
+            8,
+            "notification"
+          ],
+          [
+            16,
+            "calibration mode active"
+          ]
+        ],
+        "zero_meaning": "status OK"
+      },
+      {
+        "name": "Error code",
+        "logical": "514–515",
+        "pdu": "513–514",
+        "data_type": "S32",
+        "access": "R",
+        "unit": "",
+        "description": "Current HMD65 error-code bitfield.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [
+          [
+            1,
+            "T sensor measurement failure"
+          ],
+          [
+            4,
+            "RH sensor measurement failure"
+          ],
+          [
+            8,
+            "reference capacitance failure"
+          ],
+          [
+            16,
+            "ambient temperature too high"
+          ],
+          [
+            64,
+            "device settings corrupted"
+          ],
+          [
+            1024,
+            "factory settings corrupted"
+          ],
+          [
+            32768,
+            "calibration expired"
+          ],
+          [
+            65536,
+            "calibration about to expire"
+          ]
+        ],
+        "zero_meaning": "status OK"
+      },
+      {
+        "name": "RH measurement status",
+        "logical": "518",
+        "pdu": "517",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "",
+        "description": "Relative-humidity channel-status bitfield.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [
+          [
+            2,
+            "reading unreliable"
+          ],
+          [
+            4,
+            "under range"
+          ],
+          [
+            8,
+            "over range"
+          ],
+          [
+            32,
+            "value locked"
+          ],
+          [
+            64,
+            "calibration expired"
+          ],
+          [
+            128,
+            "sensor failure"
+          ],
+          [
+            256,
+            "measurement not ready"
+          ]
+        ],
+        "zero_meaning": "status OK"
+      },
+      {
+        "name": "Temperature status",
+        "logical": "519",
+        "pdu": "518",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "",
+        "description": "Temperature channel-status bitfield.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [
+          [
+            2,
+            "reading unreliable"
+          ],
+          [
+            4,
+            "under range"
+          ],
+          [
+            8,
+            "over range"
+          ],
+          [
+            32,
+            "value locked"
+          ],
+          [
+            64,
+            "calibration expired"
+          ],
+          [
+            128,
+            "sensor failure"
+          ],
+          [
+            256,
+            "measurement not ready"
+          ]
+        ],
+        "zero_meaning": "status OK"
+      },
+      {
+        "name": "Relative humidity (non-metric)",
+        "logical": "129–130",
+        "pdu": "128–129",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "%RH",
+        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "readout_label": "Relative humidity",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Temperature (non-metric)",
+        "logical": "131–132",
+        "pdu": "130–131",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "°F",
+        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "readout_label": "Temperature",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Dew point (non-metric)",
+        "logical": "133–134",
+        "pdu": "132–133",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "°F",
+        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "readout_label": "Dew point",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Dew/frost point (non-metric)",
+        "logical": "135–136",
+        "pdu": "134–135",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "°F",
+        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Absolute humidity (non-metric)",
+        "logical": "137–138",
+        "pdu": "136–137",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "gr/ft³",
+        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Mixing ratio (non-metric)",
+        "logical": "139–140",
+        "pdu": "138–139",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "gr/lb",
+        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Wet-bulb temperature (non-metric)",
+        "logical": "141–142",
+        "pdu": "140–141",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "°F",
+        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Enthalpy (non-metric)",
+        "logical": "143–144",
+        "pdu": "142–143",
+        "data_type": "F32",
+        "access": "R",
+        "unit": "Btu/lb",
+        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      }
+    ],
+    "wattnode": [
+      {
+        "name": "Energy total",
+        "logical": "1001–1002",
+        "pdu": "1000–1001",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "kWh",
+        "description": "Total net bidirectional active energy.",
+        "readout_label": "Total energy",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Active power total",
+        "logical": "1009–1010",
+        "pdu": "1008–1009",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "W",
+        "description": "Sum of active power across enabled meter elements.",
+        "readout_label": "Total active power",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Active power 1",
+        "logical": "1011–1012",
+        "pdu": "1010–1011",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "W",
+        "description": "Active power for meter element 1.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Active power 2",
+        "logical": "1013–1014",
+        "pdu": "1012–1013",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "W",
+        "description": "Active power for meter element 2.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Active power 3",
+        "logical": "1015–1016",
+        "pdu": "1014–1015",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "W",
+        "description": "Active power for meter element 3.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Voltage AN",
+        "logical": "1019–1020",
+        "pdu": "1018–1019",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "V",
+        "description": "RMS line-A to neutral voltage.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Voltage BN",
+        "logical": "1021–1022",
+        "pdu": "1020–1021",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "V",
+        "description": "RMS line-B to neutral voltage.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Voltage CN",
+        "logical": "1023–1024",
+        "pdu": "1022–1023",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "V",
+        "description": "RMS line-C to neutral voltage.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Frequency",
+        "logical": "1033–1034",
+        "pdu": "1032–1033",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "Hz",
+        "description": "Measured AC line frequency.",
+        "readout_label": "Line frequency",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Current 1",
+        "logical": "1163–1164",
+        "pdu": "1162–1163",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "A",
+        "description": "RMS current for CT input 1.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Current 2",
+        "logical": "1165–1166",
+        "pdu": "1164–1165",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "A",
+        "description": "RMS current for CT input 2.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Current 3",
+        "logical": "1167–1168",
+        "pdu": "1166–1167",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "A",
+        "description": "RMS current for CT input 3.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Integer frequency",
+        "logical": "1221",
+        "pdu": "1220",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "0.01 Hz",
+        "description": "Simple first-contact measurement that does not require float decoding.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "CT amps global",
+        "logical": "1603",
+        "pdu": "1602",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "A",
+        "description": "Writes the rated current to all three CT channels.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "CT amps 1",
+        "logical": "1604",
+        "pdu": "1603",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "A",
+        "description": "Rated primary current for CT input 1.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "CT amps 2",
+        "logical": "1605",
+        "pdu": "1604",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "A",
+        "description": "Rated primary current for CT input 2.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "CT amps 3",
+        "logical": "1606",
+        "pdu": "1605",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "A",
+        "description": "Rated primary current for CT input 3.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "CT directions",
+        "logical": "1607",
+        "pdu": "1606",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "bitfield",
+        "description": "Optionally invert individual CT orientations.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [
+          [
+            1,
+            "reverse CT1 polarity"
+          ],
+          [
+            2,
+            "reverse CT2 polarity"
+          ],
+          [
+            4,
+            "reverse CT3 polarity"
+          ]
+        ],
+        "zero_meaning": "all CTs normal"
+      },
+      {
+        "name": "Gain adjust 1",
+        "logical": "1612",
+        "pdu": "1611",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "1/10000",
+        "description": "CT1 calibration gain; do not change without traceable calibration data.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Gain adjust 2",
+        "logical": "1613",
+        "pdu": "1612",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "1/10000",
+        "description": "CT2 calibration gain; do not change without traceable calibration data.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Gain adjust 3",
+        "logical": "1614",
+        "pdu": "1613",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "1/10000",
+        "description": "CT3 calibration gain; do not change without traceable calibration data.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Phase adjust 1",
+        "logical": "1615",
+        "pdu": "1614",
+        "data_type": "S16",
+        "access": "R/W",
+        "unit": "0.001°",
+        "description": "CT1 phase correction; preserve unless CT characterization requires it.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Phase adjust 2",
+        "logical": "1616",
+        "pdu": "1615",
+        "data_type": "S16",
+        "access": "R/W",
+        "unit": "0.001°",
+        "description": "CT2 phase correction; preserve unless CT characterization requires it.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Phase adjust 3",
+        "logical": "1617",
+        "pdu": "1616",
+        "data_type": "S16",
+        "access": "R/W",
+        "unit": "0.001°",
+        "description": "CT3 phase correction; preserve unless CT characterization requires it.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Current integer scale",
+        "logical": "1622",
+        "pdu": "1621",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "counts",
+        "description": "Full-scale count used by integer current registers; default 20000.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Meter config 1",
+        "logical": "1624",
+        "pdu": "1623",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "code",
+        "description": "Voltage mapping for meter element 1.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Meter config 2",
+        "logical": "1625",
+        "pdu": "1624",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "code",
+        "description": "Voltage mapping for meter element 2.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Meter config 3",
+        "logical": "1626",
+        "pdu": "1625",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "code",
+        "description": "Voltage mapping for meter element 3.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Change counter",
+        "logical": "1628",
+        "pdu": "1627",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "writes",
+        "description": "Persistent count of configuration changes.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Nominal CT volts 1",
+        "logical": "1629–1630",
+        "pdu": "1628–1629",
+        "data_type": "F32 HL",
+        "access": "R/W",
+        "unit": "Vac",
+        "description": "Full-scale output voltage for CT input 1; normally 0.33333 Vac.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Nominal CT volts 2",
+        "logical": "1631–1632",
+        "pdu": "1630–1631",
+        "data_type": "F32 HL",
+        "access": "R/W",
+        "unit": "Vac",
+        "description": "Full-scale output voltage for CT input 2; normally 0.33333 Vac.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Nominal CT volts 3",
+        "logical": "1633–1634",
+        "pdu": "1632–1633",
+        "data_type": "F32 HL",
+        "access": "R/W",
+        "unit": "Vac",
+        "description": "Full-scale output voltage for CT input 3; normally 0.33333 Vac.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Connection type",
+        "logical": "1636",
+        "pdu": "1635",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "code",
+        "description": "Shortcut defining common service and meter-element mappings.",
+        "readout_label": null,
+        "enum_values": [
+          [
+            0,
+            "custom mapping"
+          ],
+          [
+            1,
+            "wye"
+          ],
+          [
+            2,
+            "delta"
+          ],
+          [
+            3,
+            "branch circuits"
+          ],
+          [
+            4,
+            "house and inverter"
+          ],
+          [
+            5,
+            "line-to-line"
+          ]
+        ],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Apply communication config",
+        "logical": "1651",
+        "pdu": "1650",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "state/command",
+        "description": "Reports pending changes; writing 1234 applies them.",
+        "readout_label": null,
+        "enum_values": [
+          [
+            0,
+            "no pending communication changes"
+          ],
+          [
+            1,
+            "communication changes pending"
+          ],
+          [
+            1234,
+            "apply requested when written"
+          ]
+        ],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Address",
+        "logical": "1652",
+        "pdu": "1651",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "",
+        "description": "Pending/current Modbus slave address.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Baud rate",
+        "logical": "1653",
+        "pdu": "1652",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "code",
+        "description": "Configured Modbus baud-rate code.",
+        "readout_label": null,
+        "enum_values": [
+          [
+            1,
+            "1200 baud"
+          ],
+          [
+            2,
+            "2400 baud"
+          ],
+          [
+            3,
+            "4800 baud"
+          ],
+          [
+            4,
+            "9600 baud"
+          ],
+          [
+            5,
+            "19200 baud"
+          ],
+          [
+            6,
+            "38400 baud"
+          ],
+          [
+            7,
+            "57600 baud"
+          ],
+          [
+            8,
+            "76800 baud"
+          ],
+          [
+            9,
+            "115200 baud"
+          ]
+        ],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Parity mode",
+        "logical": "1654",
+        "pdu": "1653",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "code",
+        "description": "Configured framing mode.",
+        "readout_label": null,
+        "enum_values": [
+          [
+            0,
+            "8N1"
+          ],
+          [
+            1,
+            "8E1"
+          ],
+          [
+            2,
+            "8N2"
+          ]
+        ],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Modbus mode",
+        "logical": "1655",
+        "pdu": "1654",
+        "data_type": "U16",
+        "access": "R/W",
+        "unit": "code",
+        "description": "Configured wire protocol; firmware 1028 supports RTU.",
+        "readout_label": null,
+        "enum_values": [
+          [
+            0,
+            "Modbus RTU"
+          ]
+        ],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Serial number",
+        "logical": "1701–1702",
+        "pdu": "1700–1701",
+        "data_type": "U32 HL",
+        "access": "R",
+        "unit": "",
+        "description": "Serial number printed on the meter label.",
+        "readout_label": "Serial number",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Model",
+        "logical": "1707",
+        "pdu": "1706",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "code",
+        "description": "Encoded WattNode model family.",
+        "readout_label": "Model code",
+        "enum_values": [
+          [
+            530,
+            "WattNode Module"
+          ]
+        ],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Firmware version",
+        "logical": "1708",
+        "pdu": "1707",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "",
+        "description": "WND module firmware version in the 10xx family.",
+        "readout_label": "Firmware",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Options",
+        "logical": "1709",
+        "pdu": "1708",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "bitfield",
+        "description": "Factory options bitfield.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [
+          [
+            2,
+            "even parity factory option"
+          ],
+          [
+            4,
+            "factory baud configured"
+          ],
+          [
+            32,
+            "CT amps factory configured"
+          ],
+          [
+            512,
+            "factory Modbus address configured"
+          ],
+          [
+            1024,
+            "CT amps locked"
+          ],
+          [
+            2048,
+            "configuration locked"
+          ],
+          [
+            4096,
+            "LEDs disabled"
+          ],
+          [
+            8192,
+            "no DIP-switch logic"
+          ]
+        ],
+        "zero_meaning": "no option bits reported"
+      },
+      {
+        "name": "Error status 1–8",
+        "logical": "1716–1723",
+        "pdu": "1715–1722",
+        "data_type": "U16[8]",
+        "access": "R",
+        "unit": "",
+        "description": "Newest-to-oldest diagnostic errors and events.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Factory CT amps 1–3",
+        "logical": "1724–1726",
+        "pdu": "1723–1725",
+        "data_type": "U16[3]",
+        "access": "R",
+        "unit": "A",
+        "description": "Read-only CT ratings originally ordered from the factory.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Factory address",
+        "logical": "1728",
+        "pdu": "1727",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "",
+        "description": "Read-only factory Modbus address option.",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Factory baud",
+        "logical": "1729",
+        "pdu": "1728",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "code",
+        "description": "Read-only factory baud-rate option.",
+        "readout_label": null,
+        "enum_values": [
+          [
+            1,
+            "1200 baud"
+          ],
+          [
+            2,
+            "2400 baud"
+          ],
+          [
+            3,
+            "4800 baud"
+          ],
+          [
+            4,
+            "9600 baud"
+          ],
+          [
+            5,
+            "19200 baud"
+          ],
+          [
+            6,
+            "38400 baud"
+          ],
+          [
+            7,
+            "57600 baud"
+          ],
+          [
+            8,
+            "76800 baud"
+          ],
+          [
+            9,
+            "115200 baud"
+          ]
+        ],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Factory parity",
+        "logical": "1730",
+        "pdu": "1729",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "code",
+        "description": "Read-only factory parity option.",
+        "readout_label": null,
+        "enum_values": [
+          [
+            0,
+            "no factory parity override / 8N1"
+          ],
+          [
+            1,
+            "8E1"
+          ],
+          [
+            2,
+            "8N2"
+          ]
+        ],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Factory config lock",
+        "logical": "1737",
+        "pdu": "1736",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "bool",
+        "description": "Reports whether configuration was factory locked.",
+        "readout_label": null,
+        "enum_values": [
+          [
+            0,
+            "configuration not factory locked"
+          ],
+          [
+            1,
+            "configuration factory locked"
+          ]
+        ],
+        "bit_values": [],
+        "zero_meaning": null
+      }
+    ],
+    "ati-f12": [
+      {
+        "name": "Expanded fault flags",
+        "logical": "40033",
+        "pdu": "32",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "",
+        "description": "bit 0 = factory calibration fault; bit 1 = stack overflow; bits 2 through 15 = reserved",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [
+          [
+            1,
+            "factory calibration fault"
+          ],
+          [
+            2,
+            "stack overflow"
+          ]
+        ],
+        "zero_meaning": "No flags set"
+      },
+      {
+        "name": "Expanded status flags",
+        "logical": "40034",
+        "pdu": "33",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "",
+        "description": "bit 0 = gas generator installed; bit 1 = gas generator type valid; bit 2 = gas generator range valid; bit 3 = alarm test active; bit 4 = autotest in progress; bit 5 = autotest pass; bit 6 = cannot begin autotest; bit 7 = autotest failed; bit 8 = auto-clean active; bit 9 = auto-clean recovering; bits 10 through 15 = reserved",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [
+          [
+            1,
+            "gas generator installed"
+          ],
+          [
+            2,
+            "gas generator type valid"
+          ],
+          [
+            4,
+            "gas generator range valid"
+          ],
+          [
+            8,
+            "alarm test active"
+          ],
+          [
+            16,
+            "autotest in progress"
+          ],
+          [
+            32,
+            "autotest pass"
+          ],
+          [
+            64,
+            "cannot begin autotest"
+          ],
+          [
+            128,
+            "autotest failed"
+          ],
+          [
+            256,
+            "auto-clean active"
+          ],
+          [
+            512,
+            "auto-clean recovering"
+          ]
+        ],
+        "zero_meaning": "No flags set"
+      },
+      {
+        "name": "Fault flags",
+        "logical": "40035",
+        "pdu": "34",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "",
+        "description": "bit 0 = gas sensor ADC read fault; bit 1 = LCD bus fault; bit 2 = SPI bus fault; bit 3 = temperature ADC read fault; bit 4 = gas sensor input fault; bit 5 = gas sensor removed; bit 6 = gas sensor memory checksum fault; bit 7 = gas sensor configuration fault or awaiting verification; bit 8 = gas generator removed; bit 9 = gas generator configuration fault; bit 10 = system setup memory checksum fault; bit 11 = alarm memory checksum fault; bit 12 = operator interface memory checksum fault; bit 13 = HART memory checksum fault; bit 14 = autotest failure; bit 15 = relay option voltage missing",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [
+          [
+            1,
+            "gas sensor ADC read fault"
+          ],
+          [
+            2,
+            "LCD bus fault"
+          ],
+          [
+            4,
+            "SPI bus fault"
+          ],
+          [
+            8,
+            "temperature ADC read fault"
+          ],
+          [
+            16,
+            "gas sensor input fault"
+          ],
+          [
+            32,
+            "gas sensor removed"
+          ],
+          [
+            64,
+            "gas sensor memory checksum fault"
+          ],
+          [
+            128,
+            "gas sensor configuration fault or awaiting verification"
+          ],
+          [
+            256,
+            "gas generator removed"
+          ],
+          [
+            512,
+            "gas generator configuration fault"
+          ],
+          [
+            1024,
+            "system setup memory checksum fault"
+          ],
+          [
+            2048,
+            "alarm memory checksum fault"
+          ],
+          [
+            4096,
+            "operator interface memory checksum fault"
+          ],
+          [
+            8192,
+            "HART memory checksum fault"
+          ],
+          [
+            16384,
+            "autotest failure"
+          ],
+          [
+            32768,
+            "relay option voltage missing"
+          ]
+        ],
+        "zero_meaning": "No flags set"
+      },
+      {
+        "name": "Status flags",
+        "logical": "40036",
+        "pdu": "35",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "",
+        "description": "bit 0 = caution active; bit 1 = warning active; bit 2 = alarm active; bit 3 = fault active; bit 4 = CWAF inhibit active; bit 5 = transmitter security active; bit 6 = system data log active; bit 7 = current loop output fixed; bit 8 = temperature input over range; bit 9 = temperature input under range; bit 10 = gas input over range; bit 11 = gas input under range; bit 12 = data log checksum error; bit 13 = calibration history not initialized; bit 14 = power-on delay; bit 15 = reserved",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [
+          [
+            1,
+            "caution active"
+          ],
+          [
+            2,
+            "warning active"
+          ],
+          [
+            4,
+            "alarm active"
+          ],
+          [
+            8,
+            "fault active"
+          ],
+          [
+            16,
+            "CWAF inhibit active"
+          ],
+          [
+            32,
+            "transmitter security active"
+          ],
+          [
+            64,
+            "system data log active"
+          ],
+          [
+            128,
+            "current loop output fixed"
+          ],
+          [
+            256,
+            "temperature input over range"
+          ],
+          [
+            512,
+            "temperature input under range"
+          ],
+          [
+            1024,
+            "gas input over range"
+          ],
+          [
+            2048,
+            "gas input under range"
+          ],
+          [
+            4096,
+            "data log checksum error"
+          ],
+          [
+            8192,
+            "calibration history not initialized"
+          ],
+          [
+            16384,
+            "power-on delay"
+          ]
+        ],
+        "zero_meaning": "No flags set"
+      },
+      {
+        "name": "Unblanked concentration",
+        "logical": "40037–40038",
+        "pdu": "36–37",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "sensor units",
+        "description": "IEEE-754 float32",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Unblanked concentration percent full scale",
+        "logical": "40039–40040",
+        "pdu": "38–39",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "%",
+        "description": "IEEE-754 float32",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Temperature",
+        "logical": "40041–40042",
+        "pdu": "40–41",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "°C",
+        "description": "IEEE-754 float32",
+        "readout_label": "Temperature",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Blanked concentration",
+        "logical": "40043–40044",
+        "pdu": "42–43",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "sensor units",
+        "description": "IEEE-754 float32; primary displayed gas reading",
+        "readout_label": "Gas concentration",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Blanked concentration percent full scale",
+        "logical": "40045–40046",
+        "pdu": "44–45",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "%",
+        "description": "IEEE-754 float32",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Loop output",
+        "logical": "40047–40048",
+        "pdu": "46–47",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "mA",
+        "description": "IEEE-754 float32",
+        "readout_label": "Loop output",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Fixed loop value",
+        "logical": "40049–40050",
+        "pdu": "48–49",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "mA",
+        "description": "IEEE-754 float32",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "DAC output",
+        "logical": "40051",
+        "pdu": "50",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "count",
+        "description": "10-bit raw DAC value",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Scaled concentration",
+        "logical": "40052",
+        "pdu": "51",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "count",
+        "description": "12-bit representation 0 = fault; 300 = inhibit; 800 = 0 percent full scale; 4000 = 100 percent full scale",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Raw concentration ADC",
+        "logical": "40053–40054",
+        "pdu": "52–53",
+        "data_type": "S32 HL",
+        "access": "R",
+        "unit": "count",
+        "description": "Signed 32-bit integer",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Lightly filtered concentration ADC",
+        "logical": "40055–40056",
+        "pdu": "54–55",
+        "data_type": "S32 HL",
+        "access": "R",
+        "unit": "count",
+        "description": "Signed 32-bit integer",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Heavily filtered concentration ADC",
+        "logical": "40057–40058",
+        "pdu": "56–57",
+        "data_type": "S32 HL",
+        "access": "R",
+        "unit": "count",
+        "description": "Signed 32-bit integer",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Concentration damping constant",
+        "logical": "40059–40060",
+        "pdu": "58–59",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "sensor units",
+        "description": "IEEE-754 float32",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Raw temperature ADC",
+        "logical": "40061–40062",
+        "pdu": "60–61",
+        "data_type": "S32 HL",
+        "access": "R",
+        "unit": "count",
+        "description": "Signed 32-bit integer",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Lightly filtered temperature ADC",
+        "logical": "40063–40064",
+        "pdu": "62–63",
+        "data_type": "S32 HL",
+        "access": "R",
+        "unit": "count",
+        "description": "Signed 32-bit integer",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Heavily filtered temperature ADC",
+        "logical": "40065–40066",
+        "pdu": "64–65",
+        "data_type": "S32 HL",
+        "access": "R",
+        "unit": "count",
+        "description": "Signed 32-bit integer",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Temperature damping constant",
+        "logical": "40067–40068",
+        "pdu": "66–67",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "",
+        "description": "IEEE-754 float32",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Concentration full-scale range",
+        "logical": "40073–40074",
+        "pdu": "72–73",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "sensor units",
+        "description": "IEEE-754 float32",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Hardware revision",
+        "logical": "40883–40884",
+        "pdu": "882–883",
+        "data_type": "F32 HL",
+        "access": "R",
+        "unit": "",
+        "description": "IEEE-754 float32",
+        "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      }
+    ]
+  },
+  "premade": {
+    "dpt146": "artifacts/bridge-config/vaisala-dpt146-validated.tsv",
+    "hmd65": "artifacts/bridge-config/hmd65-documentation-test.tsv",
+    "wattnode": "artifacts/bridge-config/wattnode-wnd-m1-mb-documentation-test.tsv"
+  },
+  "regions": {
+    "us915_hybrid_fsb1": {
+      "key": "us915_hybrid_fsb1",
+      "display_name": "North American Hybrid FSB #1",
+      "frequency_mhz": "902–928",
+      "enabled": true,
+      "notes": "Default for this system and all currently assumed hardware."
+    },
+    "eu868": {
+      "key": "eu868",
+      "display_name": "Europe EU868",
+      "frequency_mhz": "863–870",
+      "enabled": false,
+      "notes": "Prepared future option; enable only with matching regional hardware/firmware and Loriot network profile."
+    }
+  },
+  "default_region": "us915_hybrid_fsb1"
+}

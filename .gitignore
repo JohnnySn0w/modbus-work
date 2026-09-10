@@ -1,3 +1,17 @@
 __pycache__/
 *.py[cod]
 .venv/
+target/
+
+# Generated local builds, captures, and scratch work (source evidence lives in docs/).
+/tmp/
+/artifacts/releases/
+/artifacts/review/
+/artifacts/archive/releases/
+/artifacts/archive/review/
+
+# Private supplied references and historical copies stay local.
+/docs/devices/synetica-firmware-integration.md
+/docs/archive/
+/docs/branding/
+FirmwareUpdateProcessSynetica.pdf

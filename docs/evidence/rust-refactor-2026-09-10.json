@@ -1,0 +1,17 @@
+{
+  "date": "2026-09-10",
+  "tests_passed": 151,
+  "formatting": "passed",
+  "clippy": "all targets; warnings denied; passed",
+  "headless_line_coverage_percent": 91.0839445802771,
+  "combined_line_coverage_percent": 92.40423797881012,
+  "offline_gui_views": 23,
+  "production_modules_max_lines": 760,
+  "build_cleanup": {
+    "removed_entries": 118,
+    "removed_bytes": 885805077,
+    "retained_beta": "20260910-184316",
+    "checksums": "verified"
+  },
+  "scope": "Formatting and module refactoring; retained beta executable was not rebuilt."
+}

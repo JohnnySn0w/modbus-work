@@ -1,21 +1,16 @@
-# Reference document inventory
+# Offline device manuals
 
-## Stored locally
+Seven original manufacturer PDFs are bundled and open under Device manuals. Files are unchanged; downloaded-source URLs/page counts/hashes are in [manual-sources.json](manual-sources.json).
 
-- `vaisala-dpt146-user-guide-M211372EN-E.pdf` — valid official Vaisala PDF; contains wiring, serial setup, Modbus function support, complete register map, and device-identification objects.
-- `usb-comi-tb-manual.pdf` — manufacturer manual covering RS-422/RS-485 mode selection, terminal pinout, and internal termination/bias jumpers.
+| Device | PDF |
+|---|---|
+| E5 bridge | [Hardware guide SYN-ENL-0101F](e5-hardware-guide.pdf) |
+| DPT146 | [User guide M211372EN-E](vaisala-dpt146-user-guide-M211372EN-E.pdf) |
+| HMD65 | [User guide M212243EN-C](hmd65-user-guide.pdf) |
+| WattNode WND-M1-MB | [Installation](wattnode-installation-manual.pdf), [reference](wattnode-reference-manual.pdf) |
+| ATI F12/D | [Operation manual Rev K](ati-f12-operation-manual.pdf) |
+| USB-COMi-TB | [Hardware/mode configuration](usb-comi-tb-manual.pdf) |
 
-## Official online references
+The E5 hardware guide is available from the current manufacturer CDN recorded in the manifest; the older synetica.net uploads link is obsolete. Full E5 and IAQ Plus user guides remain account-locked on the manufacturer's downloads site. ATI's newer original manual URLs redirected to its general documentation library; the bundled Rev K is a manufacturer-authored distributor copy. The separate ATI Modbus PDF is not bundled.
 
-- [Synetica enLink Modbus RS485 Hardware Guide SYN-ENL-0101F](https://synetica.net/wp-content/uploads/2019/04/enLink-Modbus-RS485-Hardware-Guide-SYN-ENL-0101F.pdf) — public official hardware guide. The Synetica site currently returns a protection page to unattended file downloads, so use the browser link.
-- [Synetica enLink Modbus brochure](https://www.synetica.net/wp-content/uploads/2023/04/enLink-Modbus-Brochure-1.pdf) — public product capabilities and current 32-reading positioning.
-- [Synetica downloads](https://synetica.net/downloads) — lists the current hardware guide and an account-locked enLink Modbus User Guide.
-- [Synetica ENL-MOD-32 product page](https://synetica.net/product/modbus-bridge) — current model/product description and configuration-tool link.
-- [Vaisala DPT146 documentation](https://docs.vaisala.com/v/u/M211372EN-E/en-US) — official online copy of the locally stored user guide.
-
-## Still needed
-
-- Account-authorized copy of the current Synetica enLink Modbus User Guide.
-- Polygon ExactAire-E5 commissioning/configuration guide.
-- Polygon or Synetica configuration utility used for this firmware.
-- Export or screenshots of the unit's current configuration and firmware summary.
+Private firmware procedures and derived notes are excluded from version control and the application bundle.

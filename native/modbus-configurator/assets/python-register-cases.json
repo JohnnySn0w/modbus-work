@@ -1,0 +1,3266 @@
+[
+  {
+    "device": "dpt146",
+    "index": 0,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 0,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 0,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 0,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 0,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 0,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 0,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 0,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 1,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 1,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 1,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 1,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 1,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 1,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 1,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 1,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 2,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 2,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 2,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 2,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 2,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 2,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 2,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 2,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 3,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 3,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 3,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 3,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 3,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 3,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 3,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 3,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 4,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 4,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 4,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 4,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 4,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 4,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 4,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 4,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "dpt146",
+    "index": 5,
+    "value": null,
+    "expected": "0: one or more errors active; 1: no errors"
+  },
+  {
+    "device": "dpt146",
+    "index": 5,
+    "value": 0,
+    "expected": "one or more errors active"
+  },
+  {
+    "device": "dpt146",
+    "index": 5,
+    "value": 1,
+    "expected": "no errors"
+  },
+  {
+    "device": "dpt146",
+    "index": 5,
+    "value": 5,
+    "expected": "Undocumented value 5 (0x5)"
+  },
+  {
+    "device": "dpt146",
+    "index": 5,
+    "value": 530,
+    "expected": "Undocumented value 530 (0x212)"
+  },
+  {
+    "device": "dpt146",
+    "index": 5,
+    "value": 65535,
+    "expected": "Undocumented value 65535 (0xFFFF)"
+  },
+  {
+    "device": "dpt146",
+    "index": 5,
+    "value": -1,
+    "expected": "Undocumented value -1 (0x-1)"
+  },
+  {
+    "device": "dpt146",
+    "index": 5,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "dpt146",
+    "index": 6,
+    "value": null,
+    "expected": "0: online data unavailable; 1: online data available"
+  },
+  {
+    "device": "dpt146",
+    "index": 6,
+    "value": 0,
+    "expected": "online data unavailable"
+  },
+  {
+    "device": "dpt146",
+    "index": 6,
+    "value": 1,
+    "expected": "online data available"
+  },
+  {
+    "device": "dpt146",
+    "index": 6,
+    "value": 5,
+    "expected": "Undocumented value 5 (0x5)"
+  },
+  {
+    "device": "dpt146",
+    "index": 6,
+    "value": 530,
+    "expected": "Undocumented value 530 (0x212)"
+  },
+  {
+    "device": "dpt146",
+    "index": 6,
+    "value": 65535,
+    "expected": "Undocumented value 65535 (0xFFFF)"
+  },
+  {
+    "device": "dpt146",
+    "index": 6,
+    "value": -1,
+    "expected": "Undocumented value -1 (0x-1)"
+  },
+  {
+    "device": "dpt146",
+    "index": 6,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "dpt146",
+    "index": 7,
+    "value": null,
+    "expected": "0: no errors"
+  },
+  {
+    "device": "dpt146",
+    "index": 7,
+    "value": 0,
+    "expected": "no errors"
+  },
+  {
+    "device": "dpt146",
+    "index": 7,
+    "value": 1,
+    "expected": "Undocumented value 1 (0x1)"
+  },
+  {
+    "device": "dpt146",
+    "index": 7,
+    "value": 5,
+    "expected": "Undocumented value 5 (0x5)"
+  },
+  {
+    "device": "dpt146",
+    "index": 7,
+    "value": 530,
+    "expected": "Undocumented value 530 (0x212)"
+  },
+  {
+    "device": "dpt146",
+    "index": 7,
+    "value": 65535,
+    "expected": "Undocumented value 65535 (0xFFFF)"
+  },
+  {
+    "device": "dpt146",
+    "index": 7,
+    "value": -1,
+    "expected": "Undocumented value -1 (0x-1)"
+  },
+  {
+    "device": "dpt146",
+    "index": 7,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "hmd65",
+    "index": 0,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 0,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 0,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 0,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 0,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 0,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 0,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 0,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 1,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 1,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 1,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 1,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 1,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 1,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 1,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 1,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 2,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 2,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 2,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 2,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 2,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 2,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 2,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 2,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 3,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 3,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 3,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 3,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 3,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 3,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 3,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 3,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 4,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 4,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 4,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 4,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 4,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 4,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 4,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 4,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 5,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 5,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 5,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 5,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 5,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 5,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 5,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 5,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 6,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 6,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 6,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 6,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 6,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 6,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 6,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 6,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 7,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 7,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 7,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 7,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 7,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 7,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 7,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 7,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "hmd65",
+    "index": 8,
+    "value": null,
+    "expected": "0: status OK; 0x1: critical error; maintenance needed; 0x2: error; device may recover; 0x4: warning; 0x8: notification; 0x10: calibration mode active"
+  },
+  {
+    "device": "hmd65",
+    "index": 8,
+    "value": 0,
+    "expected": "status OK"
+  },
+  {
+    "device": "hmd65",
+    "index": 8,
+    "value": 1,
+    "expected": "critical error; maintenance needed"
+  },
+  {
+    "device": "hmd65",
+    "index": 8,
+    "value": 5,
+    "expected": "critical error; maintenance needed; warning"
+  },
+  {
+    "device": "hmd65",
+    "index": 8,
+    "value": 530,
+    "expected": "error; device may recover; calibration mode active; unknown bits 0x200"
+  },
+  {
+    "device": "hmd65",
+    "index": 8,
+    "value": 65535,
+    "expected": "critical error; maintenance needed; error; device may recover; warning; notification; calibration mode active; unknown bits 0xFFE0"
+  },
+  {
+    "device": "hmd65",
+    "index": 8,
+    "value": -1,
+    "expected": "critical error; maintenance needed; error; device may recover; warning; notification; calibration mode active; unknown bits 0x-20"
+  },
+  {
+    "device": "hmd65",
+    "index": 8,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "hmd65",
+    "index": 9,
+    "value": null,
+    "expected": "0: status OK; 0x1: T sensor measurement failure; 0x4: RH sensor measurement failure; 0x8: reference capacitance failure; 0x10: ambient temperature too high; 0x40: device settings corrupted; 0x400: factory settings corrupted; 0x8000: calibration expired; 0x10000: calibration about to expire"
+  },
+  {
+    "device": "hmd65",
+    "index": 9,
+    "value": 0,
+    "expected": "status OK"
+  },
+  {
+    "device": "hmd65",
+    "index": 9,
+    "value": 1,
+    "expected": "T sensor measurement failure"
+  },
+  {
+    "device": "hmd65",
+    "index": 9,
+    "value": 5,
+    "expected": "T sensor measurement failure; RH sensor measurement failure"
+  },
+  {
+    "device": "hmd65",
+    "index": 9,
+    "value": 530,
+    "expected": "ambient temperature too high; unknown bits 0x202"
+  },
+  {
+    "device": "hmd65",
+    "index": 9,
+    "value": 65535,
+    "expected": "T sensor measurement failure; RH sensor measurement failure; reference capacitance failure; ambient temperature too high; device settings corrupted; factory settings corrupted; calibration expired; unknown bits 0x7BA2"
+  },
+  {
+    "device": "hmd65",
+    "index": 9,
+    "value": -1,
+    "expected": "T sensor measurement failure; RH sensor measurement failure; reference capacitance failure; ambient temperature too high; device settings corrupted; factory settings corrupted; calibration expired; calibration about to expire; unknown bits 0x-1845E"
+  },
+  {
+    "device": "hmd65",
+    "index": 9,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "hmd65",
+    "index": 10,
+    "value": null,
+    "expected": "0: status OK; 0x2: reading unreliable; 0x4: under range; 0x8: over range; 0x20: value locked; 0x40: calibration expired; 0x80: sensor failure; 0x100: measurement not ready"
+  },
+  {
+    "device": "hmd65",
+    "index": 10,
+    "value": 0,
+    "expected": "status OK"
+  },
+  {
+    "device": "hmd65",
+    "index": 10,
+    "value": 1,
+    "expected": "Undocumented value 1 (0x1)"
+  },
+  {
+    "device": "hmd65",
+    "index": 10,
+    "value": 5,
+    "expected": "under range; unknown bits 0x1"
+  },
+  {
+    "device": "hmd65",
+    "index": 10,
+    "value": 530,
+    "expected": "reading unreliable; unknown bits 0x210"
+  },
+  {
+    "device": "hmd65",
+    "index": 10,
+    "value": 65535,
+    "expected": "reading unreliable; under range; over range; value locked; calibration expired; sensor failure; measurement not ready; unknown bits 0xFE11"
+  },
+  {
+    "device": "hmd65",
+    "index": 10,
+    "value": -1,
+    "expected": "reading unreliable; under range; over range; value locked; calibration expired; sensor failure; measurement not ready; unknown bits 0x-1EF"
+  },
+  {
+    "device": "hmd65",
+    "index": 10,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "hmd65",
+    "index": 11,
+    "value": null,
+    "expected": "0: status OK; 0x2: reading unreliable; 0x4: under range; 0x8: over range; 0x20: value locked; 0x40: calibration expired; 0x80: sensor failure; 0x100: measurement not ready"
+  },
+  {
+    "device": "hmd65",
+    "index": 11,
+    "value": 0,
+    "expected": "status OK"
+  },
+  {
+    "device": "hmd65",
+    "index": 11,
+    "value": 1,
+    "expected": "Undocumented value 1 (0x1)"
+  },
+  {
+    "device": "hmd65",
+    "index": 11,
+    "value": 5,
+    "expected": "under range; unknown bits 0x1"
+  },
+  {
+    "device": "hmd65",
+    "index": 11,
+    "value": 530,
+    "expected": "reading unreliable; unknown bits 0x210"
+  },
+  {
+    "device": "hmd65",
+    "index": 11,
+    "value": 65535,
+    "expected": "reading unreliable; under range; over range; value locked; calibration expired; sensor failure; measurement not ready; unknown bits 0xFE11"
+  },
+  {
+    "device": "hmd65",
+    "index": 11,
+    "value": -1,
+    "expected": "reading unreliable; under range; over range; value locked; calibration expired; sensor failure; measurement not ready; unknown bits 0x-1EF"
+  },
+  {
+    "device": "hmd65",
+    "index": 11,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "wattnode",
+    "index": 0,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 0,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 0,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 0,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 0,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 0,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 0,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 0,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 1,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 1,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 1,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 1,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 1,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 1,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 1,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 1,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 2,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 2,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 2,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 2,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 2,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 2,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 2,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 2,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 3,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 3,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 3,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 3,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 3,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 3,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 3,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 3,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 4,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 4,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 4,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 4,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 4,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 4,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 4,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 4,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 5,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 5,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 5,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 5,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 5,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 5,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 5,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 5,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 6,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 6,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 6,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 6,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 6,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 6,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 6,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 6,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 7,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 7,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 7,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 7,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 7,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 7,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 7,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 7,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 8,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 8,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 8,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 8,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 8,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 8,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 8,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 8,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 9,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 9,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 9,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 9,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 9,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 9,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 9,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 9,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 10,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 10,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 10,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 10,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 10,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 10,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 10,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 10,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 11,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 11,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 11,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 11,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 11,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 11,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 11,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 11,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 12,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 12,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 12,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 12,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 12,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 12,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 12,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 12,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 13,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 13,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 13,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 13,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 13,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 13,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 13,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 13,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 14,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 14,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 14,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 14,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 14,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 14,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 14,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 14,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 15,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 15,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 15,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 15,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 15,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 15,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 15,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 15,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 16,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 16,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 16,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 16,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 16,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 16,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 16,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 16,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 17,
+    "value": null,
+    "expected": "0: all CTs normal; 0x1: reverse CT1 polarity; 0x2: reverse CT2 polarity; 0x4: reverse CT3 polarity"
+  },
+  {
+    "device": "wattnode",
+    "index": 17,
+    "value": 0,
+    "expected": "all CTs normal"
+  },
+  {
+    "device": "wattnode",
+    "index": 17,
+    "value": 1,
+    "expected": "reverse CT1 polarity"
+  },
+  {
+    "device": "wattnode",
+    "index": 17,
+    "value": 5,
+    "expected": "reverse CT1 polarity; reverse CT3 polarity"
+  },
+  {
+    "device": "wattnode",
+    "index": 17,
+    "value": 530,
+    "expected": "reverse CT2 polarity; unknown bits 0x210"
+  },
+  {
+    "device": "wattnode",
+    "index": 17,
+    "value": 65535,
+    "expected": "reverse CT1 polarity; reverse CT2 polarity; reverse CT3 polarity; unknown bits 0xFFF8"
+  },
+  {
+    "device": "wattnode",
+    "index": 17,
+    "value": -1,
+    "expected": "reverse CT1 polarity; reverse CT2 polarity; reverse CT3 polarity; unknown bits 0x-8"
+  },
+  {
+    "device": "wattnode",
+    "index": 17,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "wattnode",
+    "index": 18,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 18,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 18,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 18,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 18,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 18,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 18,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 18,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 19,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 19,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 19,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 19,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 19,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 19,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 19,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 19,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 20,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 20,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 20,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 20,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 20,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 20,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 20,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 20,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 21,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 21,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 21,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 21,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 21,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 21,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 21,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 21,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 22,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 22,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 22,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 22,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 22,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 22,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 22,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 22,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 23,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 23,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 23,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 23,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 23,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 23,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 23,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 23,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 24,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 24,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 24,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 24,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 24,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 24,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 24,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 24,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 25,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 25,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 25,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 25,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 25,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 25,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 25,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 25,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 26,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 26,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 26,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 26,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 26,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 26,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 26,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 26,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 27,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 27,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 27,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 27,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 27,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 27,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 27,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 27,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 28,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 28,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 28,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 28,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 28,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 28,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 28,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 28,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 29,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 29,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 29,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 29,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 29,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 29,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 29,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 29,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 30,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 30,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 30,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 30,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 30,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 30,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 30,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 30,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 31,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 31,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 31,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 31,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 31,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 31,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 31,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 31,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 32,
+    "value": null,
+    "expected": "0: custom mapping; 1: wye; 2: delta; 3: branch circuits; 4: house and inverter; 5: line-to-line"
+  },
+  {
+    "device": "wattnode",
+    "index": 32,
+    "value": 0,
+    "expected": "custom mapping"
+  },
+  {
+    "device": "wattnode",
+    "index": 32,
+    "value": 1,
+    "expected": "wye"
+  },
+  {
+    "device": "wattnode",
+    "index": 32,
+    "value": 5,
+    "expected": "line-to-line"
+  },
+  {
+    "device": "wattnode",
+    "index": 32,
+    "value": 530,
+    "expected": "Undocumented value 530 (0x212)"
+  },
+  {
+    "device": "wattnode",
+    "index": 32,
+    "value": 65535,
+    "expected": "Undocumented value 65535 (0xFFFF)"
+  },
+  {
+    "device": "wattnode",
+    "index": 32,
+    "value": -1,
+    "expected": "Undocumented value -1 (0x-1)"
+  },
+  {
+    "device": "wattnode",
+    "index": 32,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "wattnode",
+    "index": 33,
+    "value": null,
+    "expected": "0: no pending communication changes; 1: communication changes pending; 1234: apply requested when written"
+  },
+  {
+    "device": "wattnode",
+    "index": 33,
+    "value": 0,
+    "expected": "no pending communication changes"
+  },
+  {
+    "device": "wattnode",
+    "index": 33,
+    "value": 1,
+    "expected": "communication changes pending"
+  },
+  {
+    "device": "wattnode",
+    "index": 33,
+    "value": 5,
+    "expected": "Undocumented value 5 (0x5)"
+  },
+  {
+    "device": "wattnode",
+    "index": 33,
+    "value": 530,
+    "expected": "Undocumented value 530 (0x212)"
+  },
+  {
+    "device": "wattnode",
+    "index": 33,
+    "value": 65535,
+    "expected": "Undocumented value 65535 (0xFFFF)"
+  },
+  {
+    "device": "wattnode",
+    "index": 33,
+    "value": -1,
+    "expected": "Undocumented value -1 (0x-1)"
+  },
+  {
+    "device": "wattnode",
+    "index": 33,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "wattnode",
+    "index": 34,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 34,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 34,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 34,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 34,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 34,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 34,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 34,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 35,
+    "value": null,
+    "expected": "1: 1200 baud; 2: 2400 baud; 3: 4800 baud; 4: 9600 baud; 5: 19200 baud; 6: 38400 baud; 7: 57600 baud; 8: 76800 baud; 9: 115200 baud"
+  },
+  {
+    "device": "wattnode",
+    "index": 35,
+    "value": 0,
+    "expected": "Undocumented value 0 (0x0)"
+  },
+  {
+    "device": "wattnode",
+    "index": 35,
+    "value": 1,
+    "expected": "1200 baud"
+  },
+  {
+    "device": "wattnode",
+    "index": 35,
+    "value": 5,
+    "expected": "19200 baud"
+  },
+  {
+    "device": "wattnode",
+    "index": 35,
+    "value": 530,
+    "expected": "Undocumented value 530 (0x212)"
+  },
+  {
+    "device": "wattnode",
+    "index": 35,
+    "value": 65535,
+    "expected": "Undocumented value 65535 (0xFFFF)"
+  },
+  {
+    "device": "wattnode",
+    "index": 35,
+    "value": -1,
+    "expected": "Undocumented value -1 (0x-1)"
+  },
+  {
+    "device": "wattnode",
+    "index": 35,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "wattnode",
+    "index": 36,
+    "value": null,
+    "expected": "0: 8N1; 1: 8E1; 2: 8N2"
+  },
+  {
+    "device": "wattnode",
+    "index": 36,
+    "value": 0,
+    "expected": "8N1"
+  },
+  {
+    "device": "wattnode",
+    "index": 36,
+    "value": 1,
+    "expected": "8E1"
+  },
+  {
+    "device": "wattnode",
+    "index": 36,
+    "value": 5,
+    "expected": "Undocumented value 5 (0x5)"
+  },
+  {
+    "device": "wattnode",
+    "index": 36,
+    "value": 530,
+    "expected": "Undocumented value 530 (0x212)"
+  },
+  {
+    "device": "wattnode",
+    "index": 36,
+    "value": 65535,
+    "expected": "Undocumented value 65535 (0xFFFF)"
+  },
+  {
+    "device": "wattnode",
+    "index": 36,
+    "value": -1,
+    "expected": "Undocumented value -1 (0x-1)"
+  },
+  {
+    "device": "wattnode",
+    "index": 36,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "wattnode",
+    "index": 37,
+    "value": null,
+    "expected": "0: Modbus RTU"
+  },
+  {
+    "device": "wattnode",
+    "index": 37,
+    "value": 0,
+    "expected": "Modbus RTU"
+  },
+  {
+    "device": "wattnode",
+    "index": 37,
+    "value": 1,
+    "expected": "Undocumented value 1 (0x1)"
+  },
+  {
+    "device": "wattnode",
+    "index": 37,
+    "value": 5,
+    "expected": "Undocumented value 5 (0x5)"
+  },
+  {
+    "device": "wattnode",
+    "index": 37,
+    "value": 530,
+    "expected": "Undocumented value 530 (0x212)"
+  },
+  {
+    "device": "wattnode",
+    "index": 37,
+    "value": 65535,
+    "expected": "Undocumented value 65535 (0xFFFF)"
+  },
+  {
+    "device": "wattnode",
+    "index": 37,
+    "value": -1,
+    "expected": "Undocumented value -1 (0x-1)"
+  },
+  {
+    "device": "wattnode",
+    "index": 37,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "wattnode",
+    "index": 38,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 38,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 38,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 38,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 38,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 38,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 38,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 38,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 39,
+    "value": null,
+    "expected": "530: WattNode Module"
+  },
+  {
+    "device": "wattnode",
+    "index": 39,
+    "value": 0,
+    "expected": "Undocumented value 0 (0x0)"
+  },
+  {
+    "device": "wattnode",
+    "index": 39,
+    "value": 1,
+    "expected": "Undocumented value 1 (0x1)"
+  },
+  {
+    "device": "wattnode",
+    "index": 39,
+    "value": 5,
+    "expected": "Undocumented value 5 (0x5)"
+  },
+  {
+    "device": "wattnode",
+    "index": 39,
+    "value": 530,
+    "expected": "WattNode Module"
+  },
+  {
+    "device": "wattnode",
+    "index": 39,
+    "value": 65535,
+    "expected": "Undocumented value 65535 (0xFFFF)"
+  },
+  {
+    "device": "wattnode",
+    "index": 39,
+    "value": -1,
+    "expected": "Undocumented value -1 (0x-1)"
+  },
+  {
+    "device": "wattnode",
+    "index": 39,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "wattnode",
+    "index": 40,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 40,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 40,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 40,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 40,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 40,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 40,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 40,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 41,
+    "value": null,
+    "expected": "0: no option bits reported; 0x2: even parity factory option; 0x4: factory baud configured; 0x20: CT amps factory configured; 0x200: factory Modbus address configured; 0x400: CT amps locked; 0x800: configuration locked; 0x1000: LEDs disabled; 0x2000: no DIP-switch logic"
+  },
+  {
+    "device": "wattnode",
+    "index": 41,
+    "value": 0,
+    "expected": "no option bits reported"
+  },
+  {
+    "device": "wattnode",
+    "index": 41,
+    "value": 1,
+    "expected": "Undocumented value 1 (0x1)"
+  },
+  {
+    "device": "wattnode",
+    "index": 41,
+    "value": 5,
+    "expected": "factory baud configured; unknown bits 0x1"
+  },
+  {
+    "device": "wattnode",
+    "index": 41,
+    "value": 530,
+    "expected": "even parity factory option; factory Modbus address configured; unknown bits 0x10"
+  },
+  {
+    "device": "wattnode",
+    "index": 41,
+    "value": 65535,
+    "expected": "even parity factory option; factory baud configured; CT amps factory configured; factory Modbus address configured; CT amps locked; configuration locked; LEDs disabled; no DIP-switch logic; unknown bits 0xC1D9"
+  },
+  {
+    "device": "wattnode",
+    "index": 41,
+    "value": -1,
+    "expected": "even parity factory option; factory baud configured; CT amps factory configured; factory Modbus address configured; CT amps locked; configuration locked; LEDs disabled; no DIP-switch logic; unknown bits 0x-3E27"
+  },
+  {
+    "device": "wattnode",
+    "index": 41,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "wattnode",
+    "index": 42,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 42,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 42,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 42,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 42,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 42,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 42,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 42,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 43,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 43,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 43,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 43,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 43,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 43,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 43,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 43,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 44,
+    "value": null,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 44,
+    "value": 0,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 44,
+    "value": 1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 44,
+    "value": 5,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 44,
+    "value": 530,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 44,
+    "value": 65535,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 44,
+    "value": -1,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 44,
+    "value": 2147483648,
+    "expected": "—"
+  },
+  {
+    "device": "wattnode",
+    "index": 45,
+    "value": null,
+    "expected": "1: 1200 baud; 2: 2400 baud; 3: 4800 baud; 4: 9600 baud; 5: 19200 baud; 6: 38400 baud; 7: 57600 baud; 8: 76800 baud; 9: 115200 baud"
+  },
+  {
+    "device": "wattnode",
+    "index": 45,
+    "value": 0,
+    "expected": "Undocumented value 0 (0x0)"
+  },
+  {
+    "device": "wattnode",
+    "index": 45,
+    "value": 1,
+    "expected": "1200 baud"
+  },
+  {
+    "device": "wattnode",
+    "index": 45,
+    "value": 5,
+    "expected": "19200 baud"
+  },
+  {
+    "device": "wattnode",
+    "index": 45,
+    "value": 530,
+    "expected": "Undocumented value 530 (0x212)"
+  },
+  {
+    "device": "wattnode",
+    "index": 45,
+    "value": 65535,
+    "expected": "Undocumented value 65535 (0xFFFF)"
+  },
+  {
+    "device": "wattnode",
+    "index": 45,
+    "value": -1,
+    "expected": "Undocumented value -1 (0x-1)"
+  },
+  {
+    "device": "wattnode",
+    "index": 45,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "wattnode",
+    "index": 46,
+    "value": null,
+    "expected": "0: no factory parity override / 8N1; 1: 8E1; 2: 8N2"
+  },
+  {
+    "device": "wattnode",
+    "index": 46,
+    "value": 0,
+    "expected": "no factory parity override / 8N1"
+  },
+  {
+    "device": "wattnode",
+    "index": 46,
+    "value": 1,
+    "expected": "8E1"
+  },
+  {
+    "device": "wattnode",
+    "index": 46,
+    "value": 5,
+    "expected": "Undocumented value 5 (0x5)"
+  },
+  {
+    "device": "wattnode",
+    "index": 46,
+    "value": 530,
+    "expected": "Undocumented value 530 (0x212)"
+  },
+  {
+    "device": "wattnode",
+    "index": 46,
+    "value": 65535,
+    "expected": "Undocumented value 65535 (0xFFFF)"
+  },
+  {
+    "device": "wattnode",
+    "index": 46,
+    "value": -1,
+    "expected": "Undocumented value -1 (0x-1)"
+  },
+  {
+    "device": "wattnode",
+    "index": 46,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  },
+  {
+    "device": "wattnode",
+    "index": 47,
+    "value": null,
+    "expected": "0: configuration not factory locked; 1: configuration factory locked"
+  },
+  {
+    "device": "wattnode",
+    "index": 47,
+    "value": 0,
+    "expected": "configuration not factory locked"
+  },
+  {
+    "device": "wattnode",
+    "index": 47,
+    "value": 1,
+    "expected": "configuration factory locked"
+  },
+  {
+    "device": "wattnode",
+    "index": 47,
+    "value": 5,
+    "expected": "Undocumented value 5 (0x5)"
+  },
+  {
+    "device": "wattnode",
+    "index": 47,
+    "value": 530,
+    "expected": "Undocumented value 530 (0x212)"
+  },
+  {
+    "device": "wattnode",
+    "index": 47,
+    "value": 65535,
+    "expected": "Undocumented value 65535 (0xFFFF)"
+  },
+  {
+    "device": "wattnode",
+    "index": 47,
+    "value": -1,
+    "expected": "Undocumented value -1 (0x-1)"
+  },
+  {
+    "device": "wattnode",
+    "index": 47,
+    "value": 2147483648,
+    "expected": "Undocumented value 2147483648 (0x80000000)"
+  }
+]

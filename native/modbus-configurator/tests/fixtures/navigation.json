@@ -1,0 +1,1 @@
+{"request_id":1,"port":null,"expected_identity":null,"operation":"replay","payload":{"chunks":["\u001b[32mPass","word:\u001b[0m\r\n","enLink Main Menu:\r\n","C\r\nModbus Configuration ","Menu:\r\n","M\r\nModbus Import/Export Menu:\r\n","X\r\nModbus Configuration Menu:\r\n","A\r\nModbus read completed\r\n","Press a key to continue\r\n"]}}

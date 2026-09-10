@@ -1,0 +1,245 @@
+{
+  "LatestRelease": "Polygon-Device-Configurator-windows-x64-20260910-154422",
+  "Moves": [
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\ExactAire-Modbus-windows-x64-20260910-142656",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\ExactAire-Modbus-windows-x64-20260910-142656"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\ExactAire-Modbus-windows-x64-20260910-142822",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\ExactAire-Modbus-windows-x64-20260910-142822"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\ExactAire-Modbus-windows-x64-20260910-145912",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\ExactAire-Modbus-windows-x64-20260910-145912"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\ExactAire-Modbus-windows-x64-20260910-150351",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\ExactAire-Modbus-windows-x64-20260910-150351"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\Polygon-Device-Configurator-windows-x64-20260910-153835",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\Polygon-Device-Configurator-windows-x64-20260910-153835"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\Polygon-Device-Configurator-windows-x64-20260910-153933",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\Polygon-Device-Configurator-windows-x64-20260910-153933"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\ExactAire-Modbus-windows-x64-20260910-142822.zip",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\ExactAire-Modbus-windows-x64-20260910-142822.zip"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\ExactAire-Modbus-windows-x64-20260910-142822.zip.sha256",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\ExactAire-Modbus-windows-x64-20260910-142822.zip.sha256"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\ExactAire-Modbus-windows-x64-20260910-145912.zip",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\ExactAire-Modbus-windows-x64-20260910-145912.zip"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\ExactAire-Modbus-windows-x64-20260910-145912.zip.sha256",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\ExactAire-Modbus-windows-x64-20260910-145912.zip.sha256"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\ExactAire-Modbus-windows-x64-20260910-150351.zip",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\ExactAire-Modbus-windows-x64-20260910-150351.zip"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\ExactAire-Modbus-windows-x64-20260910-150351.zip.sha256",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\ExactAire-Modbus-windows-x64-20260910-150351.zip.sha256"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\Polygon-Device-Configurator-windows-x64-20260910-153835.zip",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\Polygon-Device-Configurator-windows-x64-20260910-153835.zip"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\Polygon-Device-Configurator-windows-x64-20260910-153835.zip.sha256",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\Polygon-Device-Configurator-windows-x64-20260910-153835.zip.sha256"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\Polygon-Device-Configurator-windows-x64-20260910-153933.zip",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\Polygon-Device-Configurator-windows-x64-20260910-153933.zip"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\releases\\Polygon-Device-Configurator-windows-x64-20260910-153933.zip.sha256",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\releases\\Polygon-Device-Configurator-windows-x64-20260910-153933.zip.sha256"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\brand-launch-3eea7b5ec8334ccba09bf685c0b75e37",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\brand-launch-3eea7b5ec8334ccba09bf685c0b75e37"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\extracted-launch-866855db7aec4539ac4450dc41ee6984",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\extracted-launch-866855db7aec4539ac4450dc41ee6984"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\gui-brandon-text",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\gui-brandon-text"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\gui-compact-layout",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\gui-compact-layout"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\gui-history-final",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\gui-history-final"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\gui-history-recovery",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\gui-history-recovery"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\gui-polygon-palette",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\gui-polygon-palette"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\gui-section-flow",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\gui-section-flow"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\gui-ui-cleanup",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\gui-ui-cleanup"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\gui-ui-cleanup-final",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\gui-ui-cleanup-final"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\gui-views-2026-09-10",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\gui-views-2026-09-10"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\gui-views-current",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\gui-views-current"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\gui-views-final",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\gui-views-final"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\package-check-0fb44e5343be47e3941822d72f0a249e",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\review\\package-check-0fb44e5343be47e3941822d72f0a249e"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\package-check-2378817334a84224a40081f478594d1f",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\review\\package-check-2378817334a84224a40081f478594d1f"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\package-check-7c26e13bc6a6431a8b6665bb6c0693e0",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\review\\package-check-7c26e13bc6a6431a8b6665bb6c0693e0"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\package-check-9a0f6ee5b08948c4a9c270a803d59b85",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\review\\package-check-9a0f6ee5b08948c4a9c270a803d59b85"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\package-check-9b8c0155bb3d433291bb0fa22390efd2",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\review\\package-check-9b8c0155bb3d433291bb0fa22390efd2"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\package-check-a1843cf167d4432babeda1cad3728143",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\review\\package-check-a1843cf167d4432babeda1cad3728143"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\package-check-a3c4075b70b94470bc1107b55211c759",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\review\\package-check-a3c4075b70b94470bc1107b55211c759"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\package-check-aa6627a5e1ce468ea2225b347d3ee6ad",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\review\\package-check-aa6627a5e1ce468ea2225b347d3ee6ad"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\package-check-d9fd0dc4b44941cdb7fdaf34b704e86d",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\review\\package-check-d9fd0dc4b44941cdb7fdaf34b704e86d"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\startup-diagnostic-dbf6a422b8144d7ba4d1f016dd8f58c8",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\startup-diagnostic-dbf6a422b8144d7ba4d1f016dd8f58c8"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\gui-section-flow-screenshots.zip",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\gui-section-flow-screenshots.zip"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\gui-views-2026-09-10.zip",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\gui-views-2026-09-10.zip"
+    },
+    {
+      "Source": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\gui-views-final.zip",
+      "Destination": "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\artifacts\\archive\\review\\gui-views-final.zip"
+    }
+  ],
+  "DeletedTestFolders": [
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-10360",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-11416",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-13716",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-16448",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-19532",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-20136",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-21040",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-22076",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-22472",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-23808",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-26068",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-26184",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-27544",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-28248",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-28364",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-28756",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-3208",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-3852",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-4452",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\blocked-backup-6708",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\capture-test-15684-1789069075593",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\capture-test-17900-1789069098659",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\capture-test-1964-1789069362557",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\capture-test-20288-1789069257199",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\capture-test-20664-1789069451781",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\capture-test-22208-1789068932170",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\capture-test-29656-1789069575218",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\capture-test-9760-1789069485331",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-export-11032",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-export-11552",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-export-11736",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-export-19868",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-export-21764",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-export-22500",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-export-2304",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-export-23592",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-export-24944",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-export-28148",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-export-28248",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-export-30196",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-export-9008",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-failed-export-11032",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-failed-export-11552",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-failed-export-11736",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-failed-export-19868",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-failed-export-21764",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-failed-export-22500",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-failed-export-2304",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-failed-export-23592",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-failed-export-24944",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-failed-export-28148",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-failed-export-28248",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-failed-export-30196",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\coverage-failed-export-9008",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\file-tests",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\gui-config-13652",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\gui-config-15684",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\gui-config-17900",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\gui-config-18276",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\gui-config-1964",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\gui-config-20288",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\gui-config-20664",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\gui-config-22208",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\gui-config-26644",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\gui-config-27248",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\gui-config-28088",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\gui-config-29032",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\gui-config-29656",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\gui-config-8932",
+    "C:\\Users\\micha\\OneDrive\\Documents\\ChatGPT\\modbus\\native\\modbus-configurator\\target\\gui-config-9760"
+  ]
+}

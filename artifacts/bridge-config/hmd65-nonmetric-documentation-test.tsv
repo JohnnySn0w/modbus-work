@@ -1,0 +1,13 @@
+Item	ID	Reg	Addr	Data	Word	Mult	Read
+1	1	Hold	128	F32	HH	1	Int
+2	1	Hold	130	F32	HH	1	Int
+3	1	Hold	132	F32	HH	1	Int
+4	1	Hold	134	F32	HH	1	Int
+5	1	Hold	136	F32	HH	1	Int
+6	1	Hold	138	F32	HH	1	Int
+7	1	Hold	140	F32	HH	1	Int
+8	1	Hold	142	F32	HH	1	Int
+9	1	Hold	512	S16	HH	1	Int
+10	1	Hold	513	S32	HH	1	Int
+11	1	Hold	517	S16	HH	1	Int
+12	1	Hold	518	S16	HH	1	Int

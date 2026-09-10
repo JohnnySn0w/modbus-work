@@ -8,7 +8,7 @@ Target family: Continental Control Systems WattNode WND-M1-MB. Confirm the exact
 
 ## Scope boundary
 
-For the initial device proofs of concept, acceptance ends when the bridge produces a correctly decoded raw payload in Loriot. Routing from Loriot into DSP is normally provided by the existing platform and is outside this project's present scope.
+For the initial device proofs of concept, acceptance ends when the E5 bridge produces a correctly decoded raw payload in Loriot. Routing from Loriot into DSP is normally provided by the existing platform and is outside this project's present scope.
 
 ## Correction to the legacy scaling note
 
@@ -26,7 +26,7 @@ The manual's example uses a 200 A CT and `CurrentIntScale = 20000`, which yields
 
 To obtain exactly `0.01 A/count` with a 250 A CT, `CurrentIntScale` would have to be 25000. Do not assume this was done on an existing meter: read back the register and record it.
 
-Preferred POC approach: use WattNode floating-point measurement registers where the bridge supports them. Float current values are already in amperes and float power values are already in watts, avoiding integer scale factors and portal-side multipliers.
+Preferred POC approach: use WattNode floating-point measurement registers where the E5 bridge supports them. Float current values are already in amperes and float power values are already in watts, avoiding integer scale factors and portal-side multipliers.
 
 ## Configuration classification
 
@@ -70,13 +70,13 @@ This is a candidate, not yet a validated configuration:
 - Authoritative reference: *WattNode Module for Modbus (WND Series) Reference Manual*, document WND-M1-MB-Ref-1.10, documented firmware 1028.
 - Authoritative register source: current WND Series Modbus register list from the manufacturer support page.
 
-## Documentation still needed for a clone-ready bridge configuration
+## Documentation still needed for a clone-ready E5 bridge configuration
 
 1. Exact WattNode model label, serial number, and firmware.
 2. CT manufacturer/model, amp rating, output rating, and phase assignment for A/B/C.
 3. Service type and voltage wiring used at the installation.
 4. Full read-only WattNode configuration snapshot before changes.
-5. Current bridge export plus firmware identity.
+5. Current E5 bridge export plus firmware identity.
 6. Selected float register set, word order, polling interval, and Loriot payload proof.
 7. Any existing ExactAire portal multiplier values, captured as legacy evidence rather than treated as the source of truth.
 
@@ -87,9 +87,9 @@ This is a candidate, not yet a validated configuration:
 3. Read `CtAmps1..3`, `CurrentIntScale`, power scaling, gain, phase, and nominal CT voltage settings.
 4. Read float measurements and compare them with the local display or a trusted reference.
 5. Select the smallest useful point set for the bridge.
-6. Export the bridge baseline, compile the WattNode point configuration, write with confirmation, and read back.
+6. Export the E5 bridge baseline, compile the WattNode point configuration, write with confirmation, and read back.
 7. Confirm join/uplink and decode the resulting Loriot raw payload.
-8. Export a clone package containing the device profile, bridge configuration, firmware compatibility, and acceptance evidence.
+8. Export a clone package containing the device profile, E5 bridge configuration, firmware compatibility, and acceptance evidence.
 
 ## Sources
 

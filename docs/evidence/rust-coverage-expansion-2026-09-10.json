@@ -1,0 +1,163 @@
+{
+  "date": "2026-09-10",
+  "tests_passed": 151,
+  "line_coverage_percent": 92.30485329396568,
+  "scope": "unit/integration tests plus offline native GUI; 23 captured views",
+  "clippy": "all targets, warnings denied, passed",
+  "modules": [
+    {
+      "name": "adapter.rs",
+      "lines": {
+        "count": 342,
+        "covered": 299,
+        "percent": 87.42690058479532
+      }
+    },
+    {
+      "name": "brand.rs",
+      "lines": {
+        "count": 101,
+        "covered": 101,
+        "percent": 100.0
+      }
+    },
+    {
+      "name": "bridge.rs",
+      "lines": {
+        "count": 843,
+        "covered": 755,
+        "percent": 89.56109134045077
+      }
+    },
+    {
+      "name": "capture_views.rs",
+      "lines": {
+        "count": 91,
+        "covered": 91,
+        "percent": 100.0
+      }
+    },
+    {
+      "name": "catalog.rs",
+      "lines": {
+        "count": 241,
+        "covered": 237,
+        "percent": 98.3402489626556
+      }
+    },
+    {
+      "name": "catalog_view.rs",
+      "lines": {
+        "count": 151,
+        "covered": 139,
+        "percent": 92.05298013245032
+      }
+    },
+    {
+      "name": "config_file.rs",
+      "lines": {
+        "count": 240,
+        "covered": 230,
+        "percent": 95.83333333333334
+      }
+    },
+    {
+      "name": "console.rs",
+      "lines": {
+        "count": 58,
+        "covered": 58,
+        "percent": 100.0
+      }
+    },
+    {
+      "name": "device_art.rs",
+      "lines": {
+        "count": 196,
+        "covered": 195,
+        "percent": 99.48979591836735
+      }
+    },
+    {
+      "name": "history.rs",
+      "lines": {
+        "count": 91,
+        "covered": 91,
+        "percent": 100.0
+      }
+    },
+    {
+      "name": "history_view.rs",
+      "lines": {
+        "count": 93,
+        "covered": 89,
+        "percent": 95.6989247311828
+      }
+    },
+    {
+      "name": "last_good.rs",
+      "lines": {
+        "count": 89,
+        "covered": 87,
+        "percent": 97.75280898876404
+      }
+    },
+    {
+      "name": "main.rs",
+      "lines": {
+        "count": 1131,
+        "covered": 1054,
+        "percent": 93.1918656056587
+      }
+    },
+    {
+      "name": "reference.rs",
+      "lines": {
+        "count": 82,
+        "covered": 80,
+        "percent": 97.5609756097561
+      }
+    },
+    {
+      "name": "service.rs",
+      "lines": {
+        "count": 371,
+        "covered": 307,
+        "percent": 82.74932614555256
+      }
+    },
+    {
+      "name": "technician_view.rs",
+      "lines": {
+        "count": 953,
+        "covered": 903,
+        "percent": 94.75341028331584
+      }
+    },
+    {
+      "name": "transport.rs",
+      "lines": {
+        "count": 232,
+        "covered": 174,
+        "percent": 75.0
+      }
+    },
+    {
+      "name": "troubleshooting.rs",
+      "lines": {
+        "count": 53,
+        "covered": 53,
+        "percent": 100.0
+      }
+    },
+    {
+      "name": "units.rs",
+      "lines": {
+        "count": 61,
+        "covered": 59,
+        "percent": 96.72131147540983
+      }
+    }
+  ],
+  "headless_line_coverage_percent": 91.0131020483484,
+  "verification_log": "artifacts/review/upstream-check.log (local generated output)"
+}

@@ -1,3 +1,5 @@
+> Historical evidence: observations and software state at the recorded test date. Earlier names, COM numbers, tool behavior and acceptance claims are preserved as evidence, not current instructions. See [current status](../../CURRENT-STATUS.md).
+
 # ENL-MOD-32 LoRaWAN status
 
 Observed read-only on 2026-08-28 after local DPT146 configuration validation.

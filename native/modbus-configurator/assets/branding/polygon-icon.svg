@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="275" height="275" viewBox="0 0 275 275">
+  <title>Polygon program icon</title>
+  <defs>
+    <radialGradient id="blue" cx="46%" cy="57%" r="68%">
+      <stop offset="0" stop-color="#009fe3"/>
+      <stop offset="0.56" stop-color="#0085bd"/>
+      <stop offset="1" stop-color="#00699d"/>
+    </radialGradient>
+  </defs>
+  <g fill="#aaa">
+    <path d="M7 139 C40 88 81 50 130 28 C79 69 52 124 47 191 C30 176 17 158 7 139Z"/>
+    <path d="M167 16 C188 10 211 7 233 7 C261 49 274 107 267 165 C253 104 219 54 167 16Z"/>
+    <path d="M81 220 C139 241 201 239 259 209 C255 229 248 249 237 268 C180 267 122 250 81 220Z"/>
+  </g>
+  <path d="M157 48 C205 79 232 126 237 184 C190 211 132 213 79 186 C82 127 109 80 157 48Z" fill="url(#blue)"/>
+</svg>

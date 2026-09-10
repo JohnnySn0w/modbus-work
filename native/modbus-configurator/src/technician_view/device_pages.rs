@@ -1,0 +1,533 @@
+//! Device details and register tables; rendering never opens hardware directly.
+use super::*;
+
+impl TechnicianView {
+    /// Render device readings and available actions.
+    pub(super) fn detail_page(
+        &mut self,
+        ui: &mut egui::Ui,
+        key: String,
+        context: DevicePageContext<'_>,
+    ) -> Vec<Action> {
+        let DevicePageContext {
+            reference,
+            ports,
+            profiles,
+            result,
+            direct,
+            busy,
+        } = context;
+        let mut actions = vec![];
+        let Some(device) = reference.devices.get(&key) else {
+            return actions;
+        };
+        self.header(
+            ui,
+            &device.name,
+            &device.subtitle,
+            if self.reference_context {
+                Page::References
+            } else {
+                Page::Overview
+            },
+        );
+        if key == "adapter" && ports.iter().any(is_synetica) {
+            ui.colored_label(
+                crate::brand::ORANGE,
+                "Blocked · another Modbus master may be active",
+            );
+            ui.add(egui::Label::new("Switch the E5 bridge off with its hardware switch before direct adapter reads. External power can remain connected.").wrap());
+        }
+        let profile = profiles
+            .iter()
+            .filter(|p| reference::profile_matches(&key, &p.info.id))
+            .find(|p| result.is_some_and(|r| p.contains_points(r)))
+            .or_else(|| {
+                profiles
+                    .iter()
+                    .find(|p| reference::profile_matches(&key, &p.info.id))
+            });
+        let direct = direct.filter(|d| key == "adapter" || d.key == key);
+        let reading_key = direct.map_or(key.as_str(), |d| d.key.as_str());
+        let reading_device = reference.devices.get(reading_key).unwrap_or(device);
+        let connected = direct.is_some_and(|d| {
+            ports
+                .iter()
+                .any(|p| modbus_configurator::adapter::same_route(p, &d.port))
+        }) || match key.as_str() {
+            "synetica_usb" => ports.iter().any(is_synetica),
+            "bridge" => self.bridge_connected && result.is_some(),
+            "dpt146" | "hmd65" | "wattnode" | "ati-f12" => {
+                self.bridge_connected
+                    && profile.is_some_and(|p| result.is_some_and(|r| p.contains_points(r)))
+            }
+            "adapter" => ports.iter().any(is_adapter),
+            _ => false,
+        };
+        let has_readings = direct.is_some_and(|d| !d.values.is_empty())
+            || profile.is_some_and(|p| {
+                result.is_some_and(|r| p.contains_points(r) && !r.readings.is_empty())
+            });
+        let stale = if direct.is_some() {
+            self.adapter_stale
+        } else {
+            self.bridge_stale
+        };
+        ui.weak(if !connected || stale {
+            reading_state(connected, stale, has_readings)
+        } else if direct.is_some() {
+            "Connected through USB adapter"
+        } else if matches!(key.as_str(), "dpt146" | "hmd65" | "wattnode" | "ati-f12") {
+            "Configured through E5 bridge · sensor identity unverified"
+        } else if key == "synetica_usb" {
+            "Connected · not identified"
+        } else {
+            "Connected"
+        });
+        if direct.is_none()
+            && matches!(
+                key.as_str(),
+                "bridge" | "dpt146" | "hmd65" | "wattnode" | "ati-f12"
+            )
+        {
+            if profile.is_none_or(|p| result.is_some_and(|r| p.contains_points(r)))
+                && let Some(notice) = &self.configuration_change
+            {
+                ui.add(egui::Label::new(RichText::new(notice).color(crate::brand::ORANGE)).wrap());
+            }
+            if let Some(warning) = configuration_warning(profile, result, stale) {
+                ui.add(egui::Label::new(RichText::new(warning).color(crate::brand::ORANGE)).wrap());
+            }
+            if matches!(key.as_str(), "dpt146" | "hmd65" | "wattnode" | "ati-f12")
+                && profile.is_some_and(|p| result.is_some_and(|r| p.contains_points(r)))
+            {
+                ui.add(egui::Label::new("The point table selects register addresses; it does not identify the attached sensor. Confirm the physical sensor matches this configured model, even when reads succeed.").wrap());
+            }
+        }
+        if let Some(direct) = direct {
+            ui.weak(direct.settings.label());
+            if direct.family_only {
+                ui.label("WND meter module identified. Confirm the enclosure model on its label.");
+            }
+            if !direct.errors.is_empty() {
+                ui.collapsing("Register errors", |ui| {
+                    for (address, error) in &direct.errors {
+                        ui.label(format!("PDU {address}: {error}"));
+                    }
+                });
+            }
+        }
+        ui.add_space(16.0);
+        ui.columns(2, |columns| {
+        let photo_width = columns[1].available_width().min(320.0);
+        crate::device_art::photo(&mut columns[1], &key, egui::vec2(photo_width, 200.0));
+        columns[1].add_space(12.0);
+        columns[0].strong("Readings");
+        if key == "adapter" {
+            if direct.is_some() { columns[0].label(format!("Sensor: {}", reading_device.name)); }
+            else { columns[0].label("No sensor read has completed through this adapter. USB detection alone does not confirm sensor communication."); }
+        }
+        columns[0].checkbox(&mut self.show_native, "Show native values alongside display units");
+        let has_readings = direct.is_some_and(|d| !d.values.is_empty())
+            || profile.is_some_and(|p| {
+                result.is_some_and(|r| p.contains_points(r) && !r.readings.is_empty())
+            });
+        columns[0].weak(if has_readings {
+            "Last completed read"
+        } else {
+            "No readings yet"
+        });
+        for readout in &reading_device.readouts {
+            let live_register = reference.registers.get(reading_key).and_then(|regs| {
+                regs.iter()
+                    .find(|r| r.readout_label.as_deref() == Some(&readout.label) && value(profile, result, r).is_some())
+                    .or_else(|| regs.iter().find(|r| r.readout_label.as_deref() == Some(&readout.label)))
+            });
+            let live = live_register.and_then(|r| {
+                direct
+                    .and_then(|d| d.values.get(&r.first_pdu()?).copied())
+                    .or_else(|| value(profile, result, r))
+            });
+            columns[0].group(|ui| {
+                let text = if let Some(register) = live_register && !crate::units::choices(&register.unit).is_empty() {
+                    self.display_units(ui, reading_key, register.first_pdu(), live, &register.unit)
+                } else if let Some(v) = live {
+                    let unit = live_register.map_or(readout.unit.as_str(), |r| r.unit.as_str());
+                    format!("{} {unit}", display_value(v, unit))
+                } else if reading_key == "dpt146" && readout.label == "Device health" {
+                    if !connected || stale { "Unavailable · readings stale".into() } else {
+                        let health_values: Option<Vec<f64>> = ["Fault status", "Online status", "Error code"].iter().map(|label| {
+                            let reg = reference.registers.get(reading_key)?.iter().find(|r| r.readout_label.as_deref() == Some(*label))?;
+                            if let Some(d) = direct {
+                                let address = reg.first_pdu()?;
+                                if d.errors.contains_key(&address) { return None; }
+                                d.values.get(&address).copied()
+                            } else {
+                                let p = profile?;
+                                let r = result?;
+                                let item = p.rows.iter().find(|(_, row)| row.split('\t').nth(3).and_then(|a| a.parse::<u16>().ok()) == reg.first_pdu())?.0;
+                                if r.exceptions.iter().any(|e| e.item == *item) { return None; }
+                                value(profile, result, reg)
+                            }
+                        }).collect();
+                        match health_values {
+                            Some(v) if v == [1.0, 1.0, 0.0] => "Online".into(),
+                            Some(_) => "Attention required".into(),
+                            None => "Unavailable · incomplete status read".into(),
+                        }
+                    }
+                } else if key == "bridge"
+                    && let Some(result) = result
+                {
+                    match readout.label.as_str() {
+                        "Configured points" => result
+                            .native_tsv
+                            .lines()
+                            .skip(1)
+                            .filter(|l| !l.trim().is_empty())
+                            .count()
+                            .to_string(),
+                        "Successful reads" => {
+                            result.successful_reads.map_or("—".into(), |count| {
+                                format!(
+                                    "{count} successful · {} failed",
+                                    result.exceptions.len()
+                                )
+                            })
+                        }
+                        _ => "—".into(),
+                    }
+                } else {
+                    "—".into()
+                };
+                ui.horizontal(|ui| {
+                    ui.label(&readout.label);
+                    ui.with_layout(
+                        egui::Layout::right_to_left(egui::Align::Center),
+                        |ui| {
+                            ui.label(RichText::new(text).font(egui::FontId::new(
+                                20.0,
+                                egui::FontFamily::Proportional,
+                            )));
+                        },
+                    );
+                });
+                if live.is_some()
+                    && let Some(address) = live_register.and_then(Register::first_pdu)
+                {
+                    let times = if direct.is_some() {
+                        &self.adapter_times
+                    } else {
+                        &self.bridge_times
+                    };
+                    if let Some(at) = times.get(&address) {
+                        ui.weak(format!("Last good: {at}"));
+                    }
+                    let failed = if let Some(d) = direct {
+                        self.adapter_stale || d.errors.contains_key(&address)
+                    } else {
+                        self.bridge_stale
+                            || result.is_some_and(|r| {
+                                r.exceptions.iter().any(|e| {
+                                    profile.is_some_and(|p| {
+                                        p.rows
+                                            .get(&e.item)
+                                            .and_then(|row| row.split('\t').nth(3))
+                                            .and_then(|v| v.parse::<u16>().ok())
+                                            == Some(address)
+                                    })
+                                })
+                            })
+                    };
+                    if !connected || failed {
+                        ui.weak("Stale");
+                    }
+                }
+            });
+        }
+        if key == "bridge" {
+            columns[1].strong("Device");
+        }
+
+        if key == "bridge"
+            && let Some(result) = result
+        {
+            columns[1].label(format!(
+                "{} · firmware {}",
+                result.identity.model, result.identity.firmware
+            ));
+        }
+        columns[1].add_space(12.0);
+        if reference.registers.contains_key(reading_key)
+            && columns[1].button("Register table").clicked()
+        {
+            self.page = Page::Registers(reading_key.into());
+        }
+        if key == "bridge" {
+            if let Some(result) = result
+                && result.successful_reads.is_some()
+            {
+                columns[1].collapsing("Point results", |ui| {
+                    egui::Grid::new("E5 bridge-point-results").striped(true).show(
+                        ui,
+                        |ui| {
+                            ui.strong("Point");
+                            ui.strong("PDU address");
+                            ui.strong("Result");
+                            ui.end_row();
+                            for line in result
+                                .native_tsv
+                                .lines()
+                                .skip(1)
+                                .filter(|l| !l.trim().is_empty())
+                            {
+                                let fields: Vec<_> = line.split('\t').collect();
+                                let Ok(item) = fields[0].parse::<u8>() else {
+                                    continue;
+                                };
+                                ui.label(item.to_string());
+                                ui.label(fields[3]);
+                                if let Some(reading) =
+                                    result.readings.iter().find(|r| r.item == item)
+                                {
+                                    ui.label(reading.value.to_string());
+                                    if let Some(error) = result
+                                        .exceptions
+                                        .iter()
+                                        .find(|e| e.item == item)
+                                    {
+                                        ui.weak(format!(
+                                            "Last good value; {}",
+                                            error.message
+                                        ));
+                                    }
+                                } else if let Some(error) =
+                                    result.exceptions.iter().find(|e| e.item == item)
+                                {
+                                    ui.colored_label(
+                                        Color32::from_rgb(165, 65, 40),
+                                        format!("{} ({})", error.message, error.code),
+                                    );
+                                } else {
+                                    ui.label("Unavailable");
+                                }
+                                ui.end_row();
+                            }
+                        },
+                    );
+                });
+            }
+            if columns[1].button("Configure E5 bridge").clicked() {
+                self.page = Page::Configurations;
+            }
+        }
+        if ["dpt146", "hmd65", "wattnode", "ati-f12", "adapter"].contains(&key.as_str())
+            && columns[1]
+                .add_enabled(!busy && connected && !(key == "adapter" && ports.iter().any(is_synetica)), egui::Button::new("Read now"))
+                .clicked()
+        {
+            actions.push(Action::ReadBridge);
+        }
+        if key == "iaq_plus" && columns[1].button("Radio reference").clicked() {
+            self.page = Page::Radio;
+        }
+        columns[1].add_space(16.0);
+        columns[1].collapsing("Reference information", |ui| {
+            ui.label(&device.description);
+        });
+        columns[1].strong("Device manuals");
+        let manuals = reference::manuals(&key);
+        for (title, path) in manuals {
+            if columns[1].button(*title).clicked() { actions.push(Action::OpenArtifact((*path).into())); }
+        }
+        if manuals.is_empty() {
+            columns[1].add_enabled(false, egui::Button::new("Open manual (PDF)"));
+            columns[1].weak("No documentation bundled");
+        }
+        if matches!(key.as_str(), "bridge" | "iaq_plus") {
+            columns[1].weak("Full user guide not bundled; manufacturer download requires an account.");
+        }
+
+        if columns[1].button("Setup & troubleshooting").clicked() {
+            self.page = Page::Troubleshooting(Some(key.clone()));
+        }
+    });
+        actions
+    }
+
+    /// Render register values, units, and documentation with wrapped rows.
+    pub(super) fn register_page(
+        &mut self,
+        ui: &mut egui::Ui,
+        key: String,
+        context: DevicePageContext<'_>,
+    ) -> Vec<Action> {
+        let DevicePageContext {
+            reference,
+            profiles,
+            result,
+            direct,
+            ..
+        } = context;
+        let actions = vec![];
+        let Some(device) = reference.devices.get(&key) else {
+            return actions;
+        };
+        self.header(
+            ui,
+            &format!("{} — registers", device.name),
+            "",
+            Page::Detail(key.clone()),
+        );
+        ui.horizontal(|ui| {
+            ui.label("Find");
+            ui.text_edit_singleline(&mut self.search);
+        });
+        ui.checkbox(
+            &mut self.show_native,
+            "Show native values alongside display units",
+        );
+        let query = self.search.to_lowercase();
+        let profile = profiles
+            .iter()
+            .filter(|p| reference::profile_matches(&key, &p.info.id))
+            .find(|p| result.is_some_and(|r| p.contains_points(r)))
+            .or_else(|| {
+                profiles
+                    .iter()
+                    .find(|p| reference::profile_matches(&key, &p.info.id))
+            });
+        if let Some(registers) = reference.registers.get(&key) {
+            // Keep technical columns readable; give wider windows to descriptive text.
+            let mut widths = [180.0, 65.0, 65.0, 95.0, 60.0, 80.0, 110.0, 160.0, 240.0];
+            let extra = (ui.available_width()
+                - widths.iter().sum::<f32>()
+                - ui.spacing().item_spacing.x * 8.0)
+                .max(0.0);
+            widths[0] += extra * 0.15;
+            widths[7] += extra * 0.25;
+            widths[8] += extra * 0.60;
+            egui::ScrollArea::horizontal()
+                .auto_shrink([false, true])
+                .show(ui, |ui| {
+                    ui.vertical(|ui| {
+                        ui.horizontal_top(|ui| {
+                            for label in [
+                                "Register",
+                                "Manual",
+                                "PDU",
+                                "Type/order",
+                                "Access",
+                                "Readout",
+                                "Units",
+                                "Decoded meaning",
+                                "Description",
+                            ]
+                            .into_iter()
+                            .enumerate()
+                            {
+                                register_cell(
+                                    ui,
+                                    widths[label.0],
+                                    egui::Label::new(egui::RichText::new(label.1).strong()).wrap(),
+                                );
+                            }
+                        });
+                        for register in registers {
+                            if !format!("{} {} {}", register.name, register.logical, register.pdu)
+                                .to_lowercase()
+                                .contains(&query)
+                            {
+                                continue;
+                            }
+                            let live = direct
+                                .filter(|d| d.key == key)
+                                .and_then(|d| d.values.get(&register.first_pdu()?).copied())
+                                .or_else(|| value(profile, result, register));
+                            ui.horizontal_top(|ui| {
+                                for text in [
+                                    &register.name,
+                                    &register.logical,
+                                    &register.pdu,
+                                    &register.data_type,
+                                    &register.access,
+                                ]
+                                .into_iter()
+                                .enumerate()
+                                {
+                                    register_cell(
+                                        ui,
+                                        widths[text.0],
+                                        egui::Label::new(text.1).wrap(),
+                                    );
+                                }
+                                // Native decoding stays independent of display-unit selection.
+                                let options = crate::units::choices(&register.unit);
+                                let index = self
+                                    .unit_choices
+                                    .get(&(key.clone(), register.first_pdu().unwrap_or(0)))
+                                    .copied()
+                                    .unwrap_or_else(|| self.unit_preset.index(&register.unit));
+                                let (_, scale, offset) = options.get(index).copied().unwrap_or((
+                                    &register.unit,
+                                    1.0,
+                                    0.0,
+                                ));
+                                register_cell(
+                                    ui,
+                                    widths[5],
+                                    egui::Label::new(live.map_or("—".into(), |v| {
+                                        let display = display_value(
+                                            v * scale + offset,
+                                            options.get(index).map_or(&register.unit, |o| o.0),
+                                        );
+                                        if self.show_native {
+                                            format!(
+                                                "{display}\nNative: {} {}",
+                                                display_value(v, &register.unit),
+                                                register.unit
+                                            )
+                                        } else {
+                                            display
+                                        }
+                                    }))
+                                    .wrap(),
+                                );
+                                ui.allocate_ui_with_layout(
+                                    egui::vec2(widths[6], 0.0),
+                                    egui::Layout::left_to_right(egui::Align::Center),
+                                    |ui| {
+                                        ui.set_width(widths[6]);
+                                        self.display_units(
+                                            ui,
+                                            &key,
+                                            register.first_pdu(),
+                                            None,
+                                            &register.unit,
+                                        );
+                                        if options.is_empty() {
+                                            ui.label(&register.unit);
+                                        }
+                                    },
+                                );
+                                register_cell(
+                                    ui,
+                                    widths[7],
+                                    egui::Label::new(register.decode(live.map(|v| v as i64)))
+                                        .wrap(),
+                                )
+                                .on_hover_text(register.decode(None));
+                                register_cell(
+                                    ui,
+                                    widths[8],
+                                    egui::Label::new(&register.description).wrap(),
+                                );
+                            });
+                            ui.add_space(6.0);
+                        }
+                    });
+                });
+        }
+        actions
+    }
+}

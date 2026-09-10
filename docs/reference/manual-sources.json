@@ -1,0 +1,63 @@
+[
+  {
+    "file": "e5-hardware-guide.pdf",
+    "source": "https://synetica.b-cdn.net/file/enlink-modbus-rs485-hardware-guide697a05f80114f.pdf",
+    "pages": 10,
+    "sha256": "d3cefbe0722ac0132e837e6a87316e607de9f71dbcef3d0a94fee92ebddd8fd8",
+    "retrieved": "2026-09-10",
+    "public_source_verified": "2026-09-10",
+    "verification": "Public PDF opened with web reader; document edition and page count checked. SHA-256 identifies the local bundled file."
+  },
+  {
+    "file": "hmd65-user-guide.pdf",
+    "source": "https://www.sensorica.es/wp-content/uploads/sites/17/2021/04/HMD65-User-Guide-in-English-M212243EN.pdf",
+    "pages": 82,
+    "sha256": "f62e6526dc713c5f754eaf3c95b5a47bab06ed6859b05cf01778f4ec8430fef0",
+    "retrieved": "2026-09-10",
+    "public_source_verified": "2026-09-10",
+    "verification": "Public PDF opened with web reader; document edition and page count checked. SHA-256 identifies the local bundled file."
+  },
+  {
+    "file": "ati-f12-operation-manual.pdf",
+    "source": "https://www.gas-sensing.com/downloads/ati/f12/F12-D-toxic-gas-transmitter-manual.pdf",
+    "pages": 86,
+    "sha256": "f95c0d15d81d8fdf545dace28c76f970b1c2c2a0ecb08c75e330fbd1aff55de3",
+    "retrieved": "2026-09-10",
+    "public_source_verified": "2026-09-10",
+    "verification": "Public PDF opened with web reader; document edition and page count checked. SHA-256 identifies the local bundled file."
+  },
+  {
+    "file": "wattnode-reference-manual.pdf",
+    "source": "https://ctlsys.com/wp-content/uploads/2017/10/WND-Module-Modbus-Ref-Manual.pdf",
+    "pages": 68,
+    "sha256": "b26bd45bd438f8c2ebf56f93a2558edde8c31e15f8eec1b63dc34b7cc4c0f768",
+    "retrieved": "2026-09-10",
+    "public_source_verified": "2026-09-10",
+    "verification": "Public PDF opened with web reader; document edition and page count checked. SHA-256 identifies the local bundled file."
+  },
+  {
+    "file": "wattnode-installation-manual.pdf",
+    "source": "https://ctlsys.com/wp-content/uploads/2017/12/WND-Meter-Module-Modbus-Install-Manual.pdf",
+    "pages": 16,
+    "sha256": "cb8e39544be58012d8b3c5d17cd667e4063bd10b174406b0476392a414fb747a",
+    "retrieved": "2026-09-10",
+    "public_source_verified": "2026-09-10",
+    "verification": "Public PDF opened with web reader; document edition and page count checked. SHA-256 identifies the local bundled file."
+  },
+  {
+    "file": "vaisala-dpt146-user-guide-M211372EN-E.pdf",
+    "source": "https://docs.vaisala.com/api/khub/documents/qglsYLxnUQ82WNv_eDiAwA/content",
+    "pages": 70,
+    "sha256": "017e6477c4f62c2238fc0844fbf54089e73858aed8dfcc7ff6289d5bc6459ce1",
+    "public_source_verified": "2026-09-10",
+    "verification": "Public PDF opened with web reader; document edition and page count checked. SHA-256 identifies the local bundled file."
+  },
+  {
+    "file": "usb-comi-tb-manual.pdf",
+    "source": "https://www.vscom.de/download/multiio/legacy/USB-COMi-TB_manual.pdf",
+    "pages": 4,
+    "sha256": "1bbd3f1bd2e3fe1d6e598309909b910cdb167b5ed53d68f90d2cd90a64ac29bc",
+    "public_source_verified": "2026-09-10",
+    "verification": "Public PDF opened with web reader; document edition and page count checked. SHA-256 identifies the local bundled file."
+  }
+]

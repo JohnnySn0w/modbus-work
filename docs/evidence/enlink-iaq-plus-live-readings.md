@@ -1,3 +1,5 @@
+> Historical evidence: observations and software state at the recorded test date. Earlier names, COM numbers, tool behavior and acceptance claims are preserved as evidence, not current instructions. See [current status](../../CURRENT-STATUS.md).
+
 # enLink IAQ Plus live console evidence
 
 Captured read-only from COM5 on 2026-08-31.

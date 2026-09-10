@@ -1,3 +1,5 @@
+> Historical evidence: observations and software state at the recorded test date. Earlier names, COM numbers, tool behavior and acceptance claims are preserved as evidence, not current instructions. See [current status](../../CURRENT-STATUS.md).
+
 # ENL-MOD-32 GUI writer validation
 
 Validated on 2026-09-01 against the Polygon/Synetica ENL-MOD-32 firmware 3.6 bench bridge and Vaisala DPT146.

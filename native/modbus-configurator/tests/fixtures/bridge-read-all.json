@@ -1,0 +1,14 @@
+{
+  "provenance": "Synthetic protocol fixture using prompt strings and value syntax from the repository's PowerShell helper and Python tests. Dummy DevEUI; not a captured hardware transcript.",
+  "initial": "\u001b[32mModel Number: ENL-MOD-32\r\nFirmware Ver: 3.6\r\nDevEui: 00-00-00-00-00-00-ca-fe\r\nPassword:\u001b[0m",
+  "exchanges": [
+    ["cafe\r", "enLink Main Menu:\r\n"],
+    ["C\r", "C\r\nModbus Configuration Menu:\r\n"],
+    ["M\r", "Modbus Import/Export Menu:\r\nE - Export 2/32\r\nEnter Selection:"],
+    ["E\r", "Item\tID\tReg\tAddr\tData\tWord\tMult\tRead\r\n1\t1\tHold\t4\tF32\tHL\t1\tInt\r\n3\t1\tHold\t512\tU16\tHH\t1\tInt\r\nPress a key to continue"],
+    ["\r", "Modbus Import/Export Menu:\r\nE - Export 2/32\r\n"],
+    ["X\r", "Modbus Configuration Menu:\r\n"],
+    ["A\r", "Item 1 = 22.5\r\n3\t1\r\nModbus read completed\r\nPress a key to continue"],
+    ["\r", "Modbus Configuration Menu:\r\n2/0 (OK/Exceptions)\r\nEnter Selection:"]
+  ]
+}

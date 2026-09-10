@@ -1,0 +1,128 @@
+Read All Data Points Options:
+	==============================================================================
+	N - Normal 
+	D - Detailed  <==
+
+Enter Selection [Detailed]: D
+
+--- Modbus RTU Initialised: 19200 8 None 2
+--- Retries: 1  Timeout: 500 ms  IMD: 150 ms
+--------------------------------------------------------------------------------------
+--- [ 1]  ID:1  Reg:Hold  Addr:4  Data:F32 HL
+--> TX:      01 03 00 04 00 02
+<-- RX:      01 03 04 AC E8 41 BE
+--- Raw:     ACE8 41BE
+--- Swap:    41BE ACE8
+--- Reading: 23.834427
+--------------------------------------------------------------------------------------
+--- [ 2]  ID:1  Reg:Hold  Addr:6  Data:F32 HL
+--> TX:      01 03 00 06 00 02
+<-- RX:      01 03 04 09 71 41 0A
+--- Raw:     0971 410A
+--- Swap:    410A 0971
+--- Reading: 8.627305
+--------------------------------------------------------------------------------------
+--- [ 3]  ID:1  Reg:Hold  Addr:10  Data:F32 HL
+--> TX:      01 03 00 0A 00 02
+<-- RX:      01 03 04 7A 18 41 0A
+--- Raw:     7A18 410A
+--- Swap:    410A 7A18
+--- Reading: 8.654808
+--------------------------------------------------------------------------------------
+--- [ 4]  ID:1  Reg:Hold  Addr:20  Data:F32 HL
+--> TX:      01 03 00 14 00 02
+<-- RX:      01 03 04 DB E6 46 2E
+--- Raw:     DBE6 462E
+--- Swap:    462E DBE6
+--- Reading: 11190.974609
+--------------------------------------------------------------------------------------
+--- [ 5]  ID:1  Reg:Hold  Addr:44  Data:F32 HL
+--> TX:      01 03 00 2C 00 02
+<-- RX:      01 03 04 73 DF 3F 81
+--- Raw:     73DF 3F81
+--- Swap:    3F81 73DF
+--- Reading: 1.011349
+--------------------------------------------------------------------------------------
+--- [ 6]  ID:1  Reg:Hold  Addr:512  Data:U16 HH
+--> TX:      01 03 02 00 00 01
+<-- RX:      01 03 02 00 01
+--- Raw:     0001
+--- Reading: 1
+--------------------------------------------------------------------------------------
+--- [ 7]  ID:1  Reg:Hold  Addr:513  Data:U16 HH
+--> TX:      01 03 02 01 00 01
+<-- RX:      01 03 02 00 01
+--- Raw:     0001
+--- Reading: 1
+--------------------------------------------------------------------------------------
+--- [ 8]  ID:1  Reg:Hold  Addr:515  Data:U32 HL
+--> TX:      01 03 02 03 00 02
+<-- RX:      01 03 04 00 00 00 00
+--- Raw:     0000 0000
+--- Swap:    0000 0000
+--- Reading: 0
+--------------------------------------------------------------------------------------
+--- [ 9]  ID:1  Reg:Hold  Addr:1032  Data:F32 HL
+--> TX:      01 03 04 08 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+
+--- [ 9]  ID:1  Reg:Hold  Addr:1032  Data:F32 HL  Retry:1
+--> TX:      01 03 04 08 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+--------------------------------------------------------------------------------------
+--- [10]  ID:1  Reg:Hold  Addr:1162  Data:F32 HL
+--> TX:      01 03 04 8A 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+
+--- [10]  ID:1  Reg:Hold  Addr:1162  Data:F32 HL  Retry:1
+--> TX:      01 03 04 8A 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+--------------------------------------------------------------------------------------
+--- [11]  ID:1  Reg:Hold  Addr:1164  Data:F32 HL
+--> TX:      01 03 04 8C 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+
+--- [11]  ID:1  Reg:Hold  Addr:1164  Data:F32 HL  Retry:1
+--> TX:      01 03 04 8C 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+--------------------------------------------------------------------------------------
+--- [12]  ID:1  Reg:Hold  Addr:1166  Data:F32 HL
+--> TX:      01 03 04 8E 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+
+--- [12]  ID:1  Reg:Hold  Addr:1166  Data:F32 HL  Retry:1
+--> TX:      01 03 04 8E 00 02
+<-- RX:      01 83 02
+--- Exception: [2] 'Illegal Data Address'
+--------------------------------------------------------------------------------------
+
+Modbus read completed
+
+Press a key to continue: 
+
+	Modbus Configuration Menu:
+	==============================================================================
+	B  - Baud Rate                19200
+	D  - Data Bits                8
+	P  - Parity                   None
+	S  - Stop Bits                2
+	R  - Retries                  1
+	T  - Timeout                  500 ms
+	I  - Inter Message Delay      150 ms
+	------------------------------------------------------------
+	C  - Configure Data Points    12/32
+	M  - Import/Export
+	A  - Read All Data Points     8/4 (OK/Exceptions)
+	L  - Loop Read All (hit 'x' to exit)
+	------------------------------------------------------------
+	?  - Show Exception Code Help
+	X  - Exit Menu
+
+Enter Selection: 
