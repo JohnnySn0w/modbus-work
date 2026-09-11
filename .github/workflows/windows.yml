@@ -18,30 +18,73 @@ concurrency:
 env:
   RUST_TOOLCHAIN: 1.89.0-x86_64-pc-windows-msvc
   CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
 
 defaults:
   run:
     shell: pwsh
 
 jobs:
-  build:
-    name: Check and package
+  lint:
+    name: Formatting and Clippy
+    runs-on: windows-2022
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-rust
+        with:
+          kind: lint
+          target-path: native/modbus-configurator/target/debug
+          components: rustfmt,clippy
+      - name: Check formatting and lint
+        run: |
+          cargo +$env:RUST_TOOLCHAIN fmt --manifest-path native/modbus-configurator/Cargo.toml --all -- --check
+          if ($LASTEXITCODE -ne 0) { throw 'Formatting check failed.' }
+          cargo +$env:RUST_TOOLCHAIN clippy --manifest-path native/modbus-configurator/Cargo.toml --all-targets --locked --offline -- -D warnings
+          if ($LASTEXITCODE -ne 0) { throw 'Clippy failed.' }
+
+  coverage:
+    name: Tests and coverage
     runs-on: windows-2022
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - name: Install Rust and coverage tools
-        run: |
-          rustup toolchain install $env:RUST_TOOLCHAIN --profile minimal --component rustfmt,clippy,llvm-tools-preview
-          if ($LASTEXITCODE -ne 0) { throw 'Rust installation failed.' }
-          cargo +$env:RUST_TOOLCHAIN install cargo-llvm-cov --version 0.9.1 --locked
-          if ($LASTEXITCODE -ne 0) { throw 'Coverage tool installation failed.' }
-          cargo +$env:RUST_TOOLCHAIN fetch --manifest-path native/modbus-configurator/Cargo.toml --locked
-          if ($LASTEXITCODE -ne 0) { throw 'Locked dependency fetch failed.' }
-      - name: Formatting, lint, tests, and coverage
-        run: ./tools/Check-Rust.ps1 -Toolchain $env:RUST_TOOLCHAIN
+      - uses: ./.github/actions/setup-rust
+        with:
+          kind: coverage
+          target-path: native/modbus-configurator/target/llvm-cov-target/debug
+          components: llvm-tools-preview
+          coverage: 'true'
+      - name: Run tests and enforce coverage
+        run: ./tools/Measure-RustCoverage.ps1 -Toolchain $env:RUST_TOOLCHAIN
+      - name: Save coverage reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-coverage-reports
+          path: |
+            native/modbus-configurator/target/coverage/coverage.json
+            native/modbus-configurator/target/coverage/lcov.info
+            native/modbus-configurator/target/coverage/html/
+          retention-days: 14
+
+  build:
+    name: Package Windows executable
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-rust
+        with:
+          kind: release-static-crt
+          target-path: native/modbus-configurator/target/portable-build
+          components: llvm-tools-preview
       - name: Build portable Windows package
         env:
           REF_TYPE: ${{ github.ref_type }}
@@ -68,22 +111,19 @@ jobs:
           path: artifacts/publish/*
           if-no-files-found: error
           retention-days: 14
-      - name: Save test and package reports
+      - name: Save package reports
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: windows-check-reports
+          name: windows-package-reports
           path: |
-            native/modbus-configurator/target/coverage/coverage.json
-            native/modbus-configurator/target/coverage/lcov.info
-            native/modbus-configurator/target/coverage/html/
             artifacts/review/package-check-*/integrity.json
           retention-days: 14
 
   release:
     name: Publish beta
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    needs: build
+    needs: [lint, coverage, build]
     runs-on: windows-2022
     timeout-minutes: 10
     permissions:

@@ -10,6 +10,14 @@ The Windows 2022 runner builds the x64 executable with the static MSVC runtime a
 
 Hosted CI does not launch the native window or touch physical serial hardware. Continue using `tools/Check-Rust.ps1 -IncludeGui` and the normal `tools/Test-WindowsPackage.ps1 -ZipPath ...` locally for desktop rendering checks. `-SkipLaunch` is explicitly an integrity-only package check.
 
+## Parallel jobs and caches
+
+Formatting/Clippy, tests/coverage, and Windows packaging run on three independent runners. Cargo uses each runner's available CPUs for compilation, and the Rust test harness retains its normal parallel execution. Tests run once through the coverage job. Beta publication depends on all three jobs succeeding; a downloadable build artifact alone does not mean the other checks passed.
+
+The local setup action shares Cargo registry and Git dependency downloads through a lockfile-keyed cache. Compiled outputs have separate caches for lint, coverage instrumentation, and static-runtime release builds. Those keys include OS, architecture, pinned Rust toolchain, job kind, lockfile hash, and commit; compatible prior commits can restore dependency outputs. Cargo still runs to validate fingerprints and rebuild changed inputs. Incremental compilation is disabled to limit cache size.
+
+The cargo-llvm-cov installation is cached by platform, toolchain, and version, and installed only on a cache miss. Coverage profiles and reports are not cached; the coverage script clears prior profiles before running tests. Cache misses still perform the complete install, fetch, and build. Bump the `v1` cache namespace when changing compiler flags or cache layout. Cache hits and timing improvements require verification on hosted runs.
+
 ## Publish a beta
 
 After the workflow and application source are upstream, create and push a new tag such as `v0.1.0-beta.1` on the intended commit. The accepted form is `vMAJOR.MINOR.PATCH-beta.N`.
@@ -22,7 +30,7 @@ The ZIP is the preferred download because it includes the README and dependency 
 
 The workflow uses GitHub's built-in token. The build has read-only repository access; only the tag-release job has contents-write permission. Checkout credentials are not persisted. Actions are pinned to immutable revisions. Pull requests cannot run the release job.
 
-No personal access token, local login, signing key, or private Synetica procedure is required. Binaries are unsigned. Publishing is still subject to repository Actions policies and permissions. A local approval block on pushing source is separate from the workflow's release token and must be resolved before activation.
+No personal access token, local login, signing key, or private Synetica procedure is required. Binaries are unsigned. Publishing is still subject to repository Actions policies and permissions. Source pushes use the repository's normal permissions; release authentication is provided inside Actions.
 
 References: [GitHub workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax), [GitHub CLI release creation](https://cli.github.com/manual/gh_release_create).
 
