@@ -1,4 +1,4 @@
-﻿param([Parameter(Mandatory=$true)][string]$ZipPath, [switch]$Dark)
+param([Parameter(Mandatory=$true)][string]$ZipPath, [switch]$Dark, [switch]$SkipLaunch)
 $ErrorActionPreference = 'Stop'
 $zip = (Resolve-Path -LiteralPath $ZipPath).Path
 $projectRoot = Split-Path $PSScriptRoot -Parent
@@ -17,6 +17,15 @@ if ($executables.Count -ne 1) { throw 'Package must contain exactly one Polygon 
 $exe = $executables[0].FullName
 $packageInfo = Get-Content -LiteralPath (Join-Path $executables[0].DirectoryName 'build-info.json') -Raw | ConvertFrom-Json
 if ((Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $packageInfo.exe_sha256) { throw 'Extracted executable checksum mismatch.' }
+# Headless hosted runners can validate packaging without claiming GUI acceptance.
+if ($SkipLaunch) {
+    foreach ($file in @('README.txt', 'DEPENDENCIES.txt', 'licenses')) {
+        if (!(Test-Path -LiteralPath (Join-Path $executables[0].DirectoryName $file))) { throw "Missing package content: $file" }
+    }
+    [ordered]@{checked_utc=[DateTime]::UtcNow.ToString('o');zip_sha256=$zipHash;exe_sha256=$packageInfo.exe_sha256;source_commit=$packageInfo.source_commit;scope='Package integrity only; executable was not launched'} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $checkRoot 'integrity.json') -Encoding utf8
+    Write-Output "Package integrity passed: $checkRoot"
+    return
+}
 $screenshots = Join-Path $checkRoot 'views'
 $runtimeData = Join-Path $checkRoot 'runtime-data'
 New-Item -ItemType Directory -Path $runtimeData | Out-Null

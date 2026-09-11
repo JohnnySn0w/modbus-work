@@ -1,12 +1,18 @@
-﻿param([string]$Toolchain = 'stable-x86_64-pc-windows-msvc')
+param(
+    [string]$Toolchain = 'stable-x86_64-pc-windows-msvc',
+    [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9._-]*$')][string]$Version
+)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $crateRoot = Join-Path $projectRoot 'native/modbus-configurator'
 $buildRoot = Join-Path $crateRoot 'target/portable-build'
 $releaseRoot = Join-Path $projectRoot 'artifacts/releases'
-$stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+$stamp = if ($Version) { $Version } else { Get-Date -Format 'yyyyMMdd-HHmmss' }
 $packageName = "Polygon-Device-Configurator-windows-x64-$stamp"
 $packageRoot = Join-Path $releaseRoot $packageName
+if (Test-Path -LiteralPath $packageRoot) { throw 'Package directory already exists; choose a new version.' }
+$sourceCommit = & git -C $projectRoot rev-parse HEAD
+if ($LASTEXITCODE -ne 0) { throw 'Could not identify source commit.' }
 $previousFlags = $env:CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_RUSTFLAGS
 try {
     $env:CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_RUSTFLAGS = '-C target-feature=+crt-static'
@@ -42,7 +48,7 @@ try {
     }
     $notices | Set-Content -LiteralPath (Join-Path $packageRoot 'DEPENDENCIES.txt') -Encoding utf8
     $digest = (Get-FileHash -LiteralPath (Join-Path $packageRoot 'Polygon Device Configurator.exe') -Algorithm SHA256).Hash.ToLowerInvariant()
-    [ordered]@{build_utc=[DateTime]::UtcNow.ToString('o');toolchain=$Toolchain;target='x86_64-pc-windows-msvc';static_crt=$true;exe_sha256=$digest;imported_dlls=$dlls} | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath (Join-Path $packageRoot 'build-info.json') -Encoding utf8
+    [ordered]@{build_utc=[DateTime]::UtcNow.ToString('o');source_commit=$sourceCommit;version=$stamp;toolchain=$Toolchain;target='x86_64-pc-windows-msvc';static_crt=$true;exe_sha256=$digest;imported_dlls=$dlls} | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath (Join-Path $packageRoot 'build-info.json') -Encoding utf8
     Compress-Archive -LiteralPath $packageRoot -DestinationPath "$packageRoot.zip"
     $zipDigest = (Get-FileHash -LiteralPath "$packageRoot.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
     "$zipDigest  $packageName.zip" | Set-Content -LiteralPath "$packageRoot.zip.sha256" -Encoding ascii

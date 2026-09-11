@@ -2,6 +2,7 @@
 
 Current documentation reviewed 2026-09-10 against native source, recent user requirements, recorded evidence and a fresh test/coverage run. Start here instead of chronological work logs.
 
+- [CI/CD](CI-CD.md): Windows checks, build artifacts, and tagged beta releases.
 - [Code style](CODE-STYLE.md): formatting, module size, and concise documentation.
 - [Operator guide](OPERATOR-GUIDE.md): use, settings, data retention and configuration.
 - [Current status](../CURRENT-STATUS.md): support matrix and acceptance boundaries.

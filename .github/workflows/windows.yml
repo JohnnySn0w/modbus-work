@@ -1,0 +1,130 @@
+name: Windows build and beta release
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    tags: ['v*-beta.*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+env:
+  RUST_TOOLCHAIN: 1.89.0-x86_64-pc-windows-msvc
+  CARGO_TERM_COLOR: always
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  build:
+    name: Check and package
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Install Rust and coverage tools
+        run: |
+          rustup toolchain install $env:RUST_TOOLCHAIN --profile minimal --component rustfmt,clippy,llvm-tools-preview
+          if ($LASTEXITCODE -ne 0) { throw 'Rust installation failed.' }
+          cargo +$env:RUST_TOOLCHAIN install cargo-llvm-cov --version 0.9.1 --locked
+          if ($LASTEXITCODE -ne 0) { throw 'Coverage tool installation failed.' }
+          cargo +$env:RUST_TOOLCHAIN fetch --manifest-path native/modbus-configurator/Cargo.toml --locked
+          if ($LASTEXITCODE -ne 0) { throw 'Locked dependency fetch failed.' }
+      - name: Formatting, lint, tests, and coverage
+        run: ./tools/Check-Rust.ps1 -Toolchain $env:RUST_TOOLCHAIN
+      - name: Build portable Windows package
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          $version = "ci-$env:GITHUB_RUN_NUMBER-$env:GITHUB_RUN_ATTEMPT"
+          if ($env:REF_TYPE -eq 'tag') {
+            if ($env:REF_NAME -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+$') { throw 'Expected vMAJOR.MINOR.PATCH-beta.N.' }
+            $version = $env:REF_NAME
+          }
+          ./tools/Build-WindowsPackage.ps1 -Toolchain $env:RUST_TOOLCHAIN -Version $version
+          $base = "artifacts/releases/Polygon-Device-Configurator-windows-x64-$version"
+          ./tools/Test-WindowsPackage.ps1 -ZipPath "$base.zip" -SkipLaunch
+          New-Item -ItemType Directory artifacts/publish | Out-Null
+          Copy-Item -LiteralPath "$base.zip", "$base.zip.sha256" -Destination artifacts/publish
+          $standalone = "artifacts/publish/Polygon-Device-Configurator-windows-x64-$version.exe"
+          Copy-Item -LiteralPath "$base/Polygon Device Configurator.exe" -Destination $standalone
+          $hash = (Get-FileHash -LiteralPath $standalone -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $(Split-Path $standalone -Leaf)" | Set-Content -LiteralPath "$standalone.sha256" -Encoding ascii
+      - name: Save packages
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-beta-assets
+          path: artifacts/publish/*
+          if-no-files-found: error
+          retention-days: 14
+      - name: Save test and package reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-check-reports
+          path: |
+            native/modbus-configurator/target/coverage/coverage.json
+            native/modbus-configurator/target/coverage/lcov.info
+            native/modbus-configurator/target/coverage/html/
+            artifacts/review/package-check-*/integrity.json
+          retention-days: 14
+
+  release:
+    name: Publish beta
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: windows-2022
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: windows-beta-assets
+          path: assets
+      - name: Verify assets and publish prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if ($env:RELEASE_TAG -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+$') { throw 'Invalid beta tag.' }
+          $base = "Polygon-Device-Configurator-windows-x64-$env:RELEASE_TAG"
+          $files = @("assets/$base.zip", "assets/$base.zip.sha256", "assets/$base.exe", "assets/$base.exe.sha256")
+          foreach ($file in $files) { if (!(Test-Path -LiteralPath $file -PathType Leaf)) { throw "Missing asset: $file" } }
+          foreach ($file in @($files[0], $files[2])) {
+            $expected = ((Get-Content -LiteralPath "$file.sha256" -Raw).Trim() -split '\s+')[0]
+            if ((Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw "Checksum mismatch: $file" }
+          }
+          @"
+          Windows x64 beta of Polygon Device Configurator.
+
+          Download the ZIP for the executable, README, and dependency notices. The standalone EXE is also included. SHA-256 checksums accompany both.
+
+          Checks: rustfmt, Clippy, test suite, 90% headless line-coverage gate, static-runtime dependency inspection, and package integrity. Hosted CI does not qualify physical hardware or native desktop rendering. Firmware flashing is not implemented.
+
+          Source commit: $env:GITHUB_SHA
+          "@ | Set-Content release-notes.md -Encoding utf8
+          # Draft first: an interrupted upload must not leave a published partial release.
+          $raw = gh release view $env:RELEASE_TAG --json isDraft 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            if (!(($raw | ConvertFrom-Json).isDraft)) { throw 'Release is already published; use a new beta tag.' }
+          } else {
+            gh release create $env:RELEASE_TAG --verify-tag --draft --prerelease --title "Polygon Device Configurator $env:RELEASE_TAG" --notes-file release-notes.md
+            if ($LASTEXITCODE -ne 0) { throw 'Draft release creation failed.' }
+          }
+          gh release upload $env:RELEASE_TAG @files --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Asset upload failed; release remains a draft.' }
+          gh release edit $env:RELEASE_TAG --draft=false --prerelease --latest=false --notes-file release-notes.md
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed.' }
