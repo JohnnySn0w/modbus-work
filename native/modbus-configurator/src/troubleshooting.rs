@@ -42,7 +42,7 @@ pub fn show(ui: &mut egui::Ui, reference: &Reference, selected: &mut Option<Stri
         for (title, text) in [
             (
                 "USB device is missing or unavailable",
-                "Open Diagnostics to check the current USB interfaces. Check the USB cable and Windows Device Manager. COM numbers may change between computers or reconnects. Close other applications that may own the serial port, then refresh discovery from Devices.",
+                "Open Diagnostics to check the current USB interfaces. Check the USB cable and Windows Device Manager. Serial port numbers may change between computers or reconnects. Close other applications that may own the serial port, then refresh discovery from Devices.",
             ),
             (
                 "Readings are not updating",
@@ -58,15 +58,15 @@ pub fn show(ui: &mut egui::Ui, reference: &Reference, selected: &mut Option<Stri
             ),
             (
                 "Configuration does not match the attached sensor",
-                "The E5 bridge point table identifies its configured profile, not the physical sensor. Check the sensor model, slave address, baud rate, parity and wiring. In Configuration, select the matching profile or TSV and review the differences before using Program E5 bridge.",
+                "The E5 bridge point table describes the requested registers. A selected device type does not verify the physical sensor model. Check the sensor model, slave address, baud rate, parity and wiring. In Configuration, select the matching profile or configuration file and review the differences before using Program E5 bridge.",
             ),
             (
                 "Backup, load or programming failed",
-                "Use Configuration to load or save a TSV, retrieve a backup, or program the E5 bridge. Programming requires a successful backup and verifies the resulting point table. Check the reported error and folder permissions. After an uncertain write, inspect the recovered console and export before retrying; do not assume the change completed.",
+                "Use Configuration to load or save a configuration file, retrieve a backup, or program the E5 bridge. Programming requires a successful backup and verifies the resulting point table. Check the reported error and folder permissions. After an uncertain write, inspect the recovered console and export before retrying; do not assume the change completed.",
             ),
             (
                 "Theme, units or settings look wrong",
-                "Settings offers System, Light and Dark themes and System, US, UK and EU unit presets. System units use the Windows region. Individual register unit choices take priority; Reset individual unit choices restores the preset. A settings-save error means changes apply only to this session.",
+                "Settings offers System, Light and Dark themes and System, United States, United Kingdom and Europe unit presets. System units use the Windows region. Individual register unit choices take priority; Reset individual unit choices restores the preset. A settings-save error means changes apply only to this session.",
             ),
             (
                 "Collect information for troubleshooting",

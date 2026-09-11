@@ -1,4 +1,8 @@
 use super::*;
+#[path = "line_ui.rs"]
+mod line_ui;
+#[path = "network_ui.rs"]
+mod network_ui;
 use modbus_configurator::{
     bridge::{PointException, Reading},
     service::Backend,
@@ -13,7 +17,7 @@ impl Backend for Offline {
         panic!("GUI event tests must not open hardware")
     }
 }
-fn app() -> Configurator {
+pub(crate) fn app() -> Configurator {
     Configurator::new(
         Service::with_backend(std::sync::Arc::new(Offline), Default::default()).unwrap(),
         modbus_configurator::reference::Reference::bundled().unwrap(),
@@ -31,7 +35,7 @@ fn port() -> PortInfo {
         busy: false,
     }
 }
-fn read(app: &Configurator, value: f64) -> BridgeResult {
+pub(crate) fn read(app: &Configurator, value: f64) -> BridgeResult {
     BridgeResult {
         identity: Identity {
             model: "ENL-MOD-32".into(),
@@ -285,7 +289,7 @@ fn painted_text(shape: &egui::epaint::Shape, text: &mut String) {
         _ => {}
     }
 }
-fn draw(a: &mut Configurator, ctx: &egui::Context) -> String {
+pub(crate) fn draw(a: &mut Configurator, ctx: &egui::Context) -> String {
     a.auto_paused = true;
     a.last_scan = Instant::now();
     let output = ctx.run(
@@ -477,7 +481,7 @@ fn polling_respects_pause_block_and_ambiguous_routes() {
     assert!(a.scan_pending.is_some());
 }
 
-fn click(a: &mut Configurator, ctx: &egui::Context, label: &str) -> egui::FullOutput {
+pub(crate) fn click(a: &mut Configurator, ctx: &egui::Context, label: &str) -> egui::FullOutput {
     fn locate(shapes: &[egui::epaint::ClippedShape], label: &str) -> Option<egui::Pos2> {
         shapes.iter().find_map(|s| match &s.shape {
             egui::epaint::Shape::Text(t) if t.galley.text() == label => {
@@ -555,7 +559,8 @@ fn navigation_and_configuration_buttons_change_state_and_copy_the_exact_table() 
             a.profiles[index].native_tsv
         );
     }
-    let output = click(&mut a, &ctx, "Copy TSV");
+    click(&mut a, &ctx, "File tools");
+    let output = click(&mut a, &ctx, "Copy configuration table");
     assert!(output.platform_output.commands.iter().any(
         |c| matches!(c, egui::OutputCommand::CopyText(t) if Some(t) == a.loaded_config.as_ref())
     ));
@@ -647,18 +652,25 @@ fn reference_navigation_opens_registers_and_help_in_the_same_context() {
         click(&mut a, &ctx, &label);
         assert!(a.technician.page == Page::Detail(key.into()));
         assert!(a.technician.reference_context);
+        let reference_text = draw(&mut a, &ctx);
+        assert!(reference_text.contains("Model reference"));
+        assert!(!reference_text.contains("Disconnected"));
+        assert!(!reference_text.contains("No readings yet"));
         click(&mut a, &ctx, "Setup & troubleshooting");
         let text = draw(&mut a, &ctx);
         assert!(a.technician.page == Page::Troubleshooting(Some(key.into())));
-        assert!(text.contains(if key == "iaq_plus" {
+        assert!(text.contains(if matches!(key, "iaq_plus" | "adapter") {
             "• TBD"
         } else {
             "Troubleshooting steps"
         }));
         click(&mut a, &ctx, "‹ Device details");
         if a.reference.registers.contains_key(key) {
-            click(&mut a, &ctx, "Register table");
+            click(&mut a, &ctx, "Register map");
             assert!(a.technician.page == Page::Registers(key.into()));
+            let map_text = draw(&mut a, &ctx);
+            assert!(map_text.contains("Manufacturer register definitions"));
+            assert!(!map_text.contains("Show native values alongside display units"));
         }
     }
 }
@@ -723,7 +735,7 @@ fn backup_menu_loads_previous_configuration_without_programming() {
     a.result = Some(read(&a, 21.5));
     modbus_configurator::config_file::backup(&root, &port(), &a.profiles[0].native_tsv).unwrap();
     a.technician.page = technician_view::Page::Configurations;
-    click(&mut a, &ctx, "Backups");
+    click(&mut a, &ctx, "Load backup");
     let label = format!(
         "Latest backup · {} points",
         a.profiles[0].native_tsv.lines().skip(1).count()
@@ -804,7 +816,7 @@ fn diagnostics_and_cancel_buttons_preserve_the_selected_usb_route() {
         a.preferred_route.as_ref().unwrap().serial_number,
         port().serial_number
     );
-    click(&mut a, &ctx, "Read All");
+    click(&mut a, &ctx, "Read now");
     assert!(a.active.is_some());
     a.active = None;
     click(&mut a, &ctx, "Release console");
@@ -815,7 +827,7 @@ fn diagnostics_and_cancel_buttons_preserve_the_selected_usb_route() {
     assert!(a.status.contains("Cancelling"));
     a.active = None;
     a.ports.clear();
-    click(&mut a, &ctx, "Bench validation & offline tools");
+    click(&mut a, &ctx, "Offline diagnostics");
     click(&mut a, &ctx, "Run offline prompt replay");
     assert!(a.next_id > 0);
     for status in ["", "Receiving"] {

@@ -16,6 +16,7 @@ struct Capture {
     file: File,
     parser: modbus_configurator::console::ConsoleParser,
     started: std::time::Instant,
+    recoveries: std::sync::Arc<std::sync::atomic::AtomicUsize>,
 }
 impl Transport for Capture {
     fn continuous_receive(&self) -> bool {
@@ -42,6 +43,8 @@ impl Transport for Capture {
         Ok(())
     }
     fn resume_receive(&mut self) -> io::Result<()> {
+        self.recoveries
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         eprintln!("Resuming CDC receive on existing handle");
         self.inner.resume_receive()
     }
@@ -53,8 +56,10 @@ impl Transport for Capture {
 }
 fn run() -> Result<(), String> {
     let args: Vec<_> = std::env::args().skip(1).collect();
-    if !(2..=3).contains(&args.len()) {
-        return Err("Usage: capture_read COM-port private-new-trace-path [cycles]".into());
+    if !(2..=4).contains(&args.len()) {
+        return Err(
+            "Usage: capture_read COM-port private-new-trace-path [cycles] [idle-ms]".into(),
+        );
     }
     let port = &args[0];
     let path = &args[1];
@@ -65,6 +70,13 @@ fn run() -> Result<(), String> {
     if !(1..=1000).contains(&cycles) {
         return Err("Cycles must be 1..1000".into());
     }
+    let idle_ms = args
+        .get(3)
+        .map_or(Ok(5000), |s| s.parse::<u64>())
+        .map_err(|e| e.to_string())?;
+    if idle_ms > 60_000 {
+        return Err("Idle interval must be 0..60000 ms".into());
+    }
     let candidate = serialport::available_ports().map_err(|e| e.to_string())?.iter().any(|p| {
         p.port_name.eq_ignore_ascii_case(port) && matches!(&p.port_type, serialport::SerialPortType::UsbPort(u) if u.vid == 0x0483 && u.pid == 0x5740)
     });
@@ -73,12 +85,14 @@ fn run() -> Result<(), String> {
     }
     let file = File::create_new(path).map_err(|e| e.to_string())?;
     let inner = transport::open(port).map_err(|e| e.to_string())?;
+    let recoveries = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
     let mut session = BridgeSession::new(
         Box::new(Capture {
             inner,
             file,
             parser: Default::default(),
             started: std::time::Instant::now(),
+            recoveries: recoveries.clone(),
         }),
         Timing::default(),
     );
@@ -108,6 +122,7 @@ fn run() -> Result<(), String> {
     eprintln!("Verified native backup saved to {backup_path}");
     let mut summary = File::create_new(format!("{path}.summary.txt")).map_err(|e| e.to_string())?;
     for index in 1..=cycles {
+        let recovery_start = recoveries.load(std::sync::atomic::Ordering::Relaxed);
         let started = std::time::Instant::now();
         let result = session
             .poll_with_export(
@@ -119,10 +134,11 @@ fn run() -> Result<(), String> {
             )
             .map_err(|e| format!("Read {index} failed: {:?}: {}", e.code, e.message))?;
         let line = format!(
-            "Read {index}: {} values, {} exceptions, {} ms; temperature {:?}",
+            "Read {index}: {} values, {} exceptions, {} ms, {} receive recoveries; temperature {:?}",
             result.readings.len(),
             result.exceptions.len(),
             started.elapsed().as_millis(),
+            recoveries.load(std::sync::atomic::Ordering::Relaxed) - recovery_start,
             result
                 .readings
                 .iter()
@@ -132,7 +148,9 @@ fn run() -> Result<(), String> {
         println!("{line}");
         writeln!(summary, "{line}").map_err(|e| e.to_string())?;
         summary.sync_all().map_err(|e| e.to_string())?;
-        std::thread::sleep(std::time::Duration::from_secs(5));
+        if index < cycles {
+            std::thread::sleep(std::time::Duration::from_millis(idle_ms));
+        }
     }
     Ok(())
 }

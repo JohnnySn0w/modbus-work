@@ -84,7 +84,11 @@ impl Configurator {
         self.next_id += 1;
         let expected_identity = matches!(
             operation,
-            Operation::BridgeExport | Operation::BridgeReadAll | Operation::BridgeProgram { .. }
+            Operation::BridgeExport
+                | Operation::BridgeNamedBackup { .. }
+                | Operation::BridgeReadAll
+                | Operation::BridgeProgram { .. }
+                | Operation::BridgeLineSettings { .. }
         )
         .then(|| Identity {
             model: "ENL-MOD-32".into(),
@@ -112,10 +116,15 @@ impl Configurator {
     /// Describe queued manual work in the status bar.
     pub(super) fn queued_label(operation: &Operation) -> &'static str {
         match operation {
+            Operation::BridgeLineSettings { .. } => {
+                "Line settings queued · waiting for the current read to finish"
+            }
             Operation::BridgeProgram { .. } => {
                 "Program E5 bridge queued · waiting for the current read to finish"
             }
-            Operation::BridgeExport => "Backup queued · waiting for the current read to finish",
+            Operation::BridgeExport | Operation::BridgeNamedBackup { .. } => {
+                "Backup queued · waiting for the current read to finish"
+            }
             _ => "Action queued · waiting for the current read to finish",
         }
     }
@@ -152,7 +161,11 @@ impl Configurator {
             return;
         }
         self.auto_request = false;
-        if matches!(operation, Operation::BridgeProgram { .. }) {
+        self.line_applying = matches!(operation, Operation::BridgeLineSettings { .. });
+        if matches!(
+            operation,
+            Operation::BridgeProgram { .. } | Operation::BridgeLineSettings { .. }
+        ) {
             self.programming = true;
             self.programming_blocked = true;
         }

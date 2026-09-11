@@ -10,6 +10,6 @@
 - Display-unit settings are independent from native data and radio region. System theme/units are defaults.
 - Product references and PDF manuals do not imply physical qualification.
 - E5 point-table backup is not full configuration/credential/firmware backup.
-- Native IAQ and firmware updating remain separate development work. Supplied bootloader instructions establish a route, not verified automation or recovery.
+- Native IAQ and firmware updating remain separate development work. Bootloader documentation establish a route, not verified automation or recovery.
 
 See [goals](../GOALS.md) for unresolved decisions/acceptance and [architecture](ARCHITECTURE.md) for source boundaries.

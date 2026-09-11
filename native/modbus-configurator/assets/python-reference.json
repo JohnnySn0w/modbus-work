@@ -11,14 +11,14 @@
       "name": "E5 bridge",
       "subtitle": "USB interface awaiting identification",
       "kind": "bridge",
-      "status": "Connected · identity pending",
+      "status": "Connected · device details not yet read",
       "description": "The shared Synetica STM32 USB interface is present, but the product banner has not yet been read.",
       "color": "#7D8597",
       "readouts": [],
       "artifact": null,
       "detect_tokens": [],
       "help_setup": [
-        "Close other copies of the configurator and terminal programs that may hold the COM port.",
+        "Close other copies of the configurator and terminal programs that may hold the serial port.",
         "Confirm the Synetica device is powered, then reconnect its configuration USB cable.",
         "Refresh and wait for the unauthenticated console banner to identify the exact product."
       ],
@@ -61,16 +61,16 @@
         "ENL-MOD-32"
       ],
       "help_setup": [
-        "Power the E5 bridge from 12–24 VDC; USB is configuration-only.",
+        "Power the E5 bridge from 12–24 volts direct current; USB is configuration-only.",
         "Connect the Modbus instrument to RS485 IN and keep only one active master on the bus.",
         "Back up the existing table before selecting or importing a configuration.",
         "After import, use Read All Data Points and require zero exceptions."
       ],
       "help_troubleshooting": [
-        "If no COM port appears, reconnect USB and refresh device discovery.",
-        "If all reads time out, check slave ID, serial format, common, and A/B polarity.",
-        "Implausible float values usually indicate the wrong PDU address or word order.",
-        "A row with Slave ID 0 deletes that item; restore from a backup or pre-made table."
+        "If no serial port appears, reconnect USB and refresh device discovery.",
+        "If all reads time out, check slave address, serial format, common, and A/B polarity.",
+        "Implausible float values usually indicate the wrong transmitted register address or word order.",
+        "A row with Slave address 0 deletes that item; restore from a backup or pre-made table."
       ]
     },
     "dpt146": {
@@ -111,14 +111,14 @@
       "detect_tokens": [],
       "help_setup": [
         "Use physical connector II for RS-485/Modbus; CH1 and CH2 are analog-output labels.",
-        "The validated unit uses slave 1 at 19200 baud, 8N2.",
+        "The validated unit uses slave 1 at 19200 baud, 8 data bits, no parity and 2 stop bits.",
         "Select the validated DPT146 table and verify all eight points before deployment.",
         "Expected healthy values are fault 1, online 1, and error code 0."
       ],
       "help_troubleshooting": [
-        "No response: confirm connector II, supply power, common wiring, and slave ID 1.",
-        "Plausible but wrong readings: use zero-based PDU addresses and HL word order.",
-        "Do not connect the USB adapter as another active master while the E5 bridge is energized.",
+        "No response: confirm connector II, supply power, common wiring and the configured slave address. Address 1 was used in the recorded test; other installations may differ.",
+        "Plausible but wrong readings: use zero-based transmitted register addresses and the word order specified by the reviewed profile.",
+        "Switch the E5 bridge off using its hardware switch before reading through the USB adapter on the same bus. External power can remain connected.",
         "If status is unhealthy, record raw status registers before changing configuration."
       ]
     },
@@ -128,7 +128,7 @@
       "subtitle": "Humidity and temperature transmitter",
       "kind": "humidity",
       "status": "Ready to test",
-      "description": "Documentation-derived 12-point profile. Hardware validation is still required.",
+      "description": "12-register configuration based on the manufacturer documentation. Testing with a connected sensor is pending.",
       "color": "#73A942",
       "readouts": [
         {
@@ -151,12 +151,12 @@
       "artifact": "artifacts/device-profiles/to-test/vaisala-hmd65.yaml",
       "detect_tokens": [],
       "help_setup": [
-        "Suggested: confirm Modbus RTU mode, slave address, baud and parity from the HMD65 DIP settings (Vaisala M212264EN-B).",
-        "Suggested: prefer the documented float32 bank; metric starts at 1 and non-metric starts at 129. Addresses sent on the wire are one lower."
+        "Suggested: confirm Modbus serial mode, slave address, baud rate and parity from the HMD65 configuration switches (Vaisala M212264EN-B).",
+        "Suggested: prefer the documented 32-bit floating-point register group; metric starts at 1 and non-metric starts at 129. Addresses sent on the wire are one lower."
       ],
       "help_troubleshooting": [
         "Suggested: check device and measurement status bitfields; error code occupies 514–515.",
-        "Suggested: confirm unit bank and word order against a known measurement before programming an E5 bridge profile."
+        "Suggested: confirm the unit register group and word order against a known measurement before programming an E5 bridge profile."
       ]
     },
     "wattnode": {
@@ -165,7 +165,7 @@
       "subtitle": "Module for Modbus",
       "kind": "meter",
       "status": "Ready to test",
-      "description": "Documentation-derived 12-point float profile for the specific WND-M1-MB module.",
+      "description": "12-register configuration for the WND-M1-MB, using floating-point measurements. Testing with a connected meter is pending.",
       "color": "#E0A458",
       "readouts": [
         {
@@ -181,7 +181,7 @@
           "unit": "Hz"
         },
         {
-          "label": "CT currents",
+          "label": "Current transformer currents",
           "unit": "A"
         }
       ],
@@ -189,10 +189,10 @@
       "detect_tokens": [],
       "help_setup": [
         "Suggested: confirm the WND-M1-MB label and communication settings using WND-M1-MB-Ref-1.10.",
-        "Suggested: check CT primary ratings and electrical service mapping before interpreting current and power."
+        "Suggested: check current transformer primary ratings and electrical service mapping before interpreting current and power."
       ],
       "help_troubleshooting": [
-        "Suggested: compare native float readings and status with the WND-M1-MB reference manual.",
+        "Suggested: compare native floating-point readings and status with the WND-M1-MB reference manual.",
         "Suggested: preserve existing calibration values; do not treat CurrentIntScale as milliamps."
       ]
     },
@@ -252,11 +252,11 @@
     },
     "adapter": {
       "key": "adapter",
-      "name": "Serial transport",
-      "subtitle": "USB/RS-485 candidate",
+      "name": "USB to RS-485 adapter",
+      "subtitle": "Direct Modbus connection",
       "kind": "adapter",
-      "status": "Transport detected",
-      "description": "Candidate direct Modbus transport. The attached instrument is identified independently from protocol responses.",
+      "status": "USB adapter detected",
+      "description": "Connects this computer to Modbus sensors through RS-485. Readings come from the connected sensors, not the adapter.",
       "color": "#7D8597",
       "readouts": [],
       "artifact": "docs/reference/usb-comi-tb-manual.pdf",
@@ -266,23 +266,19 @@
         "FTDI"
       ],
       "help_setup": [
-        "Power down or isolate the E5 bridge master before direct polling.",
-        "Connect D−, D+, and common according to the adapter terminal labels.",
-        "Set the adapter for two-wire RS-485 and match the instrument serial format."
+        "TBD"
       ],
       "help_troubleshooting": [
-        "If no serial transport appears, reconnect USB and inspect Windows Device Manager.",
-        "If reads time out, check A/B naming differences and common wiring.",
-        "Never diagnose by transmitting from both the E5 bridge and adapter at once."
+        "TBD"
       ]
     },
     "ati-f12": {
       "key": "ati-f12",
-      "name": "ATI F12 — PAA",
-      "subtitle": "Toxic gas transmitter · PAA sensor module",
+      "name": "ATI F12 — peracetic acid",
+      "subtitle": "Toxic gas transmitter · peracetic acid sensor module",
       "kind": "sensor",
       "status": "Ready to test",
-      "description": "Modbus gas measurements and transmitter status. PAA is the initial sensor variant; other modules use the same transmitter register interface with module-specific units and range.",
+      "description": "Register configuration for the peracetic acid sensor module. Testing with a connected sensor is pending. Other sensor modules: TBD.",
       "color": "#73A942",
       "readouts": [
         {
@@ -709,7 +705,7 @@
         "data_type": "F32",
         "access": "R",
         "unit": "%RH",
-        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "description": "Native non-metric 32-bit floating-point register group (Vaisala M212264EN-B).",
         "readout_label": "Relative humidity",
         "enum_values": [],
         "bit_values": [],
@@ -722,7 +718,7 @@
         "data_type": "F32",
         "access": "R",
         "unit": "°F",
-        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "description": "Native non-metric 32-bit floating-point register group (Vaisala M212264EN-B).",
         "readout_label": "Temperature",
         "enum_values": [],
         "bit_values": [],
@@ -735,7 +731,7 @@
         "data_type": "F32",
         "access": "R",
         "unit": "°F",
-        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "description": "Native non-metric 32-bit floating-point register group (Vaisala M212264EN-B).",
         "readout_label": "Dew point",
         "enum_values": [],
         "bit_values": [],
@@ -748,7 +744,7 @@
         "data_type": "F32",
         "access": "R",
         "unit": "°F",
-        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "description": "Native non-metric 32-bit floating-point register group (Vaisala M212264EN-B).",
         "readout_label": null,
         "enum_values": [],
         "bit_values": [],
@@ -761,7 +757,7 @@
         "data_type": "F32",
         "access": "R",
         "unit": "gr/ft³",
-        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "description": "Native non-metric 32-bit floating-point register group (Vaisala M212264EN-B).",
         "readout_label": null,
         "enum_values": [],
         "bit_values": [],
@@ -774,7 +770,7 @@
         "data_type": "F32",
         "access": "R",
         "unit": "gr/lb",
-        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "description": "Native non-metric 32-bit floating-point register group (Vaisala M212264EN-B).",
         "readout_label": null,
         "enum_values": [],
         "bit_values": [],
@@ -787,7 +783,7 @@
         "data_type": "F32",
         "access": "R",
         "unit": "°F",
-        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "description": "Native non-metric 32-bit floating-point register group (Vaisala M212264EN-B).",
         "readout_label": null,
         "enum_values": [],
         "bit_values": [],
@@ -800,7 +796,7 @@
         "data_type": "F32",
         "access": "R",
         "unit": "Btu/lb",
-        "description": "Native non-metric IEEE-754 float32 bank (Vaisala M212264EN-B).",
+        "description": "Native non-metric 32-bit floating-point register group (Vaisala M212264EN-B).",
         "readout_label": null,
         "enum_values": [],
         "bit_values": [],

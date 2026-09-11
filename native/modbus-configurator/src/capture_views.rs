@@ -9,6 +9,7 @@ pub struct Capture {
     frames: usize,
     pub started: bool,
     pub done: bool,
+    pub reference_context: bool,
     files: Vec<String>,
 }
 impl Capture {
@@ -42,8 +43,14 @@ impl Capture {
             .filter(|key| key.as_str() != "synetica_usb")
         {
             queue.push_back((Page::Detail(key.clone()), None, format!("device-{key}.png")));
+            queue.push_back((Page::Detail(key.clone()), None, format!("model-{key}.png")));
         }
         for key in reference.registers.keys() {
+            queue.push_back((
+                Page::Registers(key.clone()),
+                None,
+                format!("model-registers-{key}.png"),
+            ));
             queue.push_back((
                 Page::Registers(key.clone()),
                 None,
@@ -66,6 +73,7 @@ impl Capture {
             frames: 0,
             started: false,
             done: false,
+            reference_context: false,
             files: vec![],
         }
     }
@@ -97,6 +105,7 @@ impl Capture {
         }
         if self.frames == 0 {
             if let Some((page, profile, name)) = self.queue.pop_front() {
+                self.reference_context = name.starts_with("model-") || page == Page::References;
                 self.pending = Some(name);
                 self.frames = 1;
                 return Some((page, profile));

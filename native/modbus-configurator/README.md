@@ -23,4 +23,4 @@ python tools/export_native_reference.py
 python tools/export_native_reference.py --check
 ```
 
-Run these from repository root with the project's development Python environment. Reference generation includes reviewed native extensions. Device PDF mappings are in reference::manuals; extraction is an explicit embedded-path allowlist. Never add credential-bearing transcripts to release assets. Firmware updates and native IAQ workflows remain pending.
+Run these from repository root with the development Python environment. Reference generation includes reviewed native extensions. Device PDF mappings are in reference::manuals; extraction is an explicit embedded-path allowlist. Never add credential-bearing transcripts to release assets. Firmware updates and native IAQ workflows remain pending.

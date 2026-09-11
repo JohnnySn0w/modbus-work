@@ -27,11 +27,11 @@ impl CatalogView {
         };
         ui.colored_label(color, profile.info.status.label());
         ui.label(&profile.info.serial);
-        ui.collapsing("Setup and troubleshooting", |ui| {
+        crate::brand::collapsing(ui, "Setup and troubleshooting", |ui| {
             for help in &profile.info.help {
                 ui.label(format!("• {help}"));
             }
-            ui.label(format!("Project evidence: {}", profile.info.source));
+            ui.label(format!("Configuration source: {}", profile.info.source));
         });
 
         ui.add_space(8.0);
@@ -44,7 +44,7 @@ impl CatalogView {
             });
         }
         ui.add_space(8.0);
-        ui.collapsing("Register reference", |ui| {
+        crate::brand::collapsing(ui, "Register reference", |ui| {
             ui.horizontal(|ui| {
                 ui.label("Find");
                 ui.text_edit_singleline(&mut self.query);
@@ -60,10 +60,10 @@ impl CatalogView {
                         .show(ui, |ui| {
                             for title in [
                                 "Manual",
-                                "PDU",
+                                "Transmitted address",
                                 "Register",
                                 "Point",
-                                "Bridge type/order",
+                                "E5 bridge data type / word order",
                                 "Last reading",
                                 "Units",
                             ] {

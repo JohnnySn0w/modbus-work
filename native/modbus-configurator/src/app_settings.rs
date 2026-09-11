@@ -51,7 +51,7 @@ impl Configurator {
             })
             .inner;
         ui.weak("System follows Windows and updates when its theme changes.");
-        ui.weak("Polygon charcoal and grey surfaces, cyan highlights and orange accents.");
+
         ui.add_space(24.0);
         ui.strong("Units");
         let units_changed = ui

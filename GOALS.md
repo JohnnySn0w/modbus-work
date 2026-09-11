@@ -1,4 +1,4 @@
-# Project goals
+# Development requirements
 
 Reviewed 2026-09-10. [Current support and evidence](CURRENT-STATUS.md) is the implementation handoff. A passing software test does not close a physical acceptance item.
 
@@ -11,7 +11,7 @@ Reviewed 2026-09-10. [Current support and evidence](CURRENT-STATUS.md) is the im
 - [x] Retained readings/timestamps; adapter detail sensor readings; history gaps/CSV and labeled chart scales.
 - [x] Unified configuration view, unavailable-target banner, responsive register row heights and consistent columns.
 - [x] Dedicated troubleshooting, system theme/region units and safe polling toggle.
-- [x] Polygon branding, Brandon font, seven device photos and user-approved vector program icon.
+- [x] Polygon branding, Brandon font, seven device photos and vector application icon.
 - [x] Offline device manuals; HMD65 alternate float bank; ATI F12/PAA E5 candidate and status decoding.
 - [x] Approximately 90% coverage with focused regressions; latest combined test/offline-GUI measurement 92.40%.
 
@@ -21,9 +21,9 @@ Reviewed 2026-09-10. [Current support and evidence](CURRENT-STATUS.md) is the im
 - [ ] Overnight soak with failure/recovery timing recorded.
 - [ ] Broader unplug/replug, route changes, startup recovery and cancellation combinations. Basic adapter reads and handoff are already verified.
 - [ ] Clean second Windows PC package/driver acceptance.
-- [ ] HMD65 metric/non-metric word order and physical read validation at colleague site.
-- [ ] WattNode identity, CT/service mapping and readings at colleague site.
-- [ ] ATI F12/PAA units/range, serial settings, readings/status and E5 profile validation at colleague site.
+- [ ] HMD65 metric/non-metric word order and physical read validation.
+- [ ] WattNode identity, CT/service mapping and readings.
+- [ ] ATI F12/PAA units/range, serial settings, readings/status and E5 profile validation.
 
 ## Implementation and inputs still open
 

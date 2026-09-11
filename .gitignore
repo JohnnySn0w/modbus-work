@@ -17,3 +17,6 @@ target/
 FirmwareUpdateProcessSynetica.pdf
 
 /artifacts/publish/
+
+# Machine-local launcher shortcut; its script is tracked in tools/.
+/Polygon Device Configurator.lnk

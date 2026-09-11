@@ -18,6 +18,13 @@ impl TechnicianView {
             busy,
         } = context;
         let mut actions = vec![];
+        if let Some(slave) = key
+            .strip_prefix("slave:")
+            .and_then(|id| id.parse::<u8>().ok())
+        {
+            self.network_detail(ui, slave, result, profiles);
+            return actions;
+        }
         let Some(device) = reference.devices.get(&key) else {
             return actions;
         };
@@ -31,12 +38,45 @@ impl TechnicianView {
                 Page::Overview
             },
         );
+        if self.reference_context {
+            ui.weak("Model reference");
+            ui.add_space(8.0);
+            ui.add(egui::Label::new(&device.description).wrap());
+            ui.add_space(16.0);
+            ui.horizontal_wrapped(|ui| {
+                crate::device_art::photo(ui, &key, egui::vec2(240.0, 160.0));
+                ui.add_space(16.0);
+                ui.vertical(|ui| {
+                    ui.strong("Documentation");
+                    if reference.registers.contains_key(&key) && ui.button("Register map").clicked()
+                    {
+                        self.page = Page::Registers(key.clone());
+                    }
+                    for (title, path) in reference::manuals(&key) {
+                        if ui.button(*title).clicked() {
+                            actions.push(Action::OpenArtifact((*path).into()));
+                        }
+                    }
+                    if reference::manuals(&key).is_empty() {
+                        ui.add_enabled(false, egui::Button::new("Open manual (PDF)"));
+                        ui.weak("No documentation bundled");
+                    }
+                    if key == "iaq_plus" && ui.button("Radio reference").clicked() {
+                        self.page = Page::Radio;
+                    }
+                    if ui.button("Setup & troubleshooting").clicked() {
+                        self.page = Page::Troubleshooting(Some(key.clone()));
+                    }
+                });
+            });
+            return actions;
+        }
         if key == "adapter" && ports.iter().any(is_synetica) {
-            ui.colored_label(
-                crate::brand::ORANGE,
-                "Blocked · another Modbus master may be active",
+            crate::brand::attention(
+                ui,
+                "Adapter reads blocked",
+                "Switch the E5 bridge off with its hardware switch before direct adapter reads. External power can remain connected.",
             );
-            ui.add(egui::Label::new("Switch the E5 bridge off with its hardware switch before direct adapter reads. External power can remain connected.").wrap());
         }
         let profile = profiles
             .iter()
@@ -93,10 +133,10 @@ impl TechnicianView {
             if profile.is_none_or(|p| result.is_some_and(|r| p.contains_points(r)))
                 && let Some(notice) = &self.configuration_change
             {
-                ui.add(egui::Label::new(RichText::new(notice).color(crate::brand::ORANGE)).wrap());
+                crate::brand::attention(ui, "Configuration changed", notice);
             }
             if let Some(warning) = configuration_warning(profile, result, stale) {
-                ui.add(egui::Label::new(RichText::new(warning).color(crate::brand::ORANGE)).wrap());
+                crate::brand::attention(ui, "Check sensor configuration", &warning);
             }
             if matches!(key.as_str(), "dpt146" | "hmd65" | "wattnode" | "ati-f12")
                 && profile.is_some_and(|p| result.is_some_and(|r| p.contains_points(r)))
@@ -110,9 +150,9 @@ impl TechnicianView {
                 ui.label("WND meter module identified. Confirm the enclosure model on its label.");
             }
             if !direct.errors.is_empty() {
-                ui.collapsing("Register errors", |ui| {
+                crate::brand::collapsing(ui, "Register errors", |ui| {
                     for (address, error) in &direct.errors {
-                        ui.label(format!("PDU {address}: {error}"));
+                        ui.label(format!("Register address {address}: {error}"));
                     }
                 });
             }
@@ -267,12 +307,12 @@ impl TechnicianView {
             if let Some(result) = result
                 && result.successful_reads.is_some()
             {
-                columns[1].collapsing("Point results", |ui| {
+                crate::brand::collapsing(&mut columns[1], "Point results", |ui| {
                     egui::Grid::new("E5 bridge-point-results").striped(true).show(
                         ui,
                         |ui| {
                             ui.strong("Point");
-                            ui.strong("PDU address");
+                            ui.strong("Transmitted address");
                             ui.strong("Result");
                             ui.end_row();
                             for line in result
@@ -332,7 +372,7 @@ impl TechnicianView {
             self.page = Page::Radio;
         }
         columns[1].add_space(16.0);
-        columns[1].collapsing("Reference information", |ui| {
+        crate::brand::collapsing(&mut columns[1], "Reference information", |ui| {
             ui.label(&device.description);
         });
         columns[1].strong("Device manuals");
@@ -375,7 +415,15 @@ impl TechnicianView {
         };
         self.header(
             ui,
-            &format!("{} — registers", device.name),
+            &format!(
+                "{} — {}",
+                device.name,
+                if self.reference_context {
+                    "register map"
+                } else {
+                    "live registers"
+                }
+            ),
             "",
             Page::Detail(key.clone()),
         );
@@ -383,6 +431,71 @@ impl TechnicianView {
             ui.label("Find");
             ui.text_edit_singleline(&mut self.search);
         });
+        ui.horizontal_wrapped(|ui| {
+            ui.label("Address notation");
+            ui.selectable_value(&mut self.one_based_addresses, false, "Zero-based address");
+            ui.selectable_value(&mut self.one_based_addresses, true, "1-based");
+            ui.weak("Display only · manual addresses and programmed settings stay unchanged");
+        });
+        if self.reference_context {
+            ui.weak("Manufacturer register definitions · native units");
+            let query = self.search.to_lowercase();
+            if let Some(registers) = reference.registers.get(&key) {
+                egui::ScrollArea::horizontal()
+                    .auto_shrink([false, true])
+                    .show(ui, |ui| {
+                        let widths = [180.0, 75.0, 75.0, 95.0, 60.0, 90.0, 320.0];
+                        ui.horizontal_top(|ui| {
+                            for (label, width) in [
+                                "Register",
+                                "Manual",
+                                if self.one_based_addresses {
+                                    "Address (one-based)"
+                                } else {
+                                    "Address (zero-based)"
+                                },
+                                "Data type / word order",
+                                "Access",
+                                "Units",
+                                "Description",
+                            ]
+                            .into_iter()
+                            .zip(widths)
+                            {
+                                register_cell(
+                                    ui,
+                                    width,
+                                    egui::Label::new(RichText::new(label).strong()).wrap(),
+                                );
+                            }
+                        });
+                        for register in registers.iter().filter(|r| {
+                            format!("{} {} {}", r.name, r.logical, r.pdu)
+                                .to_lowercase()
+                                .contains(&query)
+                        }) {
+                            ui.horizontal_top(|ui| {
+                                for (text, width) in [
+                                    &register.name,
+                                    &register.logical,
+                                    &display_address(&register.pdu, self.one_based_addresses),
+                                    &register.data_type,
+                                    &register.access,
+                                    &register.unit,
+                                    &register.description,
+                                ]
+                                .into_iter()
+                                .zip(widths)
+                                {
+                                    register_cell(ui, width, egui::Label::new(text).wrap());
+                                }
+                            });
+                            ui.add_space(8.0);
+                        }
+                    });
+            }
+            return actions;
+        }
         ui.checkbox(
             &mut self.show_native,
             "Show native values alongside display units",
@@ -415,8 +528,12 @@ impl TechnicianView {
                             for label in [
                                 "Register",
                                 "Manual",
-                                "PDU",
-                                "Type/order",
+                                if self.one_based_addresses {
+                                    "Address (one-based)"
+                                } else {
+                                    "Address (zero-based)"
+                                },
+                                "Data type / word order",
                                 "Access",
                                 "Readout",
                                 "Units",
@@ -448,7 +565,7 @@ impl TechnicianView {
                                 for text in [
                                     &register.name,
                                     &register.logical,
-                                    &register.pdu,
+                                    &display_address(&register.pdu, self.one_based_addresses),
                                     &register.data_type,
                                     &register.access,
                                 ]

@@ -1,5 +1,7 @@
 //! Firmware 3.6 console workflows through one persistent transport.
+mod line_settings;
 mod parsing;
+pub use line_settings::LineSettings;
 use parsing::{export_count, verify_summary};
 pub use parsing::{parse_export, parse_point_report};
 
@@ -128,6 +130,7 @@ impl BridgeSession {
                 last.starts_with("enter selection") && last.ends_with(':')
             }
             PromptState::Password => last == "password:",
+            PromptState::LineSettingInput => last.ends_with(':'),
             PromptState::Continue => {
                 last == "press a key to continue" || last == "press a key to continue:"
             }
@@ -354,7 +357,7 @@ impl BridgeSession {
         {
             return Err(BridgeError::new(
                 ErrorCode::IdentityMismatch,
-                "Only E5 bridge firmware 3.6 is qualified for this workflow.",
+                "This operation supports E5 bridge firmware 3.6 only.",
             ));
         }
         if let (Some(model), Some(firmware)) = (field("Model Number"), field("Firmware Ver")) {

@@ -1,5 +1,7 @@
 //! Device navigation and shared readout presentation.
+mod custom_profiles;
 mod device_pages;
+mod network_readings;
 use eframe::egui::{self, Color32, RichText};
 use modbus_configurator::{
     bridge::BridgeResult,
@@ -39,8 +41,17 @@ pub struct TechnicianView {
     pub configuration_change: Option<String>,
     pub adapter_stale: bool,
     pub bridge_times: std::collections::BTreeMap<u16, String>,
+    pub bridge_point_times: std::collections::BTreeMap<u8, String>,
+    pub network_draft: Option<(String, Vec<modbus_configurator::network::Device>)>,
+    network_applied: Option<(String, Vec<modbus_configurator::network::Device>)>,
+    network_types: std::collections::BTreeMap<(String, u8), network_readings::TypeChoice>,
+    saved_profiles: Vec<modbus_configurator::custom_profile::SavedProfile>,
+    custom_profile_root: Option<std::path::PathBuf>,
+    custom_profile_name: String,
+    custom_profile_message: String,
     pub adapter_times: std::collections::BTreeMap<u16, String>,
     show_native: bool,
+    one_based_addresses: bool,
     pub unit_preset: crate::units::Preset,
     unit_choices: std::collections::BTreeMap<(String, u16), usize>,
     search: String,
@@ -63,6 +74,24 @@ fn display_value(value: f64, unit: &str) -> String {
         value
     };
     format!("{rounded:.decimals$}")
+}
+
+/// Change address notation only; register lookup and wire addresses stay zero-based.
+fn display_address(pdu: &str, one_based: bool) -> String {
+    if !one_based {
+        return pdu.into();
+    }
+    pdu.split(['–', '-'])
+        .map(|part| {
+            part.trim()
+                .parse::<u32>()
+                .ok()
+                .and_then(|v| v.checked_add(1))
+                .map(|v| v.to_string())
+        })
+        .collect::<Option<Vec<_>>>()
+        .map(|parts| parts.join("–"))
+        .unwrap_or_else(|| pdu.into())
 }
 fn reading_state(connected: bool, stale: bool, has_readings: bool) -> &'static str {
     match (connected, stale, has_readings) {
@@ -201,6 +230,10 @@ impl TechnicianView {
         busy: bool,
     ) -> Vec<Action> {
         let (result, result_port, direct) = snapshot;
+        let network = result.is_some_and(|r| {
+            network_readings::is_network(&r.native_tsv)
+                || !profiles.iter().any(|p| p.contains_points(r))
+        });
         let mut actions = vec![];
         match self.page.clone() {
             Page::Overview => {
@@ -232,7 +265,7 @@ impl TechnicianView {
                             format!("{} · awaiting identification", port.port)
                         },
                     ));
-                    if known {
+                    if known && !network {
                         for key in ["dpt146", "hmd65", "wattnode", "ati-f12"] {
                             if profiles.iter().any(|p| {
                                 reference::profile_matches(key, &p.info.id)
@@ -245,7 +278,10 @@ impl TechnicianView {
                 }
                 if !self.bridge_connected && result.is_some() {
                     nodes.push(("bridge", format!("{result_port} - disconnected")));
-                    for key in ["dpt146", "hmd65", "wattnode", "ati-f12"] {
+                    for key in ["dpt146", "hmd65", "wattnode", "ati-f12"]
+                        .into_iter()
+                        .filter(|_| !network)
+                    {
                         if profiles.iter().any(|p| {
                             reference::profile_matches(key, &p.info.id)
                                 && result.is_some_and(|r| p.contains_points(r))
@@ -260,7 +296,7 @@ impl TechnicianView {
                         if bridge.is_some() {
                             format!("{} · paused while E5 bridge is connected", port.port)
                         } else {
-                            format!("{} · automatic polling", port.port)
+                            format!("{} · USB adapter available", port.port)
                         },
                     ));
                 }
@@ -284,103 +320,138 @@ impl TechnicianView {
                 if nodes.is_empty() {
                     ui.group(|ui| {
                         ui.heading("No devices connected");
-                        ui.label("Connect a E5 bridge or USB-COMi-TB to get started.");
+                        ui.label("Connect an E5 bridge or USB-COMi-TB to get started.");
                     });
                 }
-                egui::ScrollArea::horizontal()
-                    .id_salt("topology")
-                    .show(ui, |ui| {
-                        ui.horizontal(|ui| {
-                            for (index, (key, connection)) in nodes.iter().enumerate() {
-                                if index > 0 {
-                                    if matches!(*key, "dpt146" | "hmd65" | "wattnode" | "ati-f12") {
-                                        crate::device_art::connection(ui);
-                                    } else {
-                                        ui.add_space(16.0);
-                                    }
-                                }
-                                if let Some(device) = reference.devices.get(*key) {
-                                    let response = ui.group(|ui| {
-                                        ui.with_layout(
-                                            egui::Layout::top_down(egui::Align::Min),
-                                            |ui| {
-                                                ui.set_width(285.0);
-                                                ui.set_min_height(210.0);
-                                                Self::icon(ui, device);
-                                                ui.label(
-                                                    RichText::new(&device.name).strong().size(17.0),
+                for (interfaces, heading) in [(true, "Connections"), (false, "Sensors")] {
+                    let in_group = |key: &str| {
+                        matches!(key, "bridge" | "adapter" | "synetica_usb") == interfaces
+                    };
+                    if !nodes.iter().any(|(key, _)| in_group(key)) {
+                        continue;
+                    }
+                    ui.strong(heading);
+                    ui.add_space(8.0);
+                    ui.horizontal_wrapped(|ui| {
+                        for (key, connection) in nodes.iter().filter(|(key, _)| in_group(key)) {
+                            if let Some(device) = reference.devices.get(*key) {
+                                let response = ui.group(|ui| {
+                                    ui.with_layout(egui::Layout::top_down(egui::Align::Min), |ui| {
+                                        ui.set_width(285.0);
+                                        ui.set_min_height(210.0);
+                                        Self::icon(ui, device);
+                                        ui.label(RichText::new(&device.name).strong().size(17.0));
+                                        if matches!(
+                                            *key,
+                                            "dpt146" | "hmd65" | "wattnode" | "ati-f12"
+                                        ) && direct.is_none_or(|d| d.key != *key)
+                                        {
+                                            ui.add(
+                                                egui::Label::new(
+                                                    "Configured model · sensor identity unverified",
+                                                )
+                                                .wrap(),
+                                            );
+                                        }
+                                        if matches!(
+                                            *key,
+                                            "bridge" | "dpt146" | "hmd65" | "wattnode" | "ati-f12"
+                                        ) && direct.is_none_or(|d| d.key != *key)
+                                        {
+                                            let profile = profiles.iter().find(|p| {
+                                                reference::profile_matches(key, &p.info.id)
+                                            });
+                                            if profile.is_none_or(|p| {
+                                                result.is_some_and(|r| p.contains_points(r))
+                                            }) && let Some(notice) = &self.configuration_change
+                                            {
+                                                ui.add(
+                                                    egui::Label::new(
+                                                        RichText::new(notice)
+                                                            .color(crate::brand::ORANGE),
+                                                    )
+                                                    .wrap(),
                                                 );
-                                                if matches!(*key, "dpt146" | "hmd65" | "wattnode" | "ati-f12") && direct.is_none_or(|d| d.key != *key) {
-                                                    ui.add(egui::Label::new("Configured model · sensor identity unverified").wrap());
+                                            }
+                                            if let Some(warning) = configuration_warning(
+                                                profile,
+                                                result,
+                                                self.bridge_stale,
+                                            ) {
+                                                ui.add(
+                                                    egui::Label::new(
+                                                        RichText::new(warning)
+                                                            .color(crate::brand::ORANGE),
+                                                    )
+                                                    .wrap(),
+                                                );
+                                            }
+                                        }
+                                        if *key == "synetica_usb" {
+                                            ui.weak("Not identified");
+                                        }
+                                        ui.add_space(12.0);
+                                        if *key == "adapter" && ports.iter().any(is_synetica) {
+                                            ui.colored_label(
+                                                crate::brand::ORANGE,
+                                                "Blocked · another Modbus master may be active",
+                                            );
+                                            ui.weak(connection);
+                                        } else {
+                                            ui.label(connection);
+                                        }
+                                        if matches!(
+                                            *key,
+                                            "dpt146" | "hmd65" | "wattnode" | "ati-f12" | "bridge"
+                                        ) && self.bridge_stale
+                                        {
+                                            ui.weak("Last good readings - stale");
+                                        }
+                                        let profile = profiles
+                                            .iter()
+                                            .find(|p| reference::profile_matches(key, &p.info.id));
+                                        if let Some(registers) = reference.registers.get(*key) {
+                                            for register in registers
+                                                .iter()
+                                                .filter(|r| r.readout_label.is_some())
+                                                .take(3)
+                                            {
+                                                let live = direct
+                                                    .filter(|d| d.key == *key)
+                                                    .and_then(|d| {
+                                                        d.values
+                                                            .get(&register.first_pdu()?)
+                                                            .copied()
+                                                    })
+                                                    .or_else(|| value(profile, result, register));
+                                                if let Some(v) = live {
+                                                    ui.label(format!(
+                                                        "{}: {v:.2} {}",
+                                                        register
+                                                            .readout_label
+                                                            .as_deref()
+                                                            .unwrap_or(&register.name),
+                                                        register.unit
+                                                    ));
                                                 }
-                                                if matches!(*key, "bridge" | "dpt146" | "hmd65" | "wattnode" | "ati-f12") && direct.is_none_or(|d| d.key != *key) {
-                                                    let profile = profiles.iter().find(|p| reference::profile_matches(key, &p.info.id));
-                                                    if profile.is_none_or(|p| result.is_some_and(|r| p.contains_points(r))) && let Some(notice) = &self.configuration_change {
-                                                        ui.add(egui::Label::new(RichText::new(notice).color(crate::brand::ORANGE)).wrap());
-                                                    }
-                                                    if let Some(warning) = configuration_warning(profile, result, self.bridge_stale) {
-                                                        ui.add(egui::Label::new(RichText::new(warning).color(crate::brand::ORANGE)).wrap());
-                                                    }
-                                                }
-                                                if *key == "synetica_usb" {
-                                                    ui.weak("Not identified");
-                                                }
-                                                ui.add_space(12.0);
-                                                if *key == "adapter" && ports.iter().any(is_synetica) {
-                                                    ui.colored_label(crate::brand::ORANGE, "Blocked · another Modbus master may be active");
-                                                    ui.weak(connection);
-                                                } else { ui.label(connection); }
-                                                if matches!(*key, "dpt146" | "hmd65" | "wattnode" | "ati-f12" | "bridge")
-                                                    && self.bridge_stale
-                                                {
-                                                    ui.weak("Last good readings - stale");
-                                                }
-                                                let profile = profiles.iter().find(|p| {
-                                                    reference::profile_matches(key, &p.info.id)
-                                                });
-                                                if let Some(registers) =
-                                                    reference.registers.get(*key)
-                                                {
-                                                    for register in registers
-                                                        .iter()
-                                                        .filter(|r| r.readout_label.is_some())
-                                                        .take(3)
-                                                    {
-                                                        let live = direct
-                                                            .filter(|d| d.key == *key)
-                                                            .and_then(|d| {
-                                                                d.values
-                                                                    .get(&register.first_pdu()?)
-                                                                    .copied()
-                                                            })
-                                                            .or_else(|| {
-                                                                value(profile, result, register)
-                                                            });
-                                                        if let Some(v) = live {
-                                                            ui.label(format!(
-                                                                "{}: {v:.2} {}",
-                                                                register
-                                                                    .readout_label
-                                                                    .as_deref()
-                                                                    .unwrap_or(&register.name),
-                                                                register.unit
-                                                            ));
-                                                        }
-                                                    }
-                                                }
-                                                ui.button("View device")
-                                            },
-                                        )
-                                        .inner
-                                    });
-                                    if response.inner.clicked() {
-                                        self.reference_context = false;
-                                        self.page = Page::Detail((*key).into());
-                                    }
+                                            }
+                                        }
+                                        ui.button("View device")
+                                    })
+                                    .inner
+                                });
+                                if response.inner.clicked() {
+                                    self.reference_context = false;
+                                    self.page = Page::Detail((*key).into());
                                 }
                             }
-                        });
+                        }
                     });
+                    ui.add_space(20.0);
+                }
+                if network && let Some(result) = result {
+                    self.network_readings(ui, result, profiles);
+                }
             }
             Page::References => {
                 ui.heading("Device references");
@@ -404,9 +475,9 @@ impl TechnicianView {
                         ui.weak(match key {
                             "bridge" => "Live reads, point-table program and restore tested on firmware 3.6. Full power-cycle acceptance pending.",
                             "dpt146" => "Live reads verified through the E5 bridge and the USB Modbus adapter.",
-                            "hmd65" | "wattnode" => "E5 bridge preset and direct adapter profile implemented. Physical instrument acceptance pending.",
+                            "hmd65" | "wattnode" | "ati-f12" => "E5 bridge preset and direct adapter profile implemented. Hardware validation pending.",
                             "iaq_plus" => "Reference only. Native IAQ identification, live reads and console backup are not implemented.",
-                            _ => "USB discovery and direct DPT146 reads verified. Polling is blocked while a E5 bridge interface is present.",
+                            _ => "USB discovery and direct DPT146 reads verified. Polling is blocked while an E5 bridge interface is present.",
                         });
                     });
                 }
@@ -497,7 +568,7 @@ impl TechnicianView {
         actions
     }
     fn header(&mut self, ui: &mut egui::Ui, title: &str, subtitle: &str, back: Page) {
-        ui.horizontal(|ui| {
+        ui.horizontal_wrapped(|ui| {
             let back_label = match &back {
                 Page::Overview => "‹ Devices",
                 Page::References => "‹ References",
@@ -522,6 +593,14 @@ impl TechnicianView {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn address_notation_preserves_ranges_without_changing_wire_data() {
+        assert_eq!(super::display_address("4–5", true), "5–6");
+        assert_eq!(super::display_address("0", true), "1");
+        assert_eq!(super::display_address("65535", true), "65536");
+        assert_eq!(super::display_address("4–5", false), "4–5");
+        assert_eq!(super::display_address("—", true), "—");
+    }
     use super::*;
     use modbus_configurator::{bridge::Reading, contract::Identity};
 
@@ -717,3 +796,7 @@ fn register_cell(ui: &mut egui::Ui, width: f32, label: egui::Label) -> egui::Res
     )
     .inner
 }
+
+#[cfg(test)]
+#[path = "tests/custom_profile_ui.rs"]
+mod custom_profile_tests;

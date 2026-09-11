@@ -17,8 +17,8 @@ pub enum Validation {
 impl Validation {
     pub fn label(self) -> &'static str {
         match self {
-            Self::Validated => "Bench-validated configuration",
-            Self::ToTest => "Documentation candidate — awaiting hardware",
+            Self::Validated => "Hardware-tested configuration",
+            Self::ToTest => "Based on documentation · hardware testing pending",
         }
     }
 }
@@ -225,8 +225,8 @@ impl Profile {
             && table_rows(&result.native_tsv).is_ok_and(|rows| rows == self.rows)
     }
 
-    /// Extra points do not change the meaning of an exact, complete profile
-    /// subset. All eight fields of every profile row must still match.
+    /// Match a complete profile with a consistent slave-address remap. Every
+    /// other field must match; points from different sensors cannot be mixed.
     pub fn contains_points(&self, result: &BridgeResult) -> bool {
         result.identity
             == (Identity {
@@ -234,9 +234,22 @@ impl Profile {
                 firmware: "3.6".into(),
             })
             && table_rows(&result.native_tsv).is_ok_and(|rows| {
-                self.rows
-                    .iter()
-                    .all(|(item, row)| rows.get(item) == Some(row))
+                let mut slaves = BTreeMap::new();
+                self.rows.iter().all(|(item, row)| {
+                    let Some(actual) = rows.get(item) else {
+                        return false;
+                    };
+                    let expected: Vec<_> = row.split('\t').collect();
+                    let actual: Vec<_> = actual.split('\t').collect();
+                    expected
+                        .iter()
+                        .zip(&actual)
+                        .enumerate()
+                        .all(|(i, (a, b))| i == 1 || a == b)
+                        && slaves
+                            .insert(expected[1], actual[1])
+                            .is_none_or(|old| old == actual[1])
+                })
             })
     }
 

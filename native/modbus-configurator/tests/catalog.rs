@@ -18,6 +18,32 @@ fn result(table: String) -> BridgeResult {
 }
 
 #[test]
+fn slave_remapping_preserves_registers_and_profile_identity() {
+    let profiles = catalog::bundled().unwrap();
+    let profile = &profiles[0];
+    let remapped =
+        modbus_configurator::config_file::remap_slave(&profile.native_tsv, 1, 42).unwrap();
+    for (old, new) in profile
+        .native_tsv
+        .lines()
+        .skip(1)
+        .zip(remapped.lines().skip(1))
+    {
+        for (column, (a, b)) in old.split('\t').zip(new.split('\t')).enumerate() {
+            if column == 1 {
+                assert_eq!(b, "42");
+            } else {
+                assert_eq!(a, b);
+            }
+        }
+    }
+    assert!(profile.contains_points(&result(remapped.clone())));
+    assert!(!profile.matches(&result(remapped)));
+    assert!(modbus_configurator::config_file::remap_slave(&profile.native_tsv, 1, 0).is_err());
+    assert!(modbus_configurator::config_file::remap_slave(&profile.native_tsv, 1, 248).is_err());
+}
+
+#[test]
 fn complete_profile_subset_keeps_labels_but_does_not_claim_a_full_table_match() {
     let profiles = modbus_configurator::catalog::bundled().unwrap();
     let dpt = &profiles[0];

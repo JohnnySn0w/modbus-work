@@ -20,13 +20,27 @@ pub struct Command {
 #[serde(tag = "operation", content = "payload", rename_all = "snake_case")]
 pub enum Operation {
     Inventory,
-    Replay { chunks: Vec<String> },
+    Replay {
+        chunks: Vec<String>,
+    },
     BridgeExport,
+    BridgeNamedBackup {
+        name: String,
+    },
     BridgeReadAll,
-    BridgeProgram { target: String, reviewed: String },
+    BridgeProgram {
+        target: String,
+        reviewed: String,
+    },
+    BridgeLineSettings {
+        target: crate::bridge::LineSettings,
+        reviewed: crate::bridge::LineSettings,
+    },
     AdapterRead,
     ClosePort,
-    Cancel { request_id: u64 },
+    Cancel {
+        request_id: u64,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -50,6 +64,9 @@ pub struct Event {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "event", content = "payload", rename_all = "snake_case")]
 pub enum EventKind {
+    LineSettings {
+        settings: crate::bridge::LineSettings,
+    },
     Backup {
         path: Option<String>,
         error: Option<String>,

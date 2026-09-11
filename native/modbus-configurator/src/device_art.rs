@@ -131,26 +131,6 @@ fn vector(ui: &mut egui::Ui, key: &str) {
     }
 }
 
-pub fn connection(ui: &mut egui::Ui) {
-    let (rect, _) = ui.allocate_exact_size(vec2(116.0, 32.0), egui::Sense::hover());
-    let p = ui.painter_at(rect);
-    let color = ui.visuals().weak_text_color();
-    let y = rect.center().y;
-    for (a, b) in [
-        (rect.left() + 3.0, rect.center().x - 29.0),
-        (rect.center().x + 29.0, rect.right() - 3.0),
-    ] {
-        p.line_segment([pos2(a, y), pos2(b, y)], Stroke::new(1.4, color));
-    }
-    p.text(
-        rect.center(),
-        egui::Align2::CENTER_CENTER,
-        "RS-485",
-        egui::FontId::proportional(12.0),
-        color,
-    );
-}
-
 fn photo_bytes(key: &str) -> Option<&'static [u8]> {
     Some(match key {
         "bridge" => include_bytes!("../assets/devices/bridge.png"),

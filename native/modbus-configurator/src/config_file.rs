@@ -62,7 +62,7 @@ pub fn normalize(text: &str) -> io::Result<String> {
     let mut lines = text.trim_start_matches('\u{feff}').lines();
     if lines.next() != Some(HEADER) {
         return Err(io::Error::other(
-            "Expected an eight-column native E5 bridge TSV file.",
+            "Expected an eight-column, tab-separated E5 bridge configuration file.",
         ));
     }
     let rows: Vec<_> = lines.filter(|l| !l.trim().is_empty()).collect();
@@ -88,6 +88,23 @@ pub fn load(path: &Path) -> io::Result<String> {
         .take(32769)
         .read_to_string(&mut text)?;
     normalize(&text)
+}
+
+/// Remap one sensor address, preserving point IDs, registers and representation.
+pub fn remap_slave(table: &str, from: u8, to: u8) -> io::Result<String> {
+    if !(1..=247).contains(&from) || !(1..=247).contains(&to) {
+        return Err(io::Error::other("Sensor slave addresses must be 1–247."));
+    }
+    let table = normalize(table)?;
+    let mut rows = vec![HEADER.to_owned()];
+    for line in table.lines().skip(1) {
+        let mut fields: Vec<_> = line.split('\t').map(str::to_owned).collect();
+        if fields[1].parse::<u8>().ok() == Some(from) {
+            fields[1] = to.to_string();
+        }
+        rows.push(fields.join("\t"));
+    }
+    normalize(&rows.join("\r\n"))
 }
 fn unique() -> String {
     format!(
@@ -135,9 +152,44 @@ pub fn backup(root: &Path, port: &PortInfo, text: &str) -> io::Result<PathBuf> {
     save(&path, &text)?;
     Ok(path)
 }
+/// Validate a display name without allowing it to become a path.
+pub fn validate_backup_name(name: &str) -> io::Result<()> {
+    if name.trim().is_empty()
+        || name.chars().count() > 64
+        || name.ends_with(['.', ' '])
+        || name
+            .chars()
+            .any(|c| c.is_control() || "<>:\"/\\|?*".contains(c))
+    {
+        return Err(io::Error::other(
+            "Use 1–64 characters without path separators or Windows filename punctuation.",
+        ));
+    }
+    Ok(())
+}
+
+/// Keep the original automatic backup and save a uniquely named copy beside it.
+pub fn name_backup(path: &Path, name: &str) -> io::Result<PathBuf> {
+    validate_backup_name(name)?;
+    let table = load(path)?;
+    let destination = path
+        .parent()
+        .ok_or_else(|| io::Error::other("Backup folder unavailable"))?
+        .join(format!("{}--{}.tsv", unique(), name.trim()));
+    save(&destination, &table)?;
+    Ok(destination)
+}
+
+/// Return an explicit backup name; automatic snapshots have no display name.
+pub fn backup_name(path: &Path) -> Option<String> {
+    path.file_stem()?
+        .to_str()?
+        .split_once("--")
+        .map(|(_, name)| name.to_owned())
+}
 fn backup_folder(root: &Path, port: &PortInfo) -> io::Result<PathBuf> {
     let serial = port.serial_number.as_deref().filter(|s| !s.trim().is_empty())
-        .ok_or_else(|| io::Error::other("USB serial unavailable: cannot safely associate automatic backups with this device. Save the TSV explicitly."))?;
+        .ok_or_else(|| io::Error::other("USB serial unavailable: cannot safely associate automatic backups with this device. Save the configuration file explicitly."))?;
     if port.usb_vid.is_none() || port.usb_pid.is_none() {
         return Err(io::Error::other("USB identity unavailable for backup"));
     }
@@ -186,6 +238,31 @@ mod tests {
             .join(unique());
         fs::create_dir_all(&p).unwrap();
         p
+    }
+    #[test]
+    fn named_backups_preserve_original_and_never_overwrite_same_name() {
+        let dir = folder();
+        let original = dir.join("original.tsv");
+        save(&original, TABLE).unwrap();
+        let first = name_backup(&original, "Before sensor change").unwrap();
+        let second = name_backup(&original, "Before sensor change").unwrap();
+        assert_ne!(first, second);
+        assert_eq!(backup_name(&first).as_deref(), Some("Before sensor change"));
+        for path in [&original, &first, &second] {
+            assert_eq!(load(path).unwrap(), normalize(TABLE).unwrap());
+        }
+        for bad in [
+            "",
+            "../escape",
+            "folder\\file",
+            "name:stream",
+            "trailing.",
+            "bad\nname",
+        ] {
+            assert!(name_backup(&original, bad).is_err());
+        }
+        assert_eq!(fs::read_dir(&dir).unwrap().count(), 3);
+        fs::remove_dir_all(dir).unwrap();
     }
     #[test]
     fn missing_usb_identity_never_uses_com_number_as_backup_identity() {

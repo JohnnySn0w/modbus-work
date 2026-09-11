@@ -13,6 +13,9 @@ $packageRoot = Join-Path $releaseRoot $packageName
 if (Test-Path -LiteralPath $packageRoot) { throw 'Package directory already exists; choose a new version.' }
 $sourceCommit = & git -C $projectRoot rev-parse HEAD
 if ($LASTEXITCODE -ne 0) { throw 'Could not identify source commit.' }
+$sourceChanges = @(& git -C $projectRoot status --porcelain)
+if ($LASTEXITCODE -ne 0) { throw 'Could not inspect source changes.' }
+$sourceDirty = $sourceChanges.Count -gt 0
 $previousFlags = $env:CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_RUSTFLAGS
 try {
     $env:CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_RUSTFLAGS = '-C target-feature=+crt-static'
@@ -48,7 +51,7 @@ try {
     }
     $notices | Set-Content -LiteralPath (Join-Path $packageRoot 'DEPENDENCIES.txt') -Encoding utf8
     $digest = (Get-FileHash -LiteralPath (Join-Path $packageRoot 'Polygon Device Configurator.exe') -Algorithm SHA256).Hash.ToLowerInvariant()
-    [ordered]@{build_utc=[DateTime]::UtcNow.ToString('o');source_commit=$sourceCommit;version=$stamp;toolchain=$Toolchain;target='x86_64-pc-windows-msvc';static_crt=$true;exe_sha256=$digest;imported_dlls=$dlls} | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath (Join-Path $packageRoot 'build-info.json') -Encoding utf8
+    [ordered]@{build_utc=[DateTime]::UtcNow.ToString('o');source_commit=$sourceCommit;source_dirty=$sourceDirty;version=$stamp;toolchain=$Toolchain;target='x86_64-pc-windows-msvc';static_crt=$true;exe_sha256=$digest;imported_dlls=$dlls} | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath (Join-Path $packageRoot 'build-info.json') -Encoding utf8
     Compress-Archive -LiteralPath $packageRoot -DestinationPath "$packageRoot.zip"
     $zipDigest = (Get-FileHash -LiteralPath "$packageRoot.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
     "$zipDigest  $packageName.zip" | Set-Content -LiteralPath "$packageRoot.zip.sha256" -Encoding ascii

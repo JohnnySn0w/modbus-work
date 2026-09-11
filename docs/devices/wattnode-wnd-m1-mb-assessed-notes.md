@@ -1,3 +1,5 @@
+> Research notes, not operating instructions. Recommendations without cited technical support are unverified. Hardware-specific setup and troubleshooting: **TBD** unless a step is explicitly supported by a cited manufacturer source.
+
 # WattNode WND-M1-MB assessed setup notes
 
 Status: documentation assessment; bench validation not yet performed.
@@ -8,7 +10,7 @@ Target family: Continental Control Systems WattNode WND-M1-MB. Confirm the exact
 
 ## Scope boundary
 
-For the initial device proofs of concept, acceptance ends when the E5 bridge produces a correctly decoded raw payload in Loriot. Routing from Loriot into DSP is normally provided by the existing platform and is outside this project's present scope.
+For the initial device proofs of concept, acceptance ends when the E5 bridge produces a correctly decoded raw payload in Loriot. Routing from Loriot into DSP is normally provided by the existing platform and is outside the application scope.
 
 ## Correction to the legacy scaling note
 

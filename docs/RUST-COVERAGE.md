@@ -36,7 +36,7 @@ Run `./tools/Check-Rust.ps1` for headless tests (90% floor), or `./tools/Check-R
 
 All application source modules remain in scope. Separate test/example files and dependencies are excluded; inline tests can contribute to LLVM totals. This is not production-only, branch or MC/DC coverage. No new source exclusions were added.
 
-This pass adds focused cases for USB metadata normalization across arbitrary COM routes, missing USB identity, invalid/oversized configuration files, failed destinations, incomplete/duplicate profiles, fragmented terminal control strings, and the offline hardware lockout. USB descriptor mapping was extracted from OS enumeration without changing its behavior.
+Test coverage includes focused cases for USB metadata normalization across arbitrary COM routes, missing USB identity, invalid/oversized configuration files, failed destinations, incomplete/duplicate profiles, fragmented terminal control strings, and the offline hardware lockout. USB descriptor mapping was extracted from OS enumeration without changing its behavior.
 
 ## Remaining work toward full coverage
 

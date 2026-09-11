@@ -1,0 +1,19 @@
+# E5 bridge network configuration
+
+Single device mode keeps the existing workflow: choose a model, set its slave address, review and program its point table.
+
+Multi-device mode supports one to four device entries, including repeated models. Each entry has its own slave address (1–247) and selection of reviewed register entries. Expand **Register entries** to select individual values. The total must not exceed 32 E5 bridge entries; a multi-word float or integer counts as one entry. An empty device selection, duplicate slave address, or excess capacity blocks programming and export of the draft.
+
+The combined TSV assigns unique point numbers while preserving each selected register's address, data type, word order, multiplier and read mode. Existing backup, review, queued programming and readback verification apply to the complete table.
+
+Models are configured by the operator, not discovered from Modbus responses. Successful reads do not establish sensor identity or prove that the selected model is correct. Catalog matching on an imported TSV describes the configuration only. Custom or ambiguous tables are preserved; the editor requires an explicit new network instead of guessing a model or dropping rows.
+
+On the Devices map, ambiguous entries say **Custom register set, please select device**. Open **View device** and choose **Device type for this session** to interpret a partial/custom register set. This choice is kept in memory for that slave and exact table, and cleared when a different physical E5 bridge supplies results. It does not program the E5 bridge or change stored readings. Names and native units apply only to entries whose register address, function, encoding, word order, multiplier and read mode match the selected catalog definition. Other values remain numeric with **units unknown**. Read OK, exceptions and stale timestamps describe acquisition; they do not confirm or disprove physical model identity.
+
+To reuse an interpretation after restarting, expand **Custom profiles** on the device page, enter a name, and select **Save custom profile**. The local `Custom-profiles.json` library stores the selected catalog type and complete register definitions, excluding slave addresses and bridge point numbers. A matching saved type is reused automatically on another slave or subsequent launch. **Load custom profile** applies a saved interpretation explicitly; profiles for different register sets are disabled. If matching profiles disagree about the type, select one manually. Saving never overwrites an existing profile name and never programs hardware. This feature saves an interpretation of existing registers; it does not define new register encodings or invent units for unmatched points.
+
+Slave-address edits change the E5 bridge's requests, not the physical sensor's address. Set each sensor separately. All devices on the bus must share compatible baud rate, parity and other line settings. The RS-485 line editor applies to the entire bus.
+
+Switching modes retains the single-device draft during the session. Valid combined tables are remembered as the selected TSV and can be saved through **File tools**. After reopening the app, select Multi-device to reconstruct a recognized table. Incomplete drafts are session-only.
+
+The Devices view shows a card for each slave under its E5 bridge connection. Each card displays the configured model, slave address, a reading preview and last-reading timestamp. **View device** opens only that slave's complete readings, with native units, per-point last-good timestamps and exception state. Model labels describe the configuration; no sensor identification probing is performed. Unapplied drafts cannot relabel a different live table. Local validation uses offline tests for four identical sensors, mixed models, subsets, invalid selections, capacity, mode switching and distinct readouts. A physical four-sensor bus has not been tested on this PC.

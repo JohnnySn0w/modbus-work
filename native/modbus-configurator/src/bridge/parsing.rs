@@ -44,7 +44,7 @@ pub fn parse_export(text: &str, expected_count: usize) -> Result<BTreeMap<u8, St
             .map_err(|_| invalid("Invalid slave address."))?;
         fields[3]
             .parse::<u16>()
-            .map_err(|_| invalid("Invalid PDU address."))?;
+            .map_err(|_| invalid("Invalid transmitted register address."))?;
         let mult = fields[6]
             .parse::<f64>()
             .map_err(|_| invalid("Invalid multiplier."))?;

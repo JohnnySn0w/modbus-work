@@ -32,6 +32,17 @@ impl Configurator {
             );
         let previous_status = self.status.clone();
         match event.kind {
+            EventKind::LineSettings { settings } => {
+                if is_active {
+                    if self.line_draft.is_none()
+                        || self.line_draft == self.line_settings
+                        || self.programming
+                    {
+                        self.line_draft = Some(settings.clone());
+                    }
+                    self.line_settings = Some(settings);
+                }
+            }
             EventKind::PortSnapshot { ports } => {
                 if !is_scan {
                     return;
@@ -56,11 +67,13 @@ impl Configurator {
                         p.port == self.selected && modbus_configurator::adapter::is_adapter(p)
                     }) && ports.iter().any(modbus_configurator::adapter::is_bridge);
                 if selected_changed || adapter_blocked {
+                    self.line_settings = None;
+                    self.line_draft = None;
                     if let Some(port) = self.ports.iter().find(|p| p.port == self.selected) {
                         self.history.gap(
                             port,
                             if selected_changed {
-                                "USB disconnected or route changed"
+                                "USB disconnected or serial port changed"
                             } else {
                                 "Adapter paused: E5 bridge connected"
                             },
@@ -179,7 +192,14 @@ impl Configurator {
                     if self.programming {
                         self.programming = false;
                         self.auto_paused = false;
-                        self.file_message = "E5 bridge point table programmed and verified.".into();
+                        self.file_message = if self.line_applying {
+                            self.technician.bridge_stale = true;
+                            self.line_applying = false;
+                            "E5 bridge line settings applied and verified."
+                        } else {
+                            "E5 bridge point table programmed and verified."
+                        }
+                        .into();
                     }
                     if self.auto_request && result.exceptions.is_empty() {
                         self.status.clear();
@@ -192,6 +212,7 @@ impl Configurator {
                         .is_some_and(|(a, b)| modbus_configurator::adapter::same_device(a, b));
                     if !same {
                         self.technician.configuration_change = None;
+                        self.technician.clear_network_session();
                     }
                     if same && let Some(old) = &self.result {
                         let before = self.profiles.iter().find(|p| p.contains_points(old));
@@ -212,6 +233,7 @@ impl Configurator {
                             .is_some_and(|old| old.native_tsv != result.native_tsv)
                     {
                         self.technician.bridge_times.clear();
+                        self.technician.bridge_point_times.clear();
                     }
                     let at = modbus_configurator::last_good::timestamp();
                     if let Some(port) = &source {
@@ -226,6 +248,9 @@ impl Configurator {
                         self.fetched_at = Some(at.clone());
                     }
                     for reading in &result.readings {
+                        self.technician
+                            .bridge_point_times
+                            .insert(reading.item, at.clone());
                         if let Some(address) = result
                             .native_tsv
                             .lines()

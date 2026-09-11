@@ -63,9 +63,9 @@ impl Preset {
     pub fn label(self) -> &'static str {
         match self {
             Self::System => "System",
-            Self::Us => "US",
-            Self::Uk => "UK",
-            Self::Eu => "EU",
+            Self::Us => "United States",
+            Self::Uk => "United Kingdom",
+            Self::Eu => "Europe",
         }
     }
     pub fn index(self, native: &str) -> usize {

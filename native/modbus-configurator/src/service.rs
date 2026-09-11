@@ -15,6 +15,15 @@ use std::{
 };
 
 pub trait Backend: Send + Sync + 'static {
+    fn backup_line_settings(
+        &self,
+        _port: &PortInfo,
+        _settings: &crate::bridge::LineSettings,
+    ) -> std::io::Result<std::path::PathBuf> {
+        Err(std::io::Error::other(
+            "Line-settings backup storage unavailable",
+        ))
+    }
     fn inventory(&self) -> Result<Vec<PortInfo>, String>;
     fn backup(
         &self,
@@ -29,7 +38,7 @@ pub trait Backend: Send + Sync + 'static {
         _port: &str,
         _settings: crate::adapter::Settings,
     ) -> std::io::Result<Box<dyn crate::adapter::Bus>> {
-        Err(std::io::Error::other("Adapter transport unavailable"))
+        Err(std::io::Error::other("USB adapter connection unavailable"))
     }
 }
 // An explicit UI/packaging mode. It cannot enumerate or open real interfaces.
@@ -46,6 +55,36 @@ impl Backend for OfflineBackend {
 }
 struct SerialBackend;
 impl Backend for SerialBackend {
+    fn backup_line_settings(
+        &self,
+        port: &PortInfo,
+        settings: &crate::bridge::LineSettings,
+    ) -> std::io::Result<std::path::PathBuf> {
+        use std::io::Write;
+        if !self
+            .inventory()
+            .map_err(std::io::Error::other)?
+            .iter()
+            .any(|p| crate::adapter::same_route(port, p))
+        {
+            return Err(std::io::Error::other(
+                "E5 bridge disconnected before line-settings backup",
+            ));
+        }
+        let root = crate::config_file::directory()?.join("Line settings");
+        std::fs::create_dir_all(&root)?;
+        let stamp = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_err(std::io::Error::other)?
+            .as_nanos();
+        let path = root.join(format!("before-change-{stamp}.json"));
+        let mut file = std::fs::File::create_new(&path)?;
+        let data = serde_json::to_vec_pretty(&serde_json::json!({"usb":port,"settings":settings}))
+            .map_err(std::io::Error::other)?;
+        file.write_all(&data)?;
+        file.sync_all()?;
+        Ok(path)
+    }
     fn backup(&self, port: &PortInfo, table: &str) -> std::io::Result<Option<std::path::PathBuf>> {
         let inventory = self.inventory().map_err(std::io::Error::other)?;
         let info = inventory
@@ -167,6 +206,16 @@ impl Actor {
                                 });
                                 session = Some(BridgeSession::new(backend.open(&port)?, timing));
                             }
+                            if let Operation::BridgeLineSettings { target, reviewed } = &command.operation {
+                                return session.as_mut().unwrap().configure_line(expected, target, reviewed, &cancel,
+                                    |stage| emit(EventKind::Progress {stage:stage.into()}),
+                                    |settings| {
+                                        let info = session_usb.as_ref().ok_or_else(|| std::io::Error::other("USB identity unavailable"))?;
+                                        let path = backend.backup_line_settings(info,settings)?;
+                                        emit(EventKind::Progress { stage: format!("Previous line settings saved to {}", path.display()) });
+                                        Ok(())
+                                    });
+                            }
                             if let Operation::BridgeProgram { target, reviewed } =
                                 &command.operation
                             {
@@ -215,6 +264,13 @@ impl Actor {
                                         std::io::Error::other("USB identity unavailable for backup")
                                     })
                                     .and_then(|info| backend.backup(info, table))
+                                    .and_then(|path| match &command.operation {
+                                        Operation::BridgeNamedBackup { name } => {
+                                            let path = path.ok_or_else(|| std::io::Error::other("Backup storage unavailable"))?;
+                                            crate::config_file::name_backup(&path, name).map(Some)
+                                        }
+                                        _ => Ok(path),
+                                    })
                                 {
                                     Ok(Some(path)) => emit(EventKind::Backup {
                                         path: Some(path.to_string_lossy().into()),
@@ -229,7 +285,12 @@ impl Actor {
                             )
                         })();
                         match result {
-                            Ok(result) => EventKind::BridgeResult { result },
+                            Ok(result) => {
+                                if let Some(settings) = session.as_ref().and_then(BridgeSession::line_settings) {
+                                    emit(EventKind::LineSettings { settings });
+                                }
+                                EventKind::BridgeResult { result }
+                            },
                             Err(error) => {
                                 session = None;
                                 EventKind::Error {
@@ -237,7 +298,7 @@ impl Actor {
                                     message: error.message,
                                     recoverable: !matches!(
                                         command.operation,
-                                        Operation::BridgeProgram { .. }
+                                        Operation::BridgeProgram { .. } | Operation::BridgeLineSettings { .. }
                                     ),
                                 }
                             }
@@ -287,7 +348,7 @@ impl Service {
             for command in requests {
                 let emit = |kind| { let _ = events.send(Event { request_id: command.request_id, kind }); };
                 let error = |code, message: &str| emit(EventKind::Error { code, message: message.into(), recoverable: true });
-                if command.request_id == 0 { error(ErrorCode::InvalidRequest, "Request IDs must be nonzero."); continue; }
+                if command.request_id == 0 { error(ErrorCode::InvalidRequest, "Request identifiers must be nonzero."); continue; }
                 match &command.operation {
                     Operation::Inventory | Operation::Replay { .. } | Operation::Cancel { .. }
                         if command.port.is_some() || command.expected_identity.is_some() => {
@@ -314,14 +375,14 @@ impl Service {
                         emit(EventKind::Result { message: "Offline replay complete; no serial port opened.".into() });
                     }
                     Operation::Cancel { request_id } => {
-                        if *request_id == 0 { error(ErrorCode::InvalidRequest, "A nonzero active request ID is required."); continue; }
+                        if *request_id == 0 { error(ErrorCode::InvalidRequest, "A nonzero active request identifier is required."); continue; }
                         let actor = actors.values().find(|actor| actor.active.load(Ordering::Acquire) == *request_id);
                         if let Some(actor) = actor {
                             actor.cancelled.store(true, Ordering::Release);
                             emit(EventKind::Result { message: "Cancellation requested.".into() });
                         } else { error(ErrorCode::InvalidRequest, "The requested operation is no longer active."); }
                     }
-                    Operation::BridgeExport | Operation::BridgeReadAll | Operation::BridgeProgram { .. } | Operation::AdapterRead | Operation::ClosePort => {
+                    Operation::BridgeExport | Operation::BridgeNamedBackup { .. } | Operation::BridgeReadAll | Operation::BridgeProgram { .. } | Operation::BridgeLineSettings { .. } | Operation::AdapterRead | Operation::ClosePort => {
                         let Some(port) = command.port.as_ref().map(|p| p.trim().to_ascii_uppercase()).filter(|p| !p.is_empty()) else {
                             error(ErrorCode::InvalidRequest, "Select a serial port."); continue;
                         };
@@ -339,7 +400,7 @@ impl Service {
                                 Ok(ports) => ports.into_iter().find(|p| p.port.eq_ignore_ascii_case(&port) && p.usb_vid == Some(0x0483) && p.usb_pid == Some(0x5740)),
                                 Err(message) => { error(ErrorCode::InventoryUnavailable, &message); continue; }
                             };
-                            if candidate.is_none() { error(ErrorCode::IdentityMismatch, "Selected port is not an available Synetica USB console candidate."); continue; }
+                            if candidate.is_none() { error(ErrorCode::IdentityMismatch, "The selected serial port is not an available Synetica USB interface."); continue; }
                             selected_usb = candidate;
                         }
                         if !matches!(command.operation, Operation::ClosePort) && let Some(actor) = actors.get(&port) {
@@ -351,7 +412,7 @@ impl Service {
                             }
                         }
                         if actors.values().any(|a| a.active.load(Ordering::Acquire) == command.request_id) {
-                            error(ErrorCode::InvalidRequest, "Request ID is already active."); continue;
+                            error(ErrorCode::InvalidRequest, "Request identifier is already active."); continue;
                         }
                         if !actors.contains_key(&port) {
                             if matches!(command.operation, Operation::ClosePort) {

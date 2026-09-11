@@ -14,7 +14,8 @@ fn capture_waits_for_readiness_and_commits_all_views_once() {
     let ctx = egui::Context::default();
     assert!(c.update(&ctx, false).is_none());
     assert!(!c.started);
-    for _ in 0..150 {
+    let expected_views = c.queue.len();
+    for _ in 0..(expected_views * 7 + 1) {
         let mut input = egui::RawInput::default();
         if c.frames == 5 {
             input.events.push(egui::Event::Screenshot {
@@ -36,12 +37,16 @@ fn capture_waits_for_readiness_and_commits_all_views_once() {
     assert!(c.done);
     let names: Vec<String> =
         serde_json::from_slice(&std::fs::read(root.join("complete.json")).unwrap()).unwrap();
-    assert_eq!(names.len(), 23);
+    assert_eq!(names.len(), expected_views);
+    assert!(names.iter().any(|name| name == "model-dpt146.png"));
     for name in &names {
         let img = image::open(root.join(name)).unwrap();
         assert_eq!((img.width(), img.height()), (2, 2));
     }
     assert!(c.update(&ctx, true).is_none());
-    assert_eq!(std::fs::read_dir(&root).unwrap().count(), 24);
+    assert_eq!(
+        std::fs::read_dir(&root).unwrap().count(),
+        expected_views + 1
+    );
     std::fs::remove_dir_all(root).unwrap();
 }

@@ -1,5 +1,4 @@
-//! Polygon palette transcribed from user-supplied guideline pages.
-//! Official Polygon favicon artwork; fonts come from the user-supplied Fonts.zip.
+//! Polygon color palette, application icon and bundled Brandon fonts.
 use eframe::egui::{self, Color32, Stroke};
 pub const CYAN: Color32 = Color32::from_rgb(0, 159, 227);
 pub const DARK_GREY: Color32 = Color32::from_rgb(87, 87, 86);
@@ -7,6 +6,34 @@ pub const LOGO_GREY: Color32 = Color32::from_rgb(183, 189, 178);
 pub const ORANGE: Color32 = Color32::from_rgb(221, 117, 0);
 pub const BLACK: Color32 = Color32::from_rgb(29, 29, 27);
 pub const DARK_BLUE: Color32 = Color32::from_rgb(31, 99, 129);
+
+/// Emphasize closed sections while preserving native expansion and keyboard behavior.
+pub fn collapsing<R>(
+    ui: &mut egui::Ui,
+    title: impl AsRef<str>,
+    contents: impl FnOnce(&mut egui::Ui) -> R,
+) -> egui::CollapsingResponse<R> {
+    let title = title.as_ref();
+    let id = ui.make_persistent_id(egui::Id::new(title));
+    let open =
+        egui::collapsing_header::CollapsingState::load_with_default_open(ui.ctx(), id, false)
+            .is_open();
+    let mut text = egui::RichText::new(title).size(18.0).strong();
+    if !open {
+        text = text.color(if ui.visuals().dark_mode {
+            CYAN
+        } else {
+            DARK_BLUE
+        });
+    }
+    let response = egui::CollapsingHeader::new(text).show(ui, contents);
+    response
+        .header_response
+        .clone()
+        .on_hover_cursor(egui::CursorIcon::PointingHand);
+    response
+}
+
 pub fn apply(ctx: &egui::Context) {
     apply_theme(ctx, false);
 }
@@ -25,7 +52,7 @@ pub fn apply_theme(ctx: &egui::Context, dark: bool) {
     v.widgets.inactive.bg_stroke = Stroke::new(1.0, LOGO_GREY);
     v.widgets.hovered.bg_fill = Color32::WHITE;
     v.widgets.hovered.weak_bg_fill = Color32::WHITE;
-    v.widgets.hovered.bg_stroke = Stroke::new(1.5, ORANGE);
+    v.widgets.hovered.bg_stroke = Stroke::new(1.5, DARK_BLUE);
     v.widgets.hovered.fg_stroke = Stroke::new(1.0, DARK_BLUE);
     v.widgets.active.bg_fill = CYAN;
     v.widgets.active.weak_bg_fill = CYAN;
@@ -47,13 +74,26 @@ pub fn apply_theme(ctx: &egui::Context, dark: bool) {
         v.widgets.inactive.bg_stroke = Stroke::new(1.0, DARK_GREY);
         v.widgets.hovered.bg_fill = DARK_BLUE;
         v.widgets.hovered.weak_bg_fill = DARK_BLUE;
-        v.widgets.hovered.bg_stroke = Stroke::new(1.5, ORANGE);
+        v.widgets.hovered.bg_stroke = Stroke::new(1.5, CYAN);
         v.widgets.active.bg_fill = DARK_BLUE;
         v.widgets.active.weak_bg_fill = DARK_BLUE;
         v.widgets.active.bg_stroke = Stroke::new(1.5, CYAN);
         v.warn_fg_color = ORANGE;
     }
     ctx.set_visuals(v);
+}
+
+/// Present actionable attention consistently, with text as well as color.
+pub fn attention(ui: &mut egui::Ui, title: &str, detail: &str) {
+    egui::Frame::default()
+        .fill(ORANGE.gamma_multiply(0.12))
+        .stroke(Stroke::new(1.0, ORANGE))
+        .inner_margin(12.0)
+        .show(ui, |ui| {
+            ui.set_width(ui.available_width());
+            ui.add(egui::Label::new(egui::RichText::new(title).strong()).wrap());
+            ui.add(egui::Label::new(detail).wrap());
+        });
 }
 
 /// Bundled Brandon Text with egui's original fonts retained for missing glyphs.

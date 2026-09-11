@@ -16,6 +16,7 @@ pub enum PromptState {
     Continue,
     ReadComplete,
     ReadOptions,
+    LineSettingInput,
 }
 
 #[derive(Default)]
@@ -99,6 +100,8 @@ impl ConsoleParser {
             ("press a key to continue", PromptState::Continue),
             ("modbus read completed", PromptState::ReadComplete),
             ("read all data points options:", PromptState::ReadOptions),
+            ("enter a number between ", PromptState::LineSettingInput),
+            ("enter either 7 or 8:", PromptState::LineSettingInput),
         ]
         .into_iter()
         .filter_map(|(pattern, state)| text.rfind(pattern).map(|index| (index, state)))

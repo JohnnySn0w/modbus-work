@@ -19,12 +19,12 @@ Documents open using the Windows application associated with their file type.
 
 Settings and point-table backups are stored under:
   %LOCALAPPDATA%\Polygon\Device Configurator
-History currently lasts for the application session. Export history CSV before
-closing if you need to retain those samples. Updating or moving this folder does
-not delete your settings or backups.
+History lasts for the application session. Export a comma-separated values file
+before closing to retain samples. Replacing the application folder does not
+delete saved settings or backups.
 
 Current support:
-- ENL-MOD-32 bridge firmware 3.6 and DPT146 bridge readings/program/restore tested.
+- E5 bridge firmware 3.6 and Vaisala DPT146 readings, programming and restore tested.
 - HMD65/WattNode presets and direct USB adapter reads implemented; hardware
   qualification remains pending.
 - IAQ is reference-only. Firmware flashing and radio writes are unavailable.
@@ -32,4 +32,4 @@ Current support:
 
 This is a development release. See build-info.json for the executable hash and
 Windows DLL imports, and DEPENDENCIES.txt/licenses for dependency notices.
-Product photographs and Brandon Text fonts were supplied for this project.
+Device photographs and Brandon Text fonts are bundled with the application.

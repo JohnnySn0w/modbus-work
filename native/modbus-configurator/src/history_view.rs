@@ -70,7 +70,7 @@ impl HistoryView {
         let Some((source, definition)) = &self.selected else {
             return;
         };
-        ui.collapsing("Point definition", |ui| {
+        crate::brand::collapsing(ui, "Point definition", |ui| {
             ui.label(source);
             ui.label(definition);
         });

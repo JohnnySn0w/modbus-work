@@ -1,3 +1,5 @@
+> Research notes, not operating instructions. Recommendations without cited technical support are unverified. Hardware-specific setup and troubleshooting: **TBD** unless a step is explicitly supported by a cited manufacturer source.
+
 # HMD65 representations and ATI F12/PAA support
 
 Updated 2026-09-10. Documentation candidates; remote hardware verification remains pending. No hardware programming was performed for this change.
@@ -31,7 +33,7 @@ The initial profile uses the reviewed D12/F12 Modbus map: 13 E5 bridge points, l
 
 The transmitter register map is separate from the PAA sensor variant so additional gases can be added later. Concentration units and range must be verified against the installed sensor; the application does not assume ppm. Defaults documented in the source are address 1, 9600 baud, 8N1; a TSV does not configure serial framing.
 
-This adds an E5 bridge configuration candidate and reference/decoding support. Direct USB adapter identification and polling of ATI F12 is not implemented. Remote hardware verification is pending. The user-supplied F12 product photo is embedded in the reference and device views (2026-09-10). The photo does not establish the installed sensor configuration.
+This adds an E5 bridge configuration candidate and reference/decoding support. Direct USB adapter identification and polling of ATI F12 is not implemented. Remote hardware verification is pending. The F12 product photograph is embedded in the reference and device views (2026-09-10). The photo does not establish the installed sensor configuration.
 
 Source: https://www.analyticaltechnology.com/wp-content/uploads/2022/02/D12-F12-Modbus-Manual.pdf
 Reviewed local table: artifacts/register-tables/ati-badger-f12-d12-modbus-register-table.csv

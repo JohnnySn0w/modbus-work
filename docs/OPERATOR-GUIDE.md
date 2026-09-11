@@ -2,32 +2,36 @@
 
 ## Start and connect
 
-Extract the current Windows ZIP and run Polygon Device Configurator.exe. Close other instances before starting a replacement. The app automatically discovers routes and polls supported devices; COM numbers may change. Verify the physical model and wiring independently of any selected E5 profile.
+Extract the current Windows release archive (.zip) and run Polygon Device Configurator.exe. Close other instances before starting a replacement. The app automatically discovers routes and polls supported devices; Serial port numbers may change. Verify the physical model and wiring independently of any selected E5 bridge profile.
 
-For direct USB adapter reads on the shared bus, switch the E5 bridge off using its hardware switch. External power may remain; its USB interface disappears when switched off. Adapter requests are blocked while an E5 interface is detected. Only one Modbus master may drive the bus.
+For direct USB adapter reads on the shared bus, switch the E5 bridge off using its hardware switch. External power may remain; its USB interface disappears when switched off. Adapter requests are blocked while an E5 bridge interface is detected. Only one Modbus master may drive the bus.
 
 ## Readings
 
-Devices shows current or retained data. Read now requests a manual read. Last-good timestamps and stale labels identify old data after failures/disconnection; zero is retained when it is a genuine reading. The adapter detail view shows the sensor identified through that route. Register tables wrap long descriptions and offer unit cycling and native/display comparison where applicable. Unit changes do not rewrite sensor registers or E5 tables.
+Devices shows current or retained data. Read now requests a manual read. Last-good timestamps and stale labels identify old data after failures/disconnection; zero is retained when it is a genuine reading. The adapter detail view shows readings received through that connection. A profile match does not verify the physical sensor model. Register tables wrap long descriptions and offer unit cycling and native/display comparison where applicable. Unit changes do not rewrite sensor registers or E5 bridge tables.
 
 ## Configure an E5 bridge
 
 1. Open Configuration and wait for a verified target. An orange banner identifies an unavailable target; hardware actions stay disabled.
-2. Select a sensor profile, Open TSV file, or a saved backup. Selection alone does not write.
-3. Review changed/removed/added points and communication requirements. Candidate profiles are not evidence of physical qualification. A TSV does not set downstream baud/parity/stop bits.
-4. Program E5 bridge queues behind an active automatic read. The app refreshes identity/table, requires a durable backup, writes with acknowledgements and verifies exported contents.
-5. Inspect fresh readings after completion. On an interrupted or uncertain write, recover/check the console and review the saved backup before a restore. There is no blind automatic rollback.
+2. Select a sensor profile, Open configuration file, or a saved backup. Selection alone does not write.
+3. Review changed/removed/added points and communication requirements. Edit Sensor slave address to match the physical sensor. Candidate profiles are not evidence of physical qualification. Use the separate RS-485 line settings editor for downstream baud, parity and framing; tab-separated configuration files (.tsv) do not contain those settings. See [E5 line configuration](E5-LINE-CONFIGURATION.md).
+4. Program E5 bridge queues behind an active automatic read. The application reads the identity and current table again, requires a successfully saved backup, writes with acknowledgements and verifies exported contents.
+5. Inspect fresh readings after completion. On an interrupted or uncertain write, recover/check the console and review the saved backup before a restore. The application does not automatically restore an earlier configuration.
 
-Back up now retrieves the point table. Backups lists per-USB-identity versions. Save TSV file and Copy TSV use the current selection. Point-table backups exclude radio keys, serial framing, sensor calibration and firmware.
+**Back up E5 bridge** retrieves the current point table. Enter an optional **Backup name** to keep a named copy alongside the automatic snapshot. Reusing a name creates another version without overwriting an earlier backup. **Load backup** lists versions associated with the USB connection identity by name, or provides selection of a tab-separated configuration file (.tsv). Loading is for review; use **Program E5 bridge** to restore it. Save configuration file and Copy configuration table use the current selection. Point-table backups exclude radio keys, serial framing, sensor calibration and firmware.
 
 ## History, settings and help
 
-History contains up to 50,000 point samples from this session. Choose the measurement/route; axes show native value units and elapsed seconds. Failures leave gaps. Export CSV before closing if the history is needed later.
+History contains up to 50,000 point samples from this session. Choose the measurement/route; axes show native value units and elapsed seconds. Failures leave gaps. Export a comma-separated values file (.csv) before closing if the history is needed later.
 
-Settings: System/Light/Dark theme; System/US/UK/EU unit defaults; automatic polling. System units resolve US to US, GB to UK, other/unavailable regions to EU. US uses Fahrenheit and psia where applicable; UK uses Celsius/bar; EU uses Celsius/kPa. Explicit register overrides last for the session. Polling off stops future automatic requests after the current operation finishes; it does not disable E5 downstream traffic.
+Settings: System/Light/Dark theme; System/United States/United Kingdom/Europe unit defaults; automatic polling. System units select the United States preset for that Windows region, the United Kingdom preset for that region, and the Europe preset for other or unavailable regions. The United States preset uses degrees Fahrenheit and pounds per square inch absolute where applicable. The United Kingdom preset uses degrees Celsius and bar; Europe uses degrees Celsius and kilopascals. Explicit register overrides last for the session. Polling off stops future automatic requests after the current operation finishes; it does not stop the E5 bridge from requesting readings on its serial bus.
 
-References contains product information, register maps and Device manuals PDF buttons. Unavailable manuals are marked. Troubleshooting provides application guidance and device-specific material; unqualified devices may show TBD. Diagnostics contains route and activity details; automatic polling is omitted from the activity log.
+References contains product information, register maps and Device manuals PDF buttons. Unavailable manuals are marked. Troubleshooting provides application guidance and device-specific material; instructions without established support show TBD. Diagnostics contains route and activity details; automatic polling is omitted from the activity log.
 
 Settings.json, Selected.tsv and Backups are stored beneath `%LOCALAPPDATA%/Polygon/Device Configurator/`. History itself is not persisted. Avoid sharing logs or configuration material that includes credentials.
 
 Firmware updating is not available yet. See [firmware plan](FIRMWARE-UPDATES.md).
+
+## Basis of the guidance
+
+E5 bridge and Vaisala DPT146 instructions use recorded test results. Other device instructions are either explicitly attributed to manufacturer documentation or marked **TBD**. Documentation-based suggestions are not hardware verification. Historical notes and proposed test plans are not approved installation procedures.

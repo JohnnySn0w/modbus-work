@@ -131,6 +131,7 @@ impl Configurator {
             }
             if let Some((page, profile)) = capture.update(ctx, ready) {
                 self.technician.page = page;
+                self.technician.reference_context = capture.reference_context;
                 self.library_open = false;
                 if let Some(index) = profile {
                     self.catalog_view.selected = Some(index);
@@ -198,7 +199,7 @@ impl Configurator {
                         for action in actions { self.handle_action(action); }
                     }
                     if !self.file_message.is_empty() { ui.horizontal_wrapped(|ui| { ui.label(&self.file_message); if ui.small_button("Dismiss message").clicked() { self.file_message.clear(); } }); }
-                    if !self.backup_error.is_empty() { ui.colored_label(egui::Color32::from_rgb(165,65,40), &self.backup_error); }
+                    if !self.backup_error.is_empty() { brand::attention(ui, "Backup needs attention", &self.backup_error); }
                     if matches!(self.technician.page, technician_view::Page::Overview | technician_view::Page::Configurations) && let Some(at) = &self.fetched_at { ui.weak(format!("Last received reading: {at}")); }
                     return;
                 }
@@ -224,18 +225,18 @@ impl Configurator {
                 }
                 ui.add_space(10.0);
                 ui.heading(format!("E5 bridge console{}", if self.selected.is_empty() { String::new() } else { format!(" — {}", self.selected) }));
-                ui.label("Export reads the native point table. Read All asks the E5 bridge to poll its configured instruments; it does not start a second RS-485 master.");
+                ui.label("Read now asks the E5 bridge to poll its configured instruments. Backups are available in Configuration.");
                 ui.horizontal(|ui| {
                     let ready = !self.selected.is_empty() && !self.foreground_busy()
                         && self.ports.iter().any(|p| p.port == self.selected && modbus_configurator::adapter::is_bridge(p));
-                    if ui.add_enabled(ready, egui::Button::new("Read All")).clicked() { self.hardware(Operation::BridgeReadAll); }
+                    if ui.add_enabled(ready, egui::Button::new("Read now")).clicked() { self.hardware(Operation::BridgeReadAll); }
                     if ui.add_enabled(ready, egui::Button::new("Release console")).clicked() { self.hardware(Operation::ClosePort); }
                 });
                 if let Some(result) = &self.result {
                     ui.label(format!("Verified console: {} firmware {}", result.identity.model, result.identity.firmware));
                     for exception in &result.exceptions { ui.label(format!("Point {}: {} (exception {})", exception.item, exception.message, exception.code)); }
                     if !result.readings.is_empty() {
-                        let profile = self.profiles.iter().find(|profile| profile.matches(result));
+                        let profile = self.profiles.iter().find(|profile| profile.contains_points(result));
                         ui.label("Last completed Read All:");
                         if let Some(profile) = profile { ui.label(format!("Names and units from the matching {} table; attached instrument identity is not established by this match.", profile.info.model)); }
                         else { ui.label("Register names are unavailable for this point table."); }
@@ -248,11 +249,11 @@ impl Configurator {
                             }
                         });
                     }
-                    ui.collapsing("Native point table", |ui| { ui.monospace(&result.native_tsv); });
+                    crate::brand::collapsing(ui, "Native point table", |ui| { ui.monospace(&result.native_tsv); });
 
                 }
                 ui.separator();
-                ui.collapsing("Activity log", |ui| {
+                crate::brand::collapsing(ui, "Activity log", |ui| {
                     ui.weak("Recent manual actions and offline replay. Automatic polling is omitted.");
                     ui.horizontal(|ui| {
                         if ui.add_enabled(!self.replay_log.is_empty(), egui::Button::new("Copy log")).clicked() {
@@ -279,14 +280,8 @@ impl Configurator {
                         });
                     }
                 });
-                ui.collapsing("Bench validation & offline tools", |ui| {
-                    ui.weak("Saved project evidence; this does not describe the current connection.");
-                    egui::Grid::new("bench-validation").spacing([24.0, 8.0]).show(ui, |ui| {
-                        for (device, status) in [("DPT146", "Validated on bench, E5 bridge and Loriot"), ("HMD65 / WND-M1-MB", "Hardware validation pending"), ("IAQ Plus", "Rust migration pending")] {
-                            ui.strong(device); ui.label(status); ui.end_row();
-                        }
-                    });
-                    ui.add_space(12.0);
+                crate::brand::collapsing(ui, "Offline diagnostics", |ui| {
+                    ui.weak("Checks recorded console responses without communicating with connected equipment.");
                     if ui.add_enabled(self.active.is_none(), egui::Button::new("Run offline prompt replay")).clicked() {
                         self.replay_log.clear();
                         let fixture: Command = serde_json::from_str(include_str!("../tests/fixtures/navigation.json")).expect("embedded fixture");
@@ -294,7 +289,7 @@ impl Configurator {
                     }
                     ui.weak("Replay results appear in Activity log.");
                 });
-                ui.label("Point-table programming and backups are in Configurations. Firmware updates are not implemented.");
+                ui.label("Point-table programming and backups are in Configuration. Firmware updates are not implemented.");
                 });
             });
         });

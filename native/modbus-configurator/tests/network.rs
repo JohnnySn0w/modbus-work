@@ -1,0 +1,82 @@
+//! Network composition preserves addressing and encoding across repeated sensors.
+use modbus_configurator::{
+    catalog::{bundled, table_rows},
+    network::{Device, compose, recognize},
+};
+
+#[test]
+fn four_identical_sensors_round_trip_with_unique_points_and_slaves() {
+    let profiles = bundled().unwrap();
+    let index = profiles
+        .iter()
+        .position(|p| p.info.id.contains("dpt146"))
+        .unwrap();
+    let devices: Vec<_> = (1..=4)
+        .map(|slave| Device::new(index, slave, &profiles))
+        .collect();
+    let table = compose(&devices, &profiles).unwrap();
+    let rows = table_rows(&table).unwrap();
+    assert_eq!(rows.len(), 32);
+    assert_eq!(
+        rows.keys().copied().collect::<Vec<_>>(),
+        (1..=32).collect::<Vec<_>>()
+    );
+    for (index, row) in rows.values().enumerate() {
+        let original = profiles[devices[index / 8].profile]
+            .rows
+            .values()
+            .nth(index % 8)
+            .unwrap();
+        assert_eq!(
+            row.split('\t').nth(1).unwrap().parse::<usize>().unwrap(),
+            index / 8 + 1
+        );
+        assert!(row.split('\t').skip(2).eq(original.split('\t').skip(2)));
+    }
+    assert_eq!(recognize(&table, &profiles), Some(devices));
+}
+
+#[test]
+fn subsets_keep_encoding_and_reject_invalid_networks() {
+    let profiles = bundled().unwrap();
+    let mut devices: Vec<_> = (0..4)
+        .map(|index| Device::new(index, index as u8 + 1, &profiles))
+        .collect();
+    for device in &mut devices {
+        device.points = device.points.iter().take(2).copied().collect();
+    }
+    let table = compose(&devices, &profiles).unwrap();
+    assert_eq!(table_rows(&table).unwrap().len(), 8);
+    assert_eq!(recognize(&table, &profiles), Some(devices.clone()));
+    devices[1].slave = devices[0].slave;
+    assert!(compose(&devices, &profiles).is_err());
+    devices[1].slave = 248;
+    assert!(compose(&devices, &profiles).is_err());
+    devices[1].slave = 0;
+    assert!(compose(&devices, &profiles).is_err());
+    devices[1].slave = 2;
+    devices[1].points.clear();
+    assert!(compose(&devices, &profiles).is_err());
+    devices[1].points.insert(255);
+    assert!(compose(&devices, &profiles).is_err());
+    assert!(compose(&[], &profiles).is_err());
+    devices.push(devices[0].clone());
+    assert!(compose(&devices, &profiles).is_err());
+}
+
+#[test]
+fn capacity_and_custom_imports_fail_without_truncation() {
+    let profiles = bundled().unwrap();
+    let index = profiles.iter().position(|p| p.rows.len() > 8).unwrap();
+    let devices: Vec<_> = (1..=4)
+        .map(|slave| Device::new(index, slave, &profiles))
+        .collect();
+    assert!(compose(&devices, &profiles).unwrap_err().contains("32"));
+    let table = compose(&devices[..1], &profiles).unwrap();
+    let mut lines: Vec<String> = table.lines().map(str::to_owned).collect();
+    let mut fields: Vec<String> = lines[1].split('\t').map(str::to_owned).collect();
+    fields[6] = "2".into();
+    lines[1] = fields.join("\t");
+    assert!(recognize(&lines.join("\n"), &profiles).is_none());
+    assert!(recognize("invalid", &profiles).is_none());
+}

@@ -5,6 +5,8 @@ mod app_commands;
 mod app_configuration;
 mod app_events;
 mod app_frame;
+mod app_line_settings;
+mod app_network;
 mod app_settings;
 mod reference_files;
 #[cfg(test)]
@@ -38,6 +40,13 @@ impl Default for Preferences {
     }
 }
 struct Configurator {
+    multi_device: bool,
+    network_devices: Vec<modbus_configurator::network::Device>,
+    network_unrecognized: bool,
+    single_selection: Option<(Option<String>, String, Option<usize>)>,
+    line_settings: Option<modbus_configurator::bridge::LineSettings>,
+    line_draft: Option<modbus_configurator::bridge::LineSettings>,
+    line_applying: bool,
     preferences: Preferences,
     settings_message: String,
     system_region: Option<String>,
@@ -60,6 +69,7 @@ struct Configurator {
     result: Option<BridgeResult>,
     loaded_config: Option<String>,
     backup_path: Option<String>,
+    backup_name: String,
     file_message: String,
     backup_error: String,
     adapter: Option<modbus_configurator::adapter::AdapterResult>,
@@ -86,6 +96,13 @@ impl Configurator {
         profiles: Vec<modbus_configurator::catalog::Profile>,
     ) -> Self {
         Configurator {
+            multi_device: false,
+            network_devices: Vec::new(),
+            network_unrecognized: false,
+            single_selection: None,
+            line_settings: None,
+            line_draft: None,
+            line_applying: false,
             preferences: Preferences::default(),
             settings_message: String::new(),
             system_region: None,
@@ -108,12 +125,13 @@ impl Configurator {
             result: None,
             loaded_config: None,
             backup_path: None,
+            backup_name: String::new(),
             file_message: String::new(),
             backup_error: String::new(),
             adapter: None,
             programming: false,
             programming_blocked: false,
-            config_source: "Remembered TSV selection".into(),
+            config_source: "Remembered configuration selection".into(),
             profiles,
             catalog_view: catalog_view::CatalogView::default(),
             library_open: false,
@@ -196,12 +214,17 @@ fn main() -> eframe::Result {
             }
             if !offline {
                 app.load_preferences();
+                if let Ok(root) = &app.storage_root {
+                    app.technician.load_custom_profiles(root, &app.profiles);
+                }
             }
             app.system_region = units::system_region();
             app.technician.unit_preset =
                 app.preferences.units.resolve(app.system_region.as_deref());
             if std::env::args().any(|arg| arg == "--dark") {
                 app.preferences.dark_mode = Some(true);
+            } else if std::env::args().any(|arg| arg == "--light") {
+                app.preferences.dark_mode = Some(false);
             }
             app.apply_theme(&cc.egui_ctx);
             app.capture = capture_views::Capture::from_args(&app.reference, &app.profiles);
