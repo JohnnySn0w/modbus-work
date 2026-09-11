@@ -22,6 +22,8 @@ Devices shows current or retained data. Read now requests a manual read. Last-go
 
 ## History, settings and help
 
+The HMD65 E5 bridge profiles use one-based manual register numbers and exclude the error-code pair at 514–515. Each contains 11 entries. This convention applies to E5 bridge configuration files; direct Modbus requests and manufacturer reference addresses remain zero-based. Existing backups are preserved without conversion.
+
 History contains up to 50,000 point samples from this session. Choose the measurement/route; axes show native value units and elapsed seconds. Failures leave gaps. Export a comma-separated values file (.csv) before closing if the history is needed later.
 
 Settings: System/Light/Dark theme; System/United States/United Kingdom/Europe unit defaults; automatic polling. System units select the United States preset for that Windows region, the United Kingdom preset for that region, and the Europe preset for other or unavailable regions. The United States preset uses degrees Fahrenheit and pounds per square inch absolute where applicable. The United Kingdom preset uses degrees Celsius and bar; Europe uses degrees Celsius and kilopascals. Explicit register overrides last for the session. Polling off stops future automatic requests after the current operation finishes; it does not stop the E5 bridge from requesting readings on its serial bus.

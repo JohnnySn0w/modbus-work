@@ -19,13 +19,12 @@
     "model": "HMD65",
     "manufacturer": "Vaisala",
     "status": "to-test",
-    "summary": "Twelve-point documentation-derived test configuration. No physical HMD65 has been validated; this profile is not deployable.",
+    "summary": "Eleven-entry E5 bridge configuration using one-based register numbers. Error-code registers 514-515 are excluded.",
     "serial": "Candidate only: slave 1, 19200 baud, 8N1. Actual settings follow physical DIP switches. Float order HH is an unverified first candidate.",
     "help": [
-      "Suggested: confirm Modbus RTU mode, slave address, baud and parity from the HMD65 DIP settings (Vaisala M212264EN-B).",
-      "Suggested: prefer the documented float32 bank; metric starts at 1 and non-metric starts at 129. Addresses sent on the wire are one lower.",
-      "Suggested: check device and measurement status bitfields; error code occupies 514\u2013515.",
-      "Suggested: confirm unit bank and word order against a known measurement before programming an E5 bridge profile."
+      "E5 bridge tables use manual register numbers: metric measurements start at 1; non-metric measurements start at 129.",
+      "Error-code registers 514-515 are excluded from E5 bridge programming.",
+      "Match the slave address and serial settings to the sensor. Floating-point word order still requires verification."
     ],
     "source": "artifacts/device-profiles/to-test/vaisala-hmd65.yaml"
   },
@@ -46,22 +45,21 @@
   },
   {
     "id": "hmd65-nonmetric",
-    "model": "HMD65 \u2014 non-metric float32",
+    "model": "HMD65 — non-metric float32",
     "manufacturer": "Vaisala",
     "status": "to-test",
-    "summary": "Documentation-derived non-metric float bank, registers 129\u2013144, with shared status registers. Verification pending.",
+    "summary": "Eleven-entry E5 bridge configuration using one-based register numbers. Error-code registers 514-515 are excluded.",
     "serial": "Candidate only: slave 1, 19200 baud, 8N1. Actual settings follow physical DIP switches. Float order HH is an unverified first candidate.",
     "help": [
-      "Suggested: confirm Modbus RTU mode, slave address, baud and parity from the HMD65 DIP settings (Vaisala M212264EN-B).",
-      "Suggested: prefer the documented float32 bank; metric starts at 1 and non-metric starts at 129. Addresses sent on the wire are one lower.",
-      "Suggested: check device and measurement status bitfields; error code occupies 514\u2013515.",
-      "Suggested: confirm unit bank and word order against a known measurement before programming an E5 bridge profile."
+      "E5 bridge tables use manual register numbers: metric measurements start at 1; non-metric measurements start at 129.",
+      "Error-code registers 514-515 are excluded from E5 bridge programming.",
+      "Match the slave address and serial settings to the sensor. Floating-point word order still requires verification."
     ],
     "source": "Vaisala HMD65 Quick Guide M212264EN-B, Measurement Data Registers"
   },
   {
     "id": "ati-f12",
-    "model": "ATI F12 \u2014 PAA",
+    "model": "ATI F12 — PAA",
     "manufacturer": "ATI",
     "status": "to-test",
     "summary": "Documentation-derived PAA gas transmitter profile. Concentration engineering units and range must match the installed PAA module; verification pending.",

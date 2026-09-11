@@ -54,3 +54,24 @@ fn corrupted_library_disables_saving_without_overwriting_the_file() {
     assert_eq!(std::fs::read(&path).unwrap(), b"broken file");
     std::fs::remove_dir_all(root).unwrap();
 }
+
+#[test]
+fn hmd65_bridge_values_keep_reference_mapping_with_one_based_tables() {
+    let a = app();
+    for index in [1, 3] {
+        let profile = &a.profiles[index];
+        let mut result = read(&a, 45.0);
+        result.native_tsv = profile.native_tsv.clone();
+        let address = profile.point_register(1).unwrap().range().unwrap().0;
+        let register = a.reference.registers["hmd65"]
+            .iter()
+            .find(|r| r.first_pdu() == Some(address))
+            .unwrap();
+        assert_eq!(value(Some(profile), Some(&result), register), Some(45.0));
+        let error = a.reference.registers["hmd65"]
+            .iter()
+            .find(|r| r.name == "Error code")
+            .unwrap();
+        assert_eq!(value(Some(profile), Some(&result), error), None);
+    }
+}

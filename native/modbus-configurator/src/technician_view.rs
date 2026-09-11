@@ -112,8 +112,8 @@ fn value(
     let profile = profile?;
     let result = result.filter(|r| profile.contains_points(r))?;
     let address = register.first_pdu()?;
-    profile.rows.iter().find_map(|(item, row)| {
-        let pdu = row.split('\t').nth(3)?.parse::<u16>().ok()?;
+    profile.rows.keys().find_map(|item| {
+        let pdu = profile.point_register(*item)?.range().ok()?.0;
         (pdu == address)
             .then(|| {
                 result

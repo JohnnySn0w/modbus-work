@@ -79,7 +79,7 @@ fn bundled_artifacts_have_expected_lifecycle_and_complete_point_mapping() {
     assert_eq!(profiles.len(), 5);
     assert_eq!(
         profiles.iter().map(|p| p.rows.len()).collect::<Vec<_>>(),
-        [8, 12, 12, 12, 13]
+        [8, 11, 12, 11, 13]
     );
     assert_eq!(profiles[0].info.status, Validation::Validated);
     assert!(
@@ -269,7 +269,7 @@ fn alternate_bank_and_gas_profile_preserve_wire_addresses_and_word_widths() {
         assert_eq!(r.range().unwrap(), (address, address + 1));
         assert_eq!(r.units, unit);
     }
-    assert!(hmd.rows.values().any(|row| row.contains("\t513\tS32\t")));
+    assert!(!hmd.rows.values().any(|row| row.contains("\tS32\t")));
     let ati = &profiles[4];
     assert_eq!(ati.point_register(8).unwrap().range().unwrap(), (42, 43));
     assert!(ati.rows[&8].contains("\t42\tF32\tHL\t"));
@@ -278,4 +278,22 @@ fn alternate_bank_and_gas_profile_preserve_wire_addresses_and_word_widths() {
     assert_eq!(fault.decode(Some(32)), "gas sensor removed");
     assert_eq!(fault.decode(Some(0)), "No flags set");
     assert_eq!(reference.devices["ati-f12"].help_setup, ["TBD"]);
+}
+
+#[test]
+fn hmd65_bridge_tables_use_manual_numbers_and_exclude_error_code() {
+    for profile in catalog::bundled()
+        .unwrap()
+        .iter()
+        .filter(|p| p.info.id.starts_with("hmd65"))
+    {
+        assert_eq!(profile.rows.len(), 11);
+        for (item, row) in &profile.rows {
+            let address: u16 = row.split('\t').nth(3).unwrap().parse().unwrap();
+            let register = profile.point_register(*item).unwrap();
+            assert_eq!(address, register.range().unwrap().0 + 1);
+            assert!(![514, 515].contains(&address));
+            assert_ne!(register.name, "Error code");
+        }
+    }
 }

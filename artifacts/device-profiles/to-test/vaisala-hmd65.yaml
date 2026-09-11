@@ -36,7 +36,9 @@ bridge:
   model: ENL-MOD-32
   tested_firmware_target: "3.6"
   candidate_file: ../../bridge-config/hmd65-documentation-test.tsv
-  point_count: 12
+  point_count: 11
+  address_convention: one-based-manual-register-number
+  excluded_manual_registers: [514, 515]
   float_word_order_candidate: HH
   float_word_order_status: documentation-does-not-state-register-word-order; verify-live-and-try-HL-if-values-are-implausible
 
@@ -52,9 +54,8 @@ measurements:
 
 status_points:
   - {key: device_status, pdu_address: 512, type: int16, healthy: 0, bridge_item: 9}
-  - {key: error_code, pdu_address: 513, type: int32, healthy: 0, bridge_item: 10}
-  - {key: rh_measurement_status, pdu_address: 517, type: int16, healthy: 0, bridge_item: 11}
-  - {key: temperature_measurement_status, pdu_address: 518, type: int16, healthy: 0, bridge_item: 12}
+  - {key: rh_measurement_status, pdu_address: 517, type: int16, healthy: 0, bridge_item: 10}
+  - {key: temperature_measurement_status, pdu_address: 518, type: int16, healthy: 0, bridge_item: 11}
 
 safety:
   default_mode: read-only

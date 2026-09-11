@@ -147,6 +147,15 @@ impl Profile {
         for (item, row) in &rows {
             let fields: Vec<_> = row.split('\t').collect();
             let address: u16 = fields[3].parse().map_err(|_| "Invalid point address")?;
+            // HMD65 E5 bridge tables use manual register numbers. Keep the
+            // manufacturer's zero-based ranges unchanged for direct Modbus reads.
+            let register_address = if matches!(info.id.as_str(), "hmd65" | "hmd65-nonmetric") {
+                address
+                    .checked_sub(1)
+                    .ok_or("HMD65 E5 bridge addresses start at 1")?
+            } else {
+                address
+            };
             let width = if matches!(fields[4], "U16" | "S16") {
                 1u32
             } else {
@@ -156,7 +165,8 @@ impl Profile {
                 .iter()
                 .position(|r| {
                     r.range().is_ok_and(|(first, last)| {
-                        first == address && u32::from(last) + 1 == u32::from(address) + width
+                        first == register_address
+                            && u32::from(last) + 1 == u32::from(register_address) + width
                     })
                 })
                 .ok_or_else(|| {

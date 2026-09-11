@@ -354,9 +354,14 @@ pub fn poll(
             .iter()
             .find(|p| p.info.id == crate::reference::catalog_id(key))
             .ok_or_else(|| io::Error::other("Missing register profile"))?;
-        for row in profile.rows.values() {
+        for (item, row) in &profile.rows {
             let f: Vec<_> = row.split('\t').collect();
-            let addr = f[3].parse::<u16>().map_err(io::Error::other)?;
+            let addr = profile
+                .point_register(*item)
+                .ok_or_else(|| io::Error::other("Missing register definition"))?
+                .range()
+                .map_err(io::Error::other)?
+                .0;
             let count = if f[4].ends_with("16") { 1 } else { 2 };
             let response = read(3, addr, count);
             (check.borrow_mut())()?;

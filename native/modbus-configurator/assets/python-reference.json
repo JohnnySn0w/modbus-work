@@ -128,7 +128,7 @@
       "subtitle": "Humidity and temperature transmitter",
       "kind": "humidity",
       "status": "Ready to test",
-      "description": "12-register configuration based on the manufacturer documentation. Testing with a connected sensor is pending.",
+      "description": "Eleven-entry E5 bridge configuration using one-based register numbers. Error-code registers 514-515 are excluded.",
       "color": "#73A942",
       "readouts": [
         {
@@ -152,10 +152,10 @@
       "detect_tokens": [],
       "help_setup": [
         "Suggested: confirm Modbus serial mode, slave address, baud rate and parity from the HMD65 configuration switches (Vaisala M212264EN-B).",
-        "Suggested: prefer the documented 32-bit floating-point register group; metric starts at 1 and non-metric starts at 129. Addresses sent on the wire are one lower."
+        "Suggested: prefer the documented 32-bit floating-point register group; metric starts at 1 and non-metric starts at 129. E5 bridge tables use one-based register numbers. Direct Modbus addresses remain zero-based."
       ],
       "help_troubleshooting": [
-        "Suggested: check device and measurement status bitfields; error code occupies 514–515.",
+        "Check device and measurement status. Error-code registers 514-515 are excluded from E5 bridge tables.",
         "Suggested: confirm the unit register group and word order against a known measurement before programming an E5 bridge profile."
       ]
     },

@@ -5,13 +5,14 @@ import re
 
 def extend(document, root):
     devices=document['devices']; regs=document['registers']
+    devices['hmd65']['description']='Eleven-entry E5 bridge configuration using one-based register numbers. Error-code registers 514-515 are excluded.'
     devices['bridge']['name']='E5 bridge'
     devices['bridge']['artifact']=None
     devices['synetica_usb']['name']='E5 bridge'
     devices['synetica_usb']['subtitle']='USB interface awaiting identification'
     devices['iaq_plus']['help_setup']=['TBD']; devices['iaq_plus']['help_troubleshooting']=['TBD']
-    devices['hmd65']['help_setup']=['Suggested: confirm Modbus serial mode, slave address, baud rate and parity from the HMD65 configuration switches (Vaisala M212264EN-B).','Suggested: prefer the documented 32-bit floating-point register group; metric starts at 1 and non-metric starts at 129. Addresses sent on the wire are one lower.']
-    devices['hmd65']['help_troubleshooting']=['Suggested: check device and measurement status bitfields; error code occupies 514–515.','Suggested: confirm the unit register group and word order against a known measurement before programming an E5 bridge profile.']
+    devices['hmd65']['help_setup']=['Suggested: confirm Modbus serial mode, slave address, baud rate and parity from the HMD65 configuration switches (Vaisala M212264EN-B).','Suggested: prefer the documented 32-bit floating-point register group; metric starts at 1 and non-metric starts at 129. E5 bridge tables use one-based register numbers. Direct Modbus addresses remain zero-based.']
+    devices['hmd65']['help_troubleshooting']=['Check device and measurement status. Error-code registers 514-515 are excluded from E5 bridge tables.','Suggested: confirm the unit register group and word order against a known measurement before programming an E5 bridge profile.']
     devices['wattnode']['help_setup']=['Suggested: confirm the WND-M1-MB label and communication settings using WND-M1-MB-Ref-1.10.','Suggested: check current transformer primary ratings and electrical service mapping before interpreting current and power.']
     devices['wattnode']['help_troubleshooting']=['Suggested: compare native floating-point readings and status with the WND-M1-MB reference manual.','Suggested: preserve existing calibration values; do not treat CurrentIntScale as milliamps.']
     ati=copy.deepcopy(devices['hmd65']);ati.update(key='ati-f12',name='ATI F12 — peracetic acid',subtitle='Toxic gas transmitter · peracetic acid sensor module',kind='sensor',status='Ready to test',description='Register configuration for the peracetic acid sensor module. Testing with a connected sensor is pending. Other sensor modules: TBD.',artifact='artifacts/bridge-config/ati-badger-f12-d12-documentation-test.tsv',help_setup=['TBD'],help_troubleshooting=['TBD'])
