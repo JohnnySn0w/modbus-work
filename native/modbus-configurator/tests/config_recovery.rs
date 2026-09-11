@@ -1,18 +1,50 @@
 use modbus_configurator::{config_file as files, contract::PortInfo};
-use std::{fs, path::PathBuf};
+use std::{
+    fs,
+    path::PathBuf,
+    sync::atomic::{AtomicU64, Ordering},
+};
+
+static DIRECTORY_SEQUENCE: AtomicU64 = AtomicU64::new(0);
+
+/// Claim a separate directory for each test, independent of clock resolution.
 fn root() -> PathBuf {
-    let p = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("target")
-        .join(format!(
+    let parent = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("target");
+    fs::create_dir_all(&parent).unwrap();
+    loop {
+        let path = parent.join(format!(
             "backup-recovery-{}-{}",
             std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos()
+            DIRECTORY_SEQUENCE.fetch_add(1, Ordering::Relaxed)
         ));
-    fs::create_dir_all(&p).unwrap();
-    p
+        match fs::create_dir(&path) {
+            Ok(()) => return path,
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+            Err(error) => panic!("Cannot create test directory {}: {error}", path.display()),
+        }
+    }
+}
+
+#[test]
+fn parallel_recovery_tests_have_independent_directories() {
+    let folders: Vec<_> = std::thread::scope(|scope| {
+        let workers: Vec<_> = (0..16).map(|_| scope.spawn(root)).collect();
+        workers
+            .into_iter()
+            .map(|worker| worker.join().unwrap())
+            .collect()
+    });
+    assert_eq!(
+        folders
+            .iter()
+            .collect::<std::collections::BTreeSet<_>>()
+            .len(),
+        16
+    );
+    for folder in folders {
+        assert_eq!(fs::read_dir(&folder).unwrap().count(), 0);
+        fs::remove_dir(folder).unwrap();
+    }
 }
 #[test]
 fn damaged_backup_and_interrupted_write_do_not_destroy_previous_configurations() {
