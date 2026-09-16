@@ -1,5 +1,7 @@
 # Rust coverage
 
+Latest headless measurement, 2026-09-16: **90.53% line coverage**, with all tests and all-target Clippy passing after the network feedback changes. The figures below are retained historical measurements from 2026-09-10; they are not the current report.
+
 Measured after formatting and module refactoring, 2026-09-10: **151 tests pass; 92.40% combined line coverage**. All-target Clippy passes with warnings denied. The earlier test-only baseline was 145 tests / 90.22%; the new combined report includes six additional tests and actual offline Windows GUI startup and capture of 23 views. The fresh headless result is 91.08%; desktop startup/rendering raises combined coverage to 92.40%. These figures have different execution scope.
 
 Run `./tools/Check-Rust.ps1` for headless tests (90% floor), or `./tools/Check-Rust.ps1 -IncludeGui` on a Windows desktop to add startup/rendering coverage (92% combined floor). GUI mode also checks the headless floor before merging. Each run cleans old coverage artifacts first, preventing stale profiles from contributing. The GUI uses the offline backend and isolated application data; no physical serial interfaces are opened.

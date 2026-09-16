@@ -1,6 +1,6 @@
 > Research notes, not operating instructions. Recommendations without cited technical support are unverified. Hardware-specific setup and troubleshooting: **TBD** unless a step is explicitly supported by a cited manufacturer source.
 
-> Review 2026-09-10: documentation-derived register/bench planning material. Physical HMD65, WattNode and ATI acceptance remains pending. ATI F12/PAA now has a native E5 profile; direct ATI adapter support is still pending. Current support: [status](../CURRENT-STATUS.md).
+> Review 2026-09-10: documentation-derived register/bench planning material. Physical HMD65, WattNode and ATI acceptance remains pending. ATI F12/PAA now has a native Modbus Bridge profile; direct ATI adapter support is still pending. Current support: [status](../CURRENT-STATUS.md).
 
 # Remaining device register assessment
 
@@ -29,7 +29,7 @@ These tables are documentation-derived starting points. They have not been bench
 
 The Advantech ADAM-4053 is intentionally excluded. Its useful field data is exposed as coil/discrete I/O, while the Synetica Modbus Bridge supports only function 3 and function 4 reads from holding and input registers. The bridge does not support coils or discrete inputs, so a readable identity block would not provide the required channel data.
 
-The Lighthouse Solair 1100LD is intentionally excluded from bridge configurations and bridge-facing register tables. Its documented serial interface uses Modbus ASCII. The Synetica bridge requires Modbus RTU.
+The Lighthouse Solair 1100LD is intentionally excluded from bridge configurations and bridge-facing register tables. Its documented serial interface uses Modbus ASCII. The Modbus Bridge requires Modbus RTU.
 
 ## Bridge table inclusion rules
 

@@ -126,7 +126,7 @@ pub(super) fn bridge(
                 false,
                 subject,
                 format!(
-                    "{} entries match the reviewed {} encoding. This identifies a configuration, not the attached device. HMD65 E5 bridge tables use their reviewed one-based convention.",
+                    "{} entries match the reviewed {} encoding. This identifies a configuration, not the attached device. HMD65 Modbus Bridge tables use their reviewed one-based convention.",
                     actual.len(),
                     profile.info.model
                 ),
@@ -217,7 +217,7 @@ pub(super) fn bridge(
         add(
             &mut out,
             !s.valid() || s.data_bits != 8,
-            "E5 bridge serial settings",
+            "Modbus Bridge serial settings",
             format!(
                 "{}; timeout {} milliseconds; retries {}; delay {} milliseconds. {}",
                 s.summary(),
@@ -253,7 +253,7 @@ pub(super) fn bridge(
             &mut out,
             false,
             "Serial settings unavailable",
-            "Read the E5 bridge line settings before assessing baud rate, parity, stop bits, or timeout. No settings have been inferred from measurement values.",
+            "Read the Modbus Bridge line settings before assessing baud rate, parity, stop bits, or timeout. No settings have been inferred from measurement values.",
         );
     }
     out

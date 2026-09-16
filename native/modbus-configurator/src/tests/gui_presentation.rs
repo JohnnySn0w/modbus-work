@@ -130,7 +130,7 @@ fn renamed_brand_progress_and_unit_conversion_preserve_native_readings() {
         Some(0.375)
     );
     for stage in [
-        "Reading native E5 bridge point table",
+        "Reading native Modbus Bridge point table",
         "bad (9/8)",
         "bad (0/0)",
         "bad (x/4)",
@@ -265,7 +265,7 @@ fn status_bar_keeps_content_fixed_and_text_clear_of_progress_track() {
             (false, ""),
             (
                 true,
-                "Reading all configured Modbus points through the E5 bridge",
+                "Reading all configured Modbus points through the Modbus Bridge",
             ),
             (true, "Programming selected point table (3/8)"),
             (false, "Backup saved"),

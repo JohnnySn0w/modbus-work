@@ -39,10 +39,11 @@ fn register_for<'a>(
 }
 
 impl TechnicianView {
-    /// Forget interpretations when a different physical E5 bridge supplies results.
+    /// Forget interpretations when a different physical Modbus Bridge supplies results.
     pub fn clear_network_session(&mut self) {
         self.network_types.clear();
         self.network_applied = None;
+        self.slave_failures.clear();
     }
 
     /// Resolve a session override independently for each slave and exact point table.
@@ -79,24 +80,24 @@ impl TechnicianView {
         }
     }
 
-    /// Use operator labels only for the exact table reported by the E5 bridge.
+    /// Use operator labels only for the exact table reported by the Modbus Bridge.
     fn network_selection(&mut self, table: &str, profiles: &[Profile]) -> Vec<network::Device> {
         if self
             .network_draft
             .as_ref()
-            .is_some_and(|(draft, _)| draft == table)
+            .is_some_and(|(draft, _)| table_rows(draft).ok() == table_rows(table).ok())
         {
             self.network_applied = self.network_draft.clone();
         }
         self.network_applied
             .as_ref()
-            .filter(|(applied, _)| applied == table)
+            .filter(|(applied, _)| table_rows(applied).ok() == table_rows(table).ok())
             .map(|(_, devices)| devices.clone())
             .or_else(|| network::recognize(table, profiles))
             .unwrap_or_default()
     }
 
-    /// Present one card per configured slave below its E5 bridge connection.
+    /// Present one card per configured slave below its Modbus Bridge connection.
     pub(super) fn network_readings(
         &mut self,
         ui: &mut egui::Ui,
@@ -107,68 +108,72 @@ impl TechnicianView {
             return;
         };
         let devices = self.network_selection(&result.native_tsv, profiles);
-        ui.strong("E5 bridge · RS-485 network");
+        ui.strong("Modbus Bridge · RS-485 network");
         ui.add_space(8.0);
-        let slaves: BTreeSet<_> = rows
+        let slaves: Vec<_> = rows
             .values()
             .filter_map(|r| r.split('\t').nth(1)?.parse::<u8>().ok())
-            .collect();
+            .fold(Vec::new(), |mut ids, id| {
+                if !ids.contains(&id) {
+                    ids.push(id);
+                }
+                ids
+            });
         ui.horizontal_wrapped(|ui| {
             for slave in slaves {
                 let profile = self.selected_profile(&result.native_tsv, slave, &devices, profiles);
                 let model = profile.map_or(CUSTOM, |p| p.info.model.as_str());
                 ui.push_id(("network", slave), |ui| {
                     ui.group(|ui| {
-                        ui.set_width(285.0);
-                        ui.set_min_height(260.0);
-                        let key = ["dpt146", "hmd65", "wattnode", "ati-f12"]
-                            .into_iter()
-                            .find(|key| {
-                                profile.is_some_and(|p| reference::profile_matches(key, &p.info.id))
-                            })
-                            .unwrap_or("sensor");
-                        crate::device_art::device(ui, key);
-                        ui.strong(format!("{model} · slave {slave}"));
-                        ui.weak("Configured on E5 bridge");
-                        let points: Vec<_> = rows
-                            .iter()
-                            .filter(|(_, row)| {
-                                row.split('\t').nth(1).and_then(|s| s.parse::<u8>().ok())
-                                    == Some(slave)
-                            })
-                            .collect();
-                        let errors = result
-                            .exceptions
-                            .iter()
-                            .filter(|e| points.iter().any(|(item, _)| **item == e.item))
-                            .count();
-                        if !self.bridge_connected || self.bridge_stale {
-                            ui.weak("Last good readings · stale");
-                        } else if errors > 0 {
-                            ui.colored_label(crate::brand::ORANGE, format!("{errors} read errors"));
-                        }
-                        ui.add_space(8.0);
-                        for (item, row) in points.iter().take(3) {
-                            let register = register_for(profile, row);
-                            let name = register
-                                .map_or_else(|| format!("Point {item}"), |r| r.name.clone());
-                            ui.label(format!(
-                                "{name}: {}",
-                                Self::network_value(result, **item, register)
+                        ui.with_layout(egui::Layout::top_down(egui::Align::Min), |ui| {
+                            ui.set_width(285.0);
+                            ui.set_min_height(260.0);
+                            let key = ["dpt146", "hmd65", "wattnode", "ati-f12"]
+                                .into_iter()
+                                .find(|key| {
+                                    profile.is_some_and(|p| {
+                                        reference::profile_matches(key, &p.info.id)
+                                    })
+                                })
+                                .unwrap_or("sensor");
+                            crate::brand::badge(ui, &format!("Slave {slave}"), false);
+                            crate::device_art::device(ui, key);
+                            ui.strong(model);
+                            ui.weak("Configured on Modbus Bridge");
+                            let points: Vec<_> = rows
+                                .iter()
+                                .filter(|(_, row)| {
+                                    row.split('\t').nth(1).and_then(|s| s.parse::<u8>().ok())
+                                        == Some(slave)
+                                })
+                                .collect();
+                            if !self.bridge_connected || self.bridge_stale {
+                                ui.weak("Last good readings · stale");
+                            }
+                            self.slave_health(ui, result, slave);
+                            ui.add_space(8.0);
+                            for (item, row) in points.iter().take(3) {
+                                let register = register_for(profile, row);
+                                let name = register
+                                    .map_or_else(|| format!("Point {item}"), |r| r.name.clone());
+                                ui.label(format!(
+                                    "{name}: {}",
+                                    Self::network_value(result, **item, register)
+                                ));
+                            }
+                            let latest = points
+                                .iter()
+                                .filter_map(|(item, _)| self.bridge_point_times.get(item))
+                                .max();
+                            ui.weak(format!(
+                                "Last reading: {}",
+                                latest.map_or("—", String::as_str)
                             ));
-                        }
-                        let latest = points
-                            .iter()
-                            .filter_map(|(item, _)| self.bridge_point_times.get(item))
-                            .max();
-                        ui.weak(format!(
-                            "Last reading: {}",
-                            latest.map_or("—", String::as_str)
-                        ));
-                        if ui.button("View device").clicked() {
-                            self.reference_context = false;
-                            self.page = Page::Detail(format!("slave:{slave}"));
-                        }
+                            if ui.button("View device").clicked() {
+                                self.reference_context = false;
+                                self.page = Page::Detail(format!("slave:{slave}"));
+                            }
+                        });
                     });
                 });
             }
@@ -192,13 +197,14 @@ impl TechnicianView {
         self.header(
             ui,
             &format!("{model} · slave {slave}"),
-            "Configured on E5 bridge",
+            "Configured on Modbus Bridge",
             Page::Overview,
         );
         let Some(result) = result else {
             ui.label("No readings yet");
             return;
         };
+        self.slave_health(ui, result, slave);
         let selection_key = (result.native_tsv.clone(), slave);
         let mut choice = self
             .network_types
@@ -245,7 +251,7 @@ impl TechnicianView {
             })
             .collect();
         if points.is_empty() {
-            ui.label("This slave is no longer in the E5 bridge point table.");
+            ui.label("This slave is no longer in the Modbus Bridge point table.");
             return;
         }
         let matched = points

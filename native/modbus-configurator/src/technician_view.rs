@@ -1,5 +1,6 @@
 //! Device navigation and shared readout presentation.
 mod custom_profiles;
+mod device_health;
 mod device_pages;
 mod network_readings;
 mod overview;
@@ -39,6 +40,11 @@ pub struct TechnicianView {
     pub reference_context: bool,
     pub bridge_stale: bool,
     pub bridge_connected: bool,
+    pub bridge_busy: bool,
+    pub bridge_polling: bool,
+    pub bridge_fault: bool,
+    pub slave_failures: std::collections::BTreeMap<u8, u32>,
+    pub scan_seen: std::collections::BTreeSet<u8>,
     pub configuration_change: Option<String>,
     pub adapter_stale: bool,
     pub bridge_times: std::collections::BTreeMap<u16, String>,
@@ -203,7 +209,7 @@ impl TechnicianView {
                 .copied()
                 .unwrap_or(selected)
                 % options.len();
-            if ui.small_button(format!("Units: {}", options[selected].0)).on_hover_text("Cycle display units. Native readings, history and E5 bridge settings are unchanged.").clicked() {
+            if ui.small_button(format!("Units: {}", options[selected].0)).on_hover_text("Cycle display units. Native readings, history and Modbus Bridge settings are unchanged.").clicked() {
                 selected = (selected + 1) % options.len();
                 self.unit_choices.insert((device.into(), address), selected);
             }
@@ -269,10 +275,10 @@ impl TechnicianView {
                         });
                         ui.weak(match key {
                             "bridge" => "Live reads, point-table program and restore tested on firmware 3.6. Full power-cycle acceptance pending.",
-                            "dpt146" => "Live reads verified through the E5 bridge and the USB Modbus adapter.",
-                            "hmd65" | "wattnode" | "ati-f12" => "E5 bridge preset and direct adapter profile implemented. Hardware validation pending.",
+                            "dpt146" => "Live reads verified through the Modbus Bridge and the USB Modbus adapter.",
+                            "hmd65" | "wattnode" | "ati-f12" => "Modbus Bridge preset and direct adapter profile implemented. Hardware validation pending.",
                             "iaq_plus" => "Reference only. Native IAQ identification, live reads and console backup are not implemented.",
-                            _ => "USB discovery and direct DPT146 reads verified. Polling is blocked while an E5 bridge interface is present.",
+                            _ => "USB discovery and direct DPT146 reads verified. Polling is blocked while a Modbus Bridge interface is present.",
                         });
                     });
                 }

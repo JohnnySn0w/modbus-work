@@ -93,7 +93,7 @@ impl Configurator {
             units::Preset::Uk => "°C · bar(a) · kJ/kg",
             _ => "°C · kPa(a) · kJ/kg",
         });
-        ui.add(egui::Label::new("Applies to device readings and register tables. Individual unit choices take priority. History, exports and E5 bridge configurations retain native units.").wrap());
+        ui.add(egui::Label::new("Applies to device readings and register tables. Individual unit choices take priority. History, exports and Modbus Bridge configurations retain native units.").wrap());
         if ui.button("Reset individual unit choices").clicked() {
             self.technician.reset_unit_overrides();
         }
@@ -117,8 +117,14 @@ impl Configurator {
         }
         ui.add_space(24.0);
         ui.strong("Advanced communication settings");
-        ui.label("Host-side limits in seconds. Changes apply to the next operation; an active operation keeps its current limits. These do not change E5 bridge sensor settings.");
-        let mut communication_changed = false;
+        ui.label("Host-side limits in seconds. Changes apply to the next operation; an active operation keeps its current limits. These do not change Modbus Bridge sensor settings.");
+        let mut communication_changed = ui
+            .checkbox(
+                &mut self.preferences.communication.automatic_scan_budget,
+                "Allow extra scan time for sensor retries",
+            )
+            .changed();
+        ui.weak("Automatic scan budgeting uses at least 15 seconds per register entry plus 30 seconds, or more when the bridge reports longer sensor retries. Disable it to test an exact Read All deadline. A failed scan pauses automatic polling; check the console in Configuration before retrying.");
         egui::Grid::new("communication-settings").show(ui, |ui| {
             for (label, value, range) in [
                 (
@@ -149,7 +155,7 @@ impl Configurator {
                 ui.end_row();
             }
         });
-        ui.weak("A silent initial connection can use two waits: the initial response and one wake attempt. A longer Read All limit allows more time; it does not prove the E5 bridge is still scanning.");
+        ui.weak("A silent initial connection can use two waits: the initial response and one wake attempt. A longer Read All limit allows more time; it does not prove the Modbus Bridge is still scanning.");
         if ui.button("Reset communication defaults").clicked() {
             self.preferences.communication = Default::default();
             communication_changed = true;

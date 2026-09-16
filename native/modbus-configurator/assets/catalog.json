@@ -4,36 +4,52 @@
     "model": "DPT146",
     "manufacturer": "Vaisala",
     "status": "validated",
-    "summary": "Eight-point configuration validated by direct reads, E5 bridge import/readback, reboot persistence, and decoded Loriot data. This evidence belongs to the tested configuration; it does not identify a newly attached instrument.",
-    "serial": "Validated unit: slave 1, 19200 baud, 8N2. E5 bridge float order HL (low register word first).",
+    "summary": "Eight-point configuration validated by direct reads, Modbus Bridge import/readback, reboot persistence, and decoded Loriot data. This evidence belongs to the tested configuration; it does not identify a newly attached instrument.",
+    "serial": "Validated unit: slave 1, 19200 baud, 8N2. Modbus Bridge float order HL (low register word first).",
     "help": [
       "Connect RS-485 to physical connector II. Side-label CH1 and CH2 describe analog outputs, not connectors I and II.",
-      "Do not run the USB-COMi-TB as a second master while the E5 bridge is an active master the same RS-485 bus.",
+      "Do not run the USB-COMi-TB as a second master while the Modbus Bridge is an active master the same RS-485 bus.",
       "Healthy fault and online status values are both 1. Error code 0 means no errors.",
       "A table match confirms configuration correspondence only. Confirm the physical label, wiring, plausible measurements, and Loriot payload separately."
     ],
-    "source": "artifacts/bridge-config/vaisala-dpt146-manifest.yaml"
+    "source": "artifacts/bridge-config/vaisala-dpt146-manifest.yaml",
+    "confirmed_variants": [
+      {
+        "model": "Vaisala DPT146 · order code B2MBD102A0X",
+        "hardware_revision": null,
+        "firmware": null,
+        "evidence": "Readings verified through Modbus Bridge and USB adapter."
+      }
+    ]
   },
   {
     "id": "hmd65",
     "model": "HMD65",
     "manufacturer": "Vaisala",
     "status": "to-test",
-    "summary": "Eleven-entry E5 bridge configuration using one-based register numbers. Error-code registers 514-515 are excluded.",
+    "summary": "Eleven-entry Modbus Bridge configuration using one-based register numbers. Error-code registers 514-515 are excluded.",
     "serial": "Candidate only: slave 1, 19200 baud, 8N1. Actual settings follow physical DIP switches. Float order HH is an unverified first candidate.",
     "help": [
-      "E5 bridge tables use manual register numbers: metric measurements start at 1; non-metric measurements start at 129.",
-      "Error-code registers 514-515 are excluded from E5 bridge programming.",
+      "Modbus Bridge tables use manual register numbers: metric measurements start at 1; non-metric measurements start at 129.",
+      "Error-code registers 514-515 are excluded from Modbus Bridge programming.",
       "Match the slave address and serial settings to the sensor. Floating-point word order still requires verification."
     ],
-    "source": "artifacts/device-profiles/to-test/vaisala-hmd65.yaml"
+    "source": "artifacts/device-profiles/to-test/vaisala-hmd65.yaml",
+    "confirmed_variants": [
+      {
+        "model": "Vaisala HMD65",
+        "hardware_revision": null,
+        "firmware": null,
+        "evidence": "Operation through Modbus Bridge confirmed, 16 Sep 2026. Tested register selection not recorded."
+      }
+    ]
   },
   {
     "id": "wnd-m1-mb",
     "model": "WND-M1-MB",
     "manufacturer": "Continental Control Systems",
     "status": "to-test",
-    "summary": "Twelve native-float points for the WattNode Module for Modbus, WND Series. Documentation candidate bound to WND-M1-MB-Ref-1.10 and documented firmware 1028; hardware validation is pending.",
+    "summary": "Twelve native-float points for WND-M1-MB. Model operation through Modbus Bridge is confirmed; tested hardware and firmware versions are not recorded. Firmware 1028 is a documentation reference, not a tested version.",
     "serial": "Candidate only: slave 1, 19200 baud, 8N1; front-label communication options override these assumptions. Low-word-first values use HL.",
     "help": [
       "Suggested: confirm the WND-M1-MB label and communication settings using WND-M1-MB-Ref-1.10.",
@@ -41,32 +57,56 @@
       "Suggested: compare native float readings and status with the WND-M1-MB reference manual.",
       "Suggested: preserve existing calibration values; do not treat CurrentIntScale as milliamps."
     ],
-    "source": "artifacts/device-profiles/to-test/wattnode-wnd-m1-mb.yaml"
+    "source": "artifacts/device-profiles/to-test/wattnode-wnd-m1-mb.yaml",
+    "confirmed_variants": [
+      {
+        "model": "WattNode WND-M1-MB",
+        "hardware_revision": null,
+        "firmware": null,
+        "evidence": "Operation through Modbus Bridge confirmed, 16 Sep 2026. Tested register selection not recorded."
+      }
+    ]
   },
   {
     "id": "hmd65-nonmetric",
     "model": "HMD65 — non-metric float32",
     "manufacturer": "Vaisala",
     "status": "to-test",
-    "summary": "Eleven-entry E5 bridge configuration using one-based register numbers. Error-code registers 514-515 are excluded.",
+    "summary": "Eleven-entry Modbus Bridge configuration using one-based register numbers. Error-code registers 514-515 are excluded.",
     "serial": "Candidate only: slave 1, 19200 baud, 8N1. Actual settings follow physical DIP switches. Float order HH is an unverified first candidate.",
     "help": [
-      "E5 bridge tables use manual register numbers: metric measurements start at 1; non-metric measurements start at 129.",
-      "Error-code registers 514-515 are excluded from E5 bridge programming.",
+      "Modbus Bridge tables use manual register numbers: metric measurements start at 1; non-metric measurements start at 129.",
+      "Error-code registers 514-515 are excluded from Modbus Bridge programming.",
       "Match the slave address and serial settings to the sensor. Floating-point word order still requires verification."
     ],
-    "source": "Vaisala HMD65 Quick Guide M212264EN-B, Measurement Data Registers"
+    "source": "Vaisala HMD65 Quick Guide M212264EN-B, Measurement Data Registers",
+    "confirmed_variants": [
+      {
+        "model": "Vaisala HMD65",
+        "hardware_revision": null,
+        "firmware": null,
+        "evidence": "Operation through Modbus Bridge confirmed, 16 Sep 2026. Tested register selection not recorded."
+      }
+    ]
   },
   {
     "id": "ati-f12",
     "model": "ATI F12 — PAA",
     "manufacturer": "ATI",
     "status": "to-test",
-    "summary": "Documentation-derived PAA gas transmitter profile. Concentration engineering units and range must match the installed PAA module; verification pending.",
+    "summary": "ATI F12 transmitter hardware 1.01 and software 1.25 confirmed working through Modbus Bridge. The tested gas module is not recorded. This profile uses peracetic acid; confirm concentration units and range against the installed module.",
     "serial": "Confirm installed address and format. Documentation defaults: slave 1, 9600 baud, 8N1. HL low-word-first float32.",
     "help": [
       "TBD"
     ],
-    "source": "artifacts/register-tables/ati-badger-f12-d12-modbus-register-table.csv; D12/F12 Modbus Interface Manual Rev G"
+    "source": "artifacts/register-tables/ati-badger-f12-d12-modbus-register-table.csv; D12/F12 Modbus Interface Manual Rev G",
+    "confirmed_variants": [
+      {
+        "model": "ATI F12 transmitter",
+        "hardware_revision": "1.01",
+        "firmware": "1.25",
+        "evidence": "Operation through Modbus Bridge confirmed, 16 Sep 2026. Tested register selection not recorded."
+      }
+    ]
   }
 ]

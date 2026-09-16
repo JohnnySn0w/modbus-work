@@ -21,7 +21,7 @@ pub(super) fn export_count(text: &str) -> Result<usize> {
         }
     }
     Err(invalid(
-        "E5 bridge menu did not report a valid point count.",
+        "Modbus Bridge menu did not report a valid point count.",
     ))
 }
 
@@ -64,7 +64,7 @@ pub fn parse_export(text: &str, expected_count: usize) -> Result<BTreeMap<u8, St
     }
     if rows.len() != expected_count || expected_count > 32 {
         return Err(invalid(
-            "Export row count does not match the E5 bridge menu.",
+            "Export row count does not match the Modbus Bridge menu.",
         ));
     }
     Ok(rows)
@@ -76,6 +76,15 @@ pub fn parse_export(text: &str, expected_count: usize) -> Result<BTreeMap<u8, St
 pub fn parse_point_report(
     text: &str,
     rows: &BTreeMap<u8, String>,
+) -> Result<(Vec<Reading>, Vec<PointException>)> {
+    point_report(text, rows, false)
+}
+
+/// In-flight output may omit unfinished points; all reported headers still require validation.
+pub(super) fn point_report(
+    text: &str,
+    rows: &BTreeMap<u8, String>,
+    partial: bool,
 ) -> Result<(Vec<Reading>, Vec<PointException>)> {
     if !text.contains("--- [") && !text.contains("--- Reading:") {
         return parse_readings(text, rows).map(|readings| (readings, vec![]));
@@ -165,7 +174,7 @@ pub fn parse_point_report(
             }
         }
     }
-    if outcomes.len() != rows.len() {
+    if !partial && outcomes.len() != rows.len() {
         return Err(invalid(
             "Detailed read did not return every configured point.",
         ));
@@ -185,7 +194,7 @@ pub fn parse_point_report(
 fn parse_readings(text: &str, rows: &BTreeMap<u8, String>) -> Result<Vec<Reading>> {
     if text.to_ascii_lowercase().contains("--- exception:") {
         return Err(invalid(
-            "The E5 bridge reported Modbus exceptions. Check the configured register addresses against the connected instrument.",
+            "The Modbus Bridge reported Modbus exceptions. Check the configured register addresses against the connected instrument.",
         ));
     }
     let mut readings = BTreeMap::new();
@@ -203,7 +212,7 @@ fn parse_readings(text: &str, rows: &BTreeMap<u8, String>) -> Result<Vec<Reading
             .filter(|s| !s.is_empty())
             .collect();
         if tokens.len() != 2 {
-            return Err(invalid("Malformed E5 bridge reading."));
+            return Err(invalid("Malformed Modbus Bridge reading."));
         }
         let item = tokens[0]
             .parse::<u8>()
@@ -214,7 +223,7 @@ fn parse_readings(text: &str, rows: &BTreeMap<u8, String>) -> Result<Vec<Reading
         if !value.is_finite() || !rows.contains_key(&item) || readings.insert(item, value).is_some()
         {
             return Err(invalid(
-                "Duplicate, unexpected, or non-finite E5 bridge reading.",
+                "Duplicate, unexpected, or non-finite Modbus Bridge reading.",
             ));
         }
     }

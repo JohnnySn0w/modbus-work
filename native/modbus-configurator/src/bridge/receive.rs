@@ -84,6 +84,7 @@ impl BridgeSession {
                         ));
                     }
                     self.parser.feed(&bytes[..count]);
+                    self.publish_scan_progress();
                     last_data = Instant::now();
                 }
                 Err(e)

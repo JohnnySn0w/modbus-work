@@ -8,11 +8,11 @@ From the repository root:
 ./tools/Test-WindowsPackage.ps1 -ZipPath artifacts/releases/<package>.zip
 ```
 
-Check-Rust runs locked/offline MSVC Clippy with warnings denied and the complete instrumented test suite with an 89.5% line-coverage floor. See [coverage](../../docs/RUST-COVERAGE.md). Build-WindowsPackage uses target/portable-build, embeds resources, inspects imports and produces a timestamped folder/ZIP/checksum with licenses. Rust MSVC and llvm-tools-preview are development dependencies.
+Check-Rust runs locked/offline MSVC Clippy with warnings denied and the complete instrumented test suite with an 90% line-coverage floor. See [coverage](../../docs/RUST-COVERAGE.md). Build-WindowsPackage uses target/portable-build, embeds resources, inspects imports and produces a timestamped folder/ZIP/checksum with licenses. Rust MSVC and llvm-tools-preview are development dependencies.
 
-Launch Polygon Device Configurator.exe from the extracted package. Close previous instances first. No Python or PowerShell is needed at runtime. Hardware discovery uses USB metadata and protocol validation, not fixed COM numbers. Shared-bus direct adapter access requires the E5 bridge switched off.
+Launch Polygon Device Configurator.exe from the extracted package. Close previous instances first. No Python or PowerShell is needed at runtime. Hardware discovery uses USB metadata and protocol validation, not fixed COM numbers. Shared-bus direct adapter access requires the Modbus Bridge switched off.
 
-The package smoke test runs the actual extracted executable with isolated application data and restricted PATH. --offline disables hardware; --capture-views writes real rendered views, and --exit-after-capture completes offline capture. Currently 23 views. No sample sensor data is injected by this mode.
+The package smoke test runs the actual extracted executable with isolated application data and restricted PATH. --offline disables hardware; --capture-views writes real rendered views, and --exit-after-capture completes offline capture. Currently 34 views. No sample sensor data is injected by this mode.
 
 [Operator guide](../../docs/OPERATOR-GUIDE.md) covers configuration, history and settings. [Current support](../../CURRENT-STATUS.md) distinguishes implementations from physical acceptance. Storage is `%LOCALAPPDATA%/Polygon/Device Configurator/` (Settings.json, Selected.tsv, Backups).
 

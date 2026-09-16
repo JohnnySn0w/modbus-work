@@ -135,7 +135,7 @@ fn bridge_appearing_mid_batch_stops_before_next_request() {
             || {
                 checks += 1;
                 if checks == 3 {
-                    Err(io::Error::other("E5 bridge attached"))
+                    Err(io::Error::other("Modbus Bridge attached"))
                 } else {
                     Ok(())
                 }
@@ -171,7 +171,7 @@ impl Backend for GuardBackend {
         Ok(vec![port(false), port(true)])
     }
     fn open(&self, _: &str) -> io::Result<Box<dyn Transport>> {
-        panic!("E5 bridge transport must not be used")
+        panic!("Modbus Bridge transport must not be used")
     }
     fn open_adapter(&self, _: &str, _: Settings) -> io::Result<Box<dyn Bus>> {
         self.opens.fetch_add(1, Ordering::SeqCst);
@@ -364,7 +364,7 @@ fn adapter_replaced_between_selection_and_worker_start_is_not_opened() {
             Ok(vec![p])
         }
         fn open(&self, _: &str) -> io::Result<Box<dyn Transport>> {
-            panic!("Unexpected E5 bridge open")
+            panic!("Unexpected Modbus Bridge open")
         }
         fn open_adapter(&self, _: &str, _: Settings) -> io::Result<Box<dyn Bus>> {
             self.opens.fetch_add(1, Ordering::SeqCst);

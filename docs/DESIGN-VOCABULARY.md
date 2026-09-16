@@ -8,7 +8,7 @@ Device Configurator; recommendations below are distinguished from implemented wo
 | Section | Purpose | Contents |
 | --- | --- | --- |
 | Devices | Connection and measurement status | Physical devices, routes, readings, timestamps and communication state |
-| Configuration | E5 bridge programming | Target, selected point table, changes, programming, backup and restore |
+| Configuration | Modbus Bridge programming | Target, selected point table, changes, programming, backup and restore |
 | History | Measurement history | Recorded series, units, timestamps, gaps and export |
 | References | Model capabilities | Model descriptions, register maps and manufacturer manuals |
 | Troubleshooting | Fault diagnosis | Application and device setup and recovery guidance |
@@ -29,7 +29,7 @@ visible without repeating long explanations beside every reading.
   adapter interlock. Each contains the state and the next useful action.
 - Hover outlines use blue/cyan; orange is reserved for attention.
 - Diagnostics uses "Read now", matching device actions. Backup explicitly names
-  the E5 bridge. Configuration references use the actual singular navigation label.
+  the Modbus Bridge. Configuration references use the actual singular navigation label.
 - Detail headings can wrap. Screenshot capture includes model-reference details
   separately from physical-device details.
 

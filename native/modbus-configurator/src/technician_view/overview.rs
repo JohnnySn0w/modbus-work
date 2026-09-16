@@ -35,7 +35,7 @@ impl TechnicianView {
         if nodes.is_empty() {
             ui.group(|ui| {
                 ui.heading("No devices connected");
-                ui.label("Connect an E5 bridge or USB-COMi-TB to get started.");
+                ui.label("Connect a Modbus Bridge or USB-COMi-TB to get started.");
             });
         }
         for (interfaces, heading) in [(true, "Connections"), (false, "Sensors")] {
@@ -53,6 +53,48 @@ impl TechnicianView {
                             ui.with_layout(egui::Layout::top_down(egui::Align::Min), |ui| {
                                 ui.set_width(285.0);
                                 ui.set_min_height(210.0);
+                                if *key == "bridge" {
+                                    let (label, warning) = if self.bridge_busy {
+                                        (
+                                            if self.bridge_polling {
+                                                "Polling"
+                                            } else {
+                                                "Communicating"
+                                            },
+                                            false,
+                                        )
+                                    } else if self.bridge_fault {
+                                        ("Not responding · check connection", true)
+                                    } else if self.bridge_connected {
+                                        ("Ready", false)
+                                    } else {
+                                        ("Disconnected", true)
+                                    };
+                                    crate::brand::badge(ui, label, warning);
+                                } else if !interfaces {
+                                    let slave = direct
+                                        .filter(|d| d.key == *key)
+                                        .map(|d| d.settings.slave)
+                                        .or_else(|| {
+                                            result.and_then(|r| {
+                                                r.native_tsv
+                                                    .lines()
+                                                    .nth(1)?
+                                                    .split('\t')
+                                                    .nth(1)?
+                                                    .parse::<u8>()
+                                                    .ok()
+                                            })
+                                        });
+                                    if let Some(slave) = slave {
+                                        crate::brand::badge(ui, &format!("Slave {slave}"), false);
+                                        if direct.is_none_or(|d| d.key != *key)
+                                            && let Some(result) = result
+                                        {
+                                            self.slave_health(ui, result, slave);
+                                        }
+                                    }
+                                }
                                 Self::icon(ui, device);
                                 ui.label(RichText::new(&device.name).strong().size(17.0));
                                 if matches!(*key, "dpt146" | "hmd65" | "wattnode" | "ati-f12")
@@ -200,7 +242,7 @@ impl TechnicianView {
                         reference::profile_matches(key, &p.info.id)
                             && result.is_some_and(|r| p.contains_points(r))
                     }) {
-                        nodes.push((key, "Configured on E5 bridge".into()));
+                        nodes.push((key, "Configured on Modbus Bridge".into()));
                     }
                 }
             }
@@ -223,7 +265,7 @@ impl TechnicianView {
             nodes.push((
                 "adapter",
                 if bridge.is_some() {
-                    format!("{} · paused while E5 bridge is connected", port.port)
+                    format!("{} · paused while Modbus Bridge is connected", port.port)
                 } else {
                     format!("{} · USB adapter available", port.port)
                 },

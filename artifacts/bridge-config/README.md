@@ -1,10 +1,10 @@
 > Current runtime: native Rust supports five bundled profiles (DPT146, HMD65 metric, HMD65 non-metric, WND-M1-MB and ATI F12/PAA). DPT146 is locally validated; other profiles await hardware. TSVs do not contain serial framing or radio settings.
 
-# Polygon/Synetica E5 bridge configuration artifacts
+# Polygon/Synetica Modbus Bridge configuration artifacts
 
 ## Historical pre-correction export
 
-`enl-mod-32-firmware-3.6-historical-precorrection-export.tsv` is the configuration exported read-only from the E5 bridge / Synetica ENL-MOD-32 before this project corrected its DPT146 point mapping.
+`enl-mod-32-firmware-3.6-historical-precorrection-export.tsv` is the configuration exported read-only from the Modbus Bridge / Synetica ENL-MOD-32 before this project corrected its DPT146 point mapping.
 
 Bridge-wide Modbus settings observed with this export:
 
@@ -36,7 +36,7 @@ This file records the original state only. Do not import it as a DPT146 profile:
 
 ## Validation status
 
-The validated table was imported into the Polygon/Synetica E5 bridge and verified using its detailed read function: 8 successful reads, 0 exceptions. The E5 bridge now contains the corrected configuration.
+The validated table was imported into the Polygon/Synetica Modbus Bridge and verified using its detailed read function: 8 successful reads, 0 exceptions. The Modbus Bridge now contains the corrected configuration.
 
 The point-table reset and rollback workflow has also been validated. Firmware 3.6 deletes an item when a tab-delimited import row uses Slave ID `0`. All eight points were deleted, the validated table was restored, all reads passed, and the restored configuration persisted across a bridge reboot. See `enl-mod-32-config-reset-restore-validation.md`.
 

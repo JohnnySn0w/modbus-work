@@ -1,4 +1,4 @@
-//! E5 bridge service scenarios using the shared scripted transport.
+//! Modbus Bridge service scenarios using the shared scripted transport.
 use super::*;
 
 #[test]
@@ -77,7 +77,7 @@ fn inventory_and_cancellation_remain_responsive_while_port_is_busy() {
     service.send(command(1, Operation::BridgeExport)).unwrap();
     loop {
         let event = service.events.recv_timeout(Duration::from_secs(1)).unwrap();
-        if matches!(event.kind, EventKind::Progress { stage } if stage == "Checking E5 bridge console and identity")
+        if matches!(event.kind, EventKind::Progress { stage } if stage == "Checking Modbus Bridge console and identity")
         {
             break;
         }

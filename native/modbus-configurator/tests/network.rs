@@ -5,6 +5,30 @@ use modbus_configurator::{
 };
 
 #[test]
+fn thirty_two_partial_devices_preserve_nonsequential_slave_mapping() {
+    let profiles = bundled().unwrap();
+    let devices: Vec<_> = (1..=32)
+        .rev()
+        .map(|slave| {
+            let mut device = Device::new(0, slave, &profiles);
+            device.points = [1].into();
+            device
+        })
+        .collect();
+    let table = compose(&devices, &profiles).unwrap();
+    assert_eq!(recognize(&table, &profiles), Some(devices.clone()));
+    for (row, device) in table_rows(&table).unwrap().values().zip(&devices) {
+        assert_eq!(
+            row.split('\t').nth(1),
+            Some(device.slave.to_string().as_str())
+        );
+    }
+    let mut excess = devices;
+    excess.push(Device::new(0, 33, &profiles));
+    assert!(compose(&excess, &profiles).is_err());
+}
+
+#[test]
 fn four_identical_sensors_round_trip_with_unique_points_and_slaves() {
     let profiles = bundled().unwrap();
     let index = profiles

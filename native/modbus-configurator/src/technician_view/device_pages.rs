@@ -75,7 +75,7 @@ impl TechnicianView {
             crate::brand::attention(
                 ui,
                 "Adapter reads blocked",
-                "Switch the E5 bridge off with its hardware switch before direct adapter reads. External power can remain connected.",
+                "Switch the Modbus Bridge off with its hardware switch before direct adapter reads. External power can remain connected.",
             );
         }
         let profile = profiles
@@ -118,7 +118,7 @@ impl TechnicianView {
         } else if direct.is_some() {
             "Connected through USB adapter"
         } else if matches!(key.as_str(), "dpt146" | "hmd65" | "wattnode" | "ati-f12") {
-            "Configured through E5 bridge · sensor identity unverified"
+            "Configured through Modbus Bridge · sensor identity unverified"
         } else if key == "synetica_usb" {
             "Connected · not identified"
         } else {
@@ -308,7 +308,7 @@ impl TechnicianView {
                 && result.successful_reads.is_some()
             {
                 crate::brand::collapsing(&mut columns[1], "Point results", |ui| {
-                    egui::Grid::new("E5 bridge-point-results").striped(true).show(
+                    egui::Grid::new("Modbus Bridge-point-results").striped(true).show(
                         ui,
                         |ui| {
                             ui.strong("Point");
@@ -357,7 +357,7 @@ impl TechnicianView {
                     );
                 });
             }
-            if columns[1].button("Configure E5 bridge").clicked() {
+            if columns[1].button("Configure Modbus Bridge").clicked() {
                 self.page = Page::Configurations;
             }
         }

@@ -13,8 +13,18 @@ pub fn collapsing<R>(
     title: impl AsRef<str>,
     contents: impl FnOnce(&mut egui::Ui) -> R,
 ) -> egui::CollapsingResponse<R> {
+    collapsing_id(ui, title.as_ref(), title.as_ref(), contents)
+}
+
+/// Keep expansion stable when the visible title contains a changing count.
+pub fn collapsing_id<R>(
+    ui: &mut egui::Ui,
+    key: impl std::hash::Hash,
+    title: impl AsRef<str>,
+    contents: impl FnOnce(&mut egui::Ui) -> R,
+) -> egui::CollapsingResponse<R> {
     let title = title.as_ref();
-    let id = ui.make_persistent_id(egui::Id::new(title));
+    let id = ui.make_persistent_id(egui::Id::new(&key));
     let open =
         egui::collapsing_header::CollapsingState::load_with_default_open(ui.ctx(), id, false)
             .is_open();
@@ -26,12 +36,25 @@ pub fn collapsing<R>(
             DARK_BLUE
         });
     }
-    let response = egui::CollapsingHeader::new(text).show(ui, contents);
+    let response = egui::CollapsingHeader::new(text)
+        .id_salt(key)
+        .show(ui, contents);
     response
         .header_response
         .clone()
         .on_hover_cursor(egui::CursorIcon::PointingHand);
     response
+}
+
+/// Compact connection or slave label with consistent contrast in both themes.
+pub fn badge(ui: &mut egui::Ui, label: &str, warning: bool) {
+    egui::Frame::new()
+        .fill(if warning { ORANGE } else { DARK_BLUE })
+        .corner_radius(4)
+        .inner_margin(egui::Margin::symmetric(8, 3))
+        .show(ui, |ui| {
+            ui.label(egui::RichText::new(label).color(Color32::WHITE).strong());
+        });
 }
 
 pub fn apply(ctx: &egui::Context) {

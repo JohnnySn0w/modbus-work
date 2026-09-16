@@ -64,15 +64,15 @@ fn activity_log_groups_repeats_and_keeps_recent_events() {
     assert_eq!(a.replay_log.len(), 64);
     assert!(a.replay_log[0].ends_with(" | Event 1"));
     a.replay_log = vec![
-        "E5 bridge verified".into(),
-        "E5 bridge verified".into(),
+        "Modbus Bridge verified".into(),
+        "Modbus Bridge verified".into(),
         "Backup saved".into(),
     ];
     let ctx = egui::Context::default();
     click(&mut a, &ctx, "Activity log");
     let text = draw(&mut a, &ctx);
     assert!(text.contains("2 times"));
-    assert_eq!(text.matches("E5 bridge verified").count(), 1);
+    assert_eq!(text.matches("Modbus Bridge verified").count(), 1);
     click(&mut a, &ctx, "Clear log");
     assert!(a.replay_log.is_empty());
 }

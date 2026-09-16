@@ -1,9 +1,9 @@
 # Build and review files
 
-The latest verified beta is [Polygon Device Configurator](releases/Polygon-Device-Configurator-windows-x64-20260910-184316/). The matching ZIP and SHA-256 checksum are in releases/.
+Published Windows betas are on the [GitHub releases page](https://github.com/JohnnySn0w/modbus-work/releases). Each release includes the executable and a portable package with matching debug symbols.
 
-Older release folders, ZIPs, and checksums, including archived releases, were deleted at the user's request on 2026-09-10. Only this beta remains in the release folders. Extracted package-test copies were also removed; their logs and screenshots remain. Cleanup removed 118 entries totaling 885,805,077 bytes. The local deletion record is review/build-cleanup-latest-only.json.
+For the latest local package, use the root **Polygon Device Configurator** shortcut or `tools/Start-LatestBuild.ps1`. The launcher selects the latest verified build metadata instead of relying on a fixed folder name. Run it with `-ResolveOnly` to print the executable path.
 
-Review logs and screenshots remain in review/. Rust build caches remain under native/modbus-configurator/target/. Source profiles, manuals, and hardware evidence are retained. These generated output directories are excluded from Git.
+`releases/` contains generated package folders, ZIP files and checksums. `review/` contains package-check logs and screenshots. Rust build caches remain under `native/modbus-configurator/target/`. These generated directories are excluded from Git; source profiles and public documentation remain tracked.
 
-The retained beta predates the source-formatting and module-refactor pass. Build the current source with tools/Build-WindowsPackage.ps1 when a new executable is needed.
+Build current source with `tools/Build-WindowsPackage.ps1`; validate a package with `tools/Test-WindowsPackage.ps1 -ZipPath <package.zip>`. Local builds are independent of GitHub releases, which are created by the tagged CI workflow.

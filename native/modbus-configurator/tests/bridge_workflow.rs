@@ -1,4 +1,4 @@
-//! Shared scripted transports and fixtures for E5 bridge workflow tests.
+//! Shared scripted transports and fixtures for Modbus Bridge workflow tests.
 use modbus_configurator::{
     bridge::{BridgeSession, Timing, parse_export},
     contract::*,

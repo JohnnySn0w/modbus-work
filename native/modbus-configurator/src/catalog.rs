@@ -34,6 +34,18 @@ pub struct ProfileInfo {
     pub serial: String,
     pub help: Vec<String>,
     pub source: String,
+    #[serde(default)]
+    pub confirmed_variants: Vec<ConfirmedVariant>,
+}
+
+/// Recorded working hardware, independent of documentation examples or detected identity.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ConfirmedVariant {
+    pub model: String,
+    pub hardware_revision: Option<String>,
+    pub firmware: Option<String>,
+    pub evidence: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -94,11 +106,13 @@ pub struct PointDiff {
 
 pub fn table_rows(tsv: &str) -> Result<BTreeMap<u8, String>, String> {
     if !tsv.is_ascii() {
-        return Err("Native E5 bridge table must be ASCII without a BOM".into());
+        return Err("Native Modbus Bridge table must be ASCII without a BOM".into());
     }
     let mut lines = tsv.lines();
     if lines.next() != Some(HEADER) {
-        return Err("Native E5 bridge table header does not match the eight-column format".into());
+        return Err(
+            "Native Modbus Bridge table header does not match the eight-column format".into(),
+        );
     }
     let count = lines.filter(|line| !line.trim().is_empty()).count();
     parse_export(tsv, count).map_err(|error| error.message)
@@ -141,18 +155,18 @@ impl Profile {
         }
         let rows = table_rows(tsv)?;
         if rows.is_empty() {
-            return Err("A profile requires at least one configured E5 bridge point".into());
+            return Err("A profile requires at least one configured Modbus Bridge point".into());
         }
         let mut points = BTreeMap::new();
         for (item, row) in &rows {
             let fields: Vec<_> = row.split('\t').collect();
             let address: u16 = fields[3].parse().map_err(|_| "Invalid point address")?;
-            // HMD65 E5 bridge tables use manual register numbers. Keep the
+            // HMD65 Modbus Bridge tables use manual register numbers. Keep the
             // manufacturer's zero-based ranges unchanged for direct Modbus reads.
             let register_address = if matches!(info.id.as_str(), "hmd65" | "hmd65-nonmetric") {
                 address
                     .checked_sub(1)
-                    .ok_or("HMD65 E5 bridge addresses start at 1")?
+                    .ok_or("HMD65 Modbus Bridge addresses start at 1")?
             } else {
                 address
             };

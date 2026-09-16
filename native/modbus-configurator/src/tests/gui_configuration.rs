@@ -62,9 +62,9 @@ fn all_view_states_render_correct_provenance_and_configuration_review() {
             a.technician.page = Page::Configurations;
             let text = draw(&mut a, &ctx);
             assert!(text.contains("Review changes"));
-            assert!(text.contains("Program E5 bridge"));
+            assert!(text.contains("Program Modbus Bridge"));
             if connected && index == 0 {
-                assert!(text.contains("Matches the E5 bridge"));
+                assert!(text.contains("Matches the Modbus Bridge"));
             }
         }
     }
@@ -155,7 +155,7 @@ fn navigation_and_configuration_buttons_change_state_and_copy_the_exact_table() 
     a.result = Some(read(&a, 21.5));
     a.bridge_source = Some(port());
     a.ports = vec![port()];
-    click(&mut a, &ctx, "Program E5 bridge");
+    click(&mut a, &ctx, "Program Modbus Bridge");
     assert!(a.programming && a.programming_blocked && a.active.is_some());
     std::fs::remove_dir_all(root).unwrap();
 }

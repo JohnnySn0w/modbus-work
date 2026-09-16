@@ -1,4 +1,4 @@
-# E5 bridge serial timing baseline
+# Modbus Bridge serial timing baseline
 
 Read-only Windows bench test on 2026-09-11 using the production Rust transport
 and `capture_read` harness. Windows enumerated one Synetica USB console on COM5
@@ -27,7 +27,7 @@ the sampling frequency without improving individual request latency. Startup
 recovery is a better candidate for further controlled optimization than reducing
 the measurement timeout. No production timing changes were made on this basis.
 
-This is a short test of the currently attached E5 bridge and configured sensor,
+This is a short test of the currently attached Modbus Bridge and configured sensor,
 not an overnight soak, independent sensor identity verification, adapter test,
 or firmware-transfer qualification. Earlier September 10 timings included four
 device exceptions and are not a controlled performance comparison.

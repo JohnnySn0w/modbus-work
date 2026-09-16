@@ -2,7 +2,7 @@
 
 # ENL-MOD-32 configuration reset and restore validation
 
-Validated on 2026-08-28 against Polygon ExactAire-E5 / Synetica ENL-MOD-32 firmware 3.6.
+Validated on 2026-08-28 against Polygon ExactAire-Modbus Bridge / Synetica ENL-MOD-32 firmware 3.6.
 
 ## Menu assessment
 

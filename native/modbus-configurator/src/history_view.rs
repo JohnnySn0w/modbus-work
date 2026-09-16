@@ -176,7 +176,7 @@ impl HistoryView {
                 ui.label("to");
                 ui.label(&samples.last().unwrap().timestamp);
             });
-            ui.weak("Lines also break after more than 30 seconds without a sample. Point definitions identify native units and register settings; raw E5 bridge tables may not name a unit.");
+            ui.weak("Lines also break after more than 30 seconds without a sample. Point definitions identify native units and register settings; raw Modbus Bridge tables may not name a unit.");
         }
         ui.add_space(12.0);
         ui.strong("Latest samples");

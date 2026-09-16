@@ -38,7 +38,7 @@ before closing to retain samples. Replacing the application folder does not
 delete saved settings or backups.
 
 Current support:
-- E5 bridge firmware 3.6 and Vaisala DPT146 readings, programming and restore tested.
+- Modbus Bridge firmware 3.6 and Vaisala DPT146 readings, programming and restore tested.
 - HMD65/WattNode presets and direct USB adapter reads implemented; hardware
   qualification remains pending.
 - IAQ is reference-only. Firmware flashing and radio writes are unavailable.

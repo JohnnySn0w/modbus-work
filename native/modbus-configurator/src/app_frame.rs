@@ -82,6 +82,12 @@ impl Configurator {
                 .iter()
                 .any(|p| modbus_configurator::adapter::same_route(p, source))
         });
+        self.technician.bridge_busy = self.active.is_some()
+            && self
+                .ports
+                .iter()
+                .any(|p| p.port == self.selected && modbus_configurator::adapter::is_bridge(p));
+        self.technician.bridge_polling = self.technician.bridge_busy && self.auto_request;
         self.status_bar(ctx);
         egui::CentralPanel::default()
             .frame(

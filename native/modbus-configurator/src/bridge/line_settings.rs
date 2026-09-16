@@ -1,4 +1,4 @@
-//! Downstream RS-485 settings, parsed only from a complete E5 bridge menu.
+//! Downstream RS-485 settings, parsed only from a complete Modbus Bridge menu.
 use super::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -123,20 +123,20 @@ impl BridgeSession {
         if !target.valid() {
             return Err(BridgeError::new(
                 ErrorCode::InvalidRequest,
-                "Unsupported E5 bridge line settings.",
+                "Unsupported Modbus Bridge line settings.",
             ));
         }
         let result = self.run_with_export(expected, false, cancel, &mut progress, |_| {})?;
         let current = self.line_settings().ok_or_else(|| {
             BridgeError::new(
                 ErrorCode::InvalidResponse,
-                "Complete E5 bridge line settings were not received.",
+                "Complete Modbus Bridge line settings were not received.",
             )
         })?;
         if &current != reviewed {
             return Err(BridgeError::new(
                 ErrorCode::UnsafeState,
-                "E5 bridge line settings changed since review. Refresh and review again.",
+                "Modbus Bridge line settings changed since review. Refresh and review again.",
             ));
         }
         if current == *target {
@@ -155,14 +155,14 @@ impl BridgeSession {
                 if value == old {
                     continue;
                 }
-                progress("Applying E5 bridge RS-485 line settings");
+                progress("Applying Modbus Bridge RS-485 line settings");
                 self.require(PromptState::ModbusMenu)?;
                 self.send(&key.to_string(), cancel, deadline, self.timing.response)?;
                 self.require(PromptState::LineSettingInput)?;
                 let command = entry_command(self.parser.text(), key, &value).ok_or_else(|| {
                     BridgeError::new(
                         ErrorCode::InvalidResponse,
-                        "E5 bridge did not offer the selected line setting.",
+                        "Modbus Bridge did not offer the selected line setting.",
                     )
                 })?;
                 self.send(&command, cancel, deadline, self.timing.response)?;
@@ -180,7 +180,7 @@ impl BridgeSession {
                 if actual.fields() != expected_fields {
                     return Err(BridgeError::new(
                         ErrorCode::InvalidResponse,
-                        "E5 bridge line-setting verification failed.",
+                        "Modbus Bridge line-setting verification failed.",
                     ));
                 }
             }
@@ -191,12 +191,12 @@ impl BridgeSession {
             return Err(BridgeError::new(
                 ErrorCode::ProgrammingUncertain,
                 &format!(
-                    "Line settings may be partially applied. Polling is paused; refresh the E5 bridge settings before retrying. {}",
+                    "Line settings may be partially applied. Polling is paused; refresh the Modbus Bridge settings before retrying. {}",
                     error.message
                 ),
             ));
         }
-        progress("E5 bridge line settings applied and verified");
+        progress("Modbus Bridge line settings applied and verified");
         Ok(result)
     }
 }

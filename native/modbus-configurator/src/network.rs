@@ -1,4 +1,4 @@
-//! Compose sensor selections into one E5 bridge table without changing wire addresses.
+//! Compose sensor selections into one Modbus Bridge table without changing wire addresses.
 use crate::catalog::{Profile, table_rows};
 use std::collections::BTreeSet;
 
@@ -23,8 +23,8 @@ impl Device {
 
 /// Validate the entire network before assigning unique bridge point numbers.
 pub fn compose(devices: &[Device], profiles: &[Profile]) -> Result<String, String> {
-    if devices.is_empty() || devices.len() > 4 {
-        return Err("Add between one and four devices.".into());
+    if devices.is_empty() || devices.len() > 32 {
+        return Err("Add between one and 32 devices.".into());
     }
     let mut slaves = BTreeSet::new();
     let mut rows = Vec::new();
@@ -65,11 +65,16 @@ pub fn compose(devices: &[Device], profiles: &[Profile]) -> Result<String, Strin
 /// Unknown/custom rows are never silently dropped or assigned a guessed model.
 pub fn recognize(table: &str, profiles: &[Profile]) -> Option<Vec<Device>> {
     let rows = table_rows(table).ok()?;
-    let slaves: BTreeSet<u8> = rows
+    let slaves: Vec<u8> = rows
         .values()
         .filter_map(|r| r.split('\t').nth(1)?.parse().ok())
-        .collect();
-    if slaves.is_empty() || slaves.len() > 4 {
+        .fold(Vec::new(), |mut ids, id| {
+            if !ids.contains(&id) {
+                ids.push(id);
+            }
+            ids
+        });
+    if slaves.is_empty() || slaves.len() > 32 {
         return None;
     }
     let mut devices = Vec::new();

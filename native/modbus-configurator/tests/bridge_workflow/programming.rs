@@ -1,4 +1,4 @@
-//! E5 bridge programming scenarios using the shared scripted transport.
+//! Modbus Bridge programming scenarios using the shared scripted transport.
 use super::*;
 
 #[test]

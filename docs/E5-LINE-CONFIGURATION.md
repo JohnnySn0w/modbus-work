@@ -1,8 +1,8 @@
-# E5 bridge line settings and sensor addresses
+# Modbus Bridge line settings and sensor addresses
 
 Configuration contains two separate kinds of settings:
 
-- **RS-485 line settings** control the E5 bridge's downstream serial bus.
+- **RS-485 line settings** control the Modbus Bridge's downstream serial bus.
 - **Sensor slave address** controls the ID in the selected point-table TSV.
 
 Neither changes the USB console framing or reconfigures the physical sensor.
@@ -11,7 +11,7 @@ All sensors sharing a bus must agree with the bridge's serial framing.
 ## Line settings
 
 Expand RS-485 line settings in Configuration. Values come from the verified
-E5 bridge menu, including during automatic reads. Read line settings provides
+Modbus Bridge menu, including during automatic reads. Read line settings provides
 an explicit refresh when automatic polling is off. Edit values and use Apply
 line settings; the request queues behind any current automatic read.
 
@@ -48,7 +48,7 @@ tables containing multiple slave IDs, each existing ID has its own field.
 Changing a field updates only rows using that ID. Register addresses, point
 numbers, data types, word order and scaling are preserved.
 
-The edited table is remembered locally. Save TSV, Copy TSV and Program E5 bridge
+The edited table is remembered locally. Save TSV, Copy TSV and Program Modbus Bridge
 all use it. Choosing another bundled preset resets its fields to that preset's
 defaults. Profile recognition permits consistent slave-ID remapping but rejects
 mixing a profile's points across different sensor addresses.
@@ -62,7 +62,7 @@ TSV content and physical device configuration are unchanged.
 
 ## Verification, September 11, 2026
 
-All seven menu prompts were inspected on the attached firmware 3.6 E5 bridge,
+All seven menu prompts were inspected on the attached firmware 3.6 Modbus Bridge,
 reselecting their current values. A first delay-change test stopped because it
 did not yet handle the post-write Continue prompt. Readback confirmed 151 ms;
 the handler was corrected and the original 150 ms setting was restored.

@@ -62,7 +62,7 @@ pub fn normalize(text: &str) -> io::Result<String> {
     let mut lines = text.trim_start_matches('\u{feff}').lines();
     if lines.next() != Some(HEADER) {
         return Err(io::Error::other(
-            "Expected an eight-column, tab-separated E5 bridge configuration file.",
+            "Expected an eight-column, tab-separated Modbus Bridge configuration file.",
         ));
     }
     let rows: Vec<_> = lines.filter(|l| !l.trim().is_empty()).collect();

@@ -44,7 +44,7 @@ impl SerialTransport {
         let fault = Arc::new(Mutex::new(None));
         let failure = fault.clone();
         let worker = std::thread::Builder::new()
-            .name("E5 bridge-serial-io".into())
+            .name("Modbus Bridge-serial-io".into())
             .spawn(move || {
                 let fail = |e: io::Error| {
                     *failure.lock().unwrap() = Some((e.kind(), e.to_string()));
@@ -69,14 +69,14 @@ impl SerialTransport {
                         Ok(0) => {
                             fail(io::Error::new(
                                 io::ErrorKind::UnexpectedEof,
-                                "E5 bridge USB connection closed",
+                                "Modbus Bridge USB connection closed",
                             ));
                             break;
                         }
                         Ok(n) => {
                             if output.try_send(bytes[..n].to_vec()).is_err() {
                                 fail(io::Error::other(
-                                    "E5 bridge receive queue overflow; transaction rejected",
+                                    "Modbus Bridge receive queue overflow; transaction rejected",
                                 ));
                                 break;
                             }
@@ -171,7 +171,7 @@ impl Transport for SerialTransport {
         done.recv_timeout(Duration::from_secs(3)).map_err(|_| {
             io::Error::new(
                 io::ErrorKind::TimedOut,
-                "E5 bridge command write deadline expired",
+                "Modbus Bridge command write deadline expired",
             )
         })?
     }

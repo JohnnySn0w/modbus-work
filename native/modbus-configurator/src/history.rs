@@ -84,7 +84,7 @@ impl History {
                 |e| format!("Exception {}: {}", e.code, e.message),
             );
             let name = profile.and_then(|p| p.point_register(item)).map_or_else(
-                || format!("E5 bridge point {item}"),
+                || format!("Modbus Bridge point {item}"),
                 |r| format!("{} ({})", r.name, r.units),
             );
             self.push(

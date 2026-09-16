@@ -17,12 +17,12 @@ Rust uses rustfmt with the crate's rustfmt.toml. Run `cargo fmt --manifest-path 
 
 - Write clear technical English in interface text and operator instructions. Spell out abbreviations in prose and controls; preserve exact product names, terminal labels, file extensions, protocol tokens and standard measurement symbols where changing them would obscure the technical meaning.
 - Use **TBD** for instructional content that has not been established. Do not invent troubleshooting sequences, default addresses, wiring instructions or expected readings to fill a gap.
-- Instructions require documented technical support. E5 bridge and Vaisala DPT146 guidance can draw on recorded test results. Other device instructions require a specific manufacturer source; label them as documentation-based suggestions until tested. Application instructions must agree with implemented behavior.
+- Instructions require documented technical support. Modbus Bridge and Vaisala DPT146 guidance can draw on recorded test results. Other device instructions require a specific manufacturer source; label them as documentation-based suggestions until tested. Application instructions must agree with implemented behavior.
 - Keep research proposals and historical test records separate from operator instructions. A successful register read does not prove the physical sensor model. A saved profile describes how values are interpreted, not an independently verified identity.
 - Start source modules with `//!` explaining their responsibility and important boundaries.
 - Use `///` on functions to state the contract: what they do, relevant side effects, failure behavior, and any non-obvious preconditions. Public APIs and hardware/storage operations especially need this.
 - A one-line comment is usually enough. Do not repeat the signature in prose or document obvious syntax. Tests should state the behavior they protect; avoid boilerplate doc comments that repeat test names.
-- Say E5 bridge in user-facing text. Use concrete actions and plain status messages. Distinguish queued, running, stale, failed, and completed states.
+- Say Modbus Bridge in user-facing text. Use concrete actions and plain status messages. Distinguish queued, running, stale, failed, and completed states.
 - Explain why a constraint exists when it affects a decision. Keep developer details out of routine user flows.
 - Make each description understandable without development history. Name the equipment, action or limitation directly. Prefer "USB adapter connection" to "transport", "serial port" to "route" when that is the intended meaning, and "hardware testing pending" to "candidate" or "unqualified". Do not imply sensor identification from a configuration match.
 

@@ -93,6 +93,11 @@ impl Configurator {
             );
         let previous_status = self.status.clone();
         match event.kind {
+            EventKind::BridgeSnapshot { result } => {
+                if is_active {
+                    self.apply_bridge_snapshot(result);
+                }
+            }
             EventKind::LineSettings { settings } => {
                 if is_active {
                     if self.line_draft.is_none()
@@ -136,7 +141,7 @@ impl Configurator {
                             if selected_changed {
                                 "USB disconnected or serial port changed"
                             } else {
-                                "Adapter paused: E5 bridge connected"
+                                "Adapter paused: Modbus Bridge connected"
                             },
                             &modbus_configurator::last_good::timestamp(),
                             modbus_configurator::history::now_ms(),
@@ -162,6 +167,7 @@ impl Configurator {
                 }
                 if is_active && self.programming {
                     self.programming = false;
+                    self.programming_blocked = matches!(code, ErrorCode::ProgrammingUncertain);
                     self.auto_paused = true;
                 }
                 if is_active && matches!(code, ErrorCode::ProgrammingUncertain) {
@@ -177,6 +183,16 @@ impl Configurator {
                 }
                 if is_active {
                     self.active = None;
+                    let bridge = self.ports.iter().any(|p| {
+                        p.port == self.selected && modbus_configurator::adapter::is_bridge(p)
+                    });
+                    if bridge {
+                        self.technician.bridge_fault = true;
+                    }
+                    // Do not send new scans into a console that may still be retrying sensors.
+                    if bridge && matches!(code, ErrorCode::Timeout | ErrorCode::Transport) {
+                        self.auto_paused = true;
+                    }
                     self.last_fetch = Instant::now()
                         + Duration::from_secs(
                             self.preferences.communication.bounded().retry_seconds - 5,
@@ -247,11 +263,12 @@ impl Configurator {
             }
             EventKind::BridgeResult { mut result } => {
                 if is_active {
+                    self.technician.bridge_fault = false;
                     self.programming_blocked = false;
                     self.active = None;
                     self.status = match result.successful_reads {
                             Some(count) => format!("{count} successful reads · {} point errors", result.exceptions.len()),
-                            None => "Native point table exported and checked against the E5 bridge point count.".into(),
+                            None => "Native point table exported and checked against the Modbus Bridge point count.".into(),
                         };
                     if self.programming {
                         self.programming = false;
@@ -259,9 +276,9 @@ impl Configurator {
                         self.file_message = if self.line_applying {
                             self.technician.bridge_stale = true;
                             self.line_applying = false;
-                            "E5 bridge line settings applied and verified."
+                            "Modbus Bridge line settings applied and verified."
                         } else {
-                            "E5 bridge point table programmed and verified."
+                            "Modbus Bridge point table programmed and verified."
                         }
                         .into();
                     }
@@ -299,6 +316,7 @@ impl Configurator {
                         self.technician.bridge_times.clear();
                         self.technician.bridge_point_times.clear();
                     }
+                    self.track_slave_failures(&result);
                     let at = modbus_configurator::last_good::timestamp();
                     if let Some(port) = &source {
                         self.history.bridge(

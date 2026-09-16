@@ -68,7 +68,7 @@ impl Backend for SerialBackend {
             .any(|p| crate::adapter::same_route(port, p))
         {
             return Err(std::io::Error::other(
-                "E5 bridge disconnected before line-settings backup",
+                "Modbus Bridge disconnected before line-settings backup",
             ));
         }
         let root = crate::config_file::directory()?.join("Line settings");
@@ -90,7 +90,7 @@ impl Backend for SerialBackend {
         let info = inventory
             .iter()
             .find(|p| crate::adapter::same_route(p, port))
-            .ok_or_else(|| std::io::Error::other("E5 bridge disconnected before backup."))?;
+            .ok_or_else(|| std::io::Error::other("Modbus Bridge disconnected before backup."))?;
         crate::config_file::backup(&crate::config_file::directory()?, info, table).map(Some)
     }
     fn inventory(&self) -> Result<Vec<PortInfo>, String> {
@@ -203,10 +203,15 @@ impl Actor {
                             }
                             if session.is_none() {
                                 emit(EventKind::Progress {
-                                    stage: format!("Opening {port} E5 bridge console"),
+                                    stage: format!("Opening {port} Modbus Bridge console"),
                                 });
                                 session = Some(BridgeSession::new(backend.open(&port)?, timing));
                             }
+                            let scan_events = events.clone();
+                            let request_id = command.request_id;
+                            session.as_mut().unwrap().observe_scan(move |result| {
+                                let _ = scan_events.send(Event { request_id, kind: EventKind::BridgeSnapshot { result } });
+                            });
                             if let Some(settings) = *communication.lock().unwrap_or_else(|e| e.into_inner()) {
                                 let trace_events = events.clone();
                                 let request_id = command.request_id;

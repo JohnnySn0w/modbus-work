@@ -1,4 +1,4 @@
-# WattNode WND-M1-MB documentation-derived E5 bridge test
+# WattNode WND-M1-MB documentation-derived Modbus Bridge test
 
 Status: **testable, not validated, not deployable**.
 

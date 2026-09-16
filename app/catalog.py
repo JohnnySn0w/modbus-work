@@ -55,7 +55,7 @@ DEVICES: dict[str, DeviceDefinition] = {
     ),
     "bridge": DeviceDefinition(
         key="bridge",
-        name="E5 bridge",
+        name="Modbus Bridge",
         subtitle="Synetica ENL-MOD-32 bridge",
         kind="bridge",
         status="Validated",
@@ -120,7 +120,7 @@ DEVICES: dict[str, DeviceDefinition] = {
         help_troubleshooting=(
             "No response: confirm connector II, supply power, common wiring and the configured slave address. Address 1 was used in the recorded test; other installations may differ.",
             "Plausible but wrong readings: use zero-based transmitted register addresses and the word order specified by the reviewed profile.",
-            "Switch the E5 bridge off using its hardware switch before reading through the USB adapter on the same bus. External power can remain connected.",
+            "Switch the Modbus Bridge off using its hardware switch before reading through the USB adapter on the same bus. External power can remain connected.",
             "If status is unhealthy, record raw status registers before changing configuration.",
         ),
     ),

@@ -2,6 +2,7 @@
 mod communication;
 mod line_settings;
 mod receive;
+mod scanning;
 pub use communication::CommunicationSettings;
 mod parsing;
 pub use line_settings::LineSettings;
@@ -93,6 +94,10 @@ pub struct BridgeSession {
     initial_response: Duration,
     read_all_response: Duration,
     trace: Option<TraceSink>,
+    scan_observer: Option<Box<dyn Fn(BridgeResult) + Send>>,
+    scan_table: Option<BridgeResult>,
+    scan_signature: String,
+    scale_scan_timeout: bool,
     received_bytes: usize,
     cached_table: Option<(BridgeResult, Instant)>,
     import_ack: Option<&'static str>,
@@ -155,6 +160,10 @@ impl BridgeSession {
             initial_response: timing.response,
             read_all_response: Duration::from_secs(60),
             trace: None,
+            scan_observer: None,
+            scan_table: None,
+            scan_signature: String::new(),
+            scale_scan_timeout: false,
             received_bytes: 0,
             cached_table: None,
             import_ack: None,
@@ -274,7 +283,7 @@ impl BridgeSession {
         {
             return Err(BridgeError::new(
                 ErrorCode::IdentityMismatch,
-                "The console is not an ENL-MOD-32 E5 bridge.",
+                "The console is not an ENL-MOD-32 Modbus Bridge.",
             ));
         }
         if let Some(firmware) = field("Firmware Ver")
@@ -282,7 +291,7 @@ impl BridgeSession {
         {
             return Err(BridgeError::new(
                 ErrorCode::IdentityMismatch,
-                "This operation supports E5 bridge firmware 3.6 only.",
+                "This operation supports Modbus Bridge firmware 3.6 only.",
             ));
         }
         if let (Some(model), Some(firmware)) = (field("Model Number"), field("Firmware Ver")) {
@@ -326,7 +335,7 @@ impl BridgeSession {
         mut exported: impl FnMut(&str),
     ) -> Result<BridgeResult> {
         let deadline = Instant::now() + self.timing.operation;
-        progress("Checking E5 bridge console and identity");
+        progress("Checking Modbus Bridge console and identity");
         let initial = self.receive(
             cancel,
             deadline.min(Instant::now() + self.initial_response),
@@ -398,13 +407,13 @@ impl BridgeSession {
         let identity = self.identity.clone().ok_or_else(|| {
             BridgeError::new(
                 ErrorCode::IdentityMismatch,
-                "No complete E5 bridge identity banner received. Reconnect the USB console and retry.",
+                "No complete Modbus Bridge identity banner received. Reconnect the USB console and retry.",
             )
         })?;
         if &identity != expected {
             return Err(BridgeError::new(
                 ErrorCode::IdentityMismatch,
-                "E5 bridge identity does not match the requested model and firmware.",
+                "Modbus Bridge identity does not match the requested model and firmware.",
             ));
         }
         // Known non-mutating menus can be left with X. An import prompt must
@@ -438,7 +447,7 @@ impl BridgeSession {
             self.observe_identity()?;
         }
         self.require(PromptState::MainMenu)?;
-        progress("Reading native E5 bridge point table");
+        progress("Reading native Modbus Bridge point table");
         self.send("C", cancel, deadline, self.timing.response)?;
         self.require(PromptState::ModbusMenu)?;
         self.send("M", cancel, deadline, self.timing.response)?;
@@ -498,7 +507,7 @@ impl BridgeSession {
         if current.native_tsv != reviewed {
             return Err(BridgeError::new(
                 ErrorCode::UnsafeState,
-                "The E5 bridge table changed since review. Review the fresh table before programming; no changes were made.",
+                "The Modbus Bridge table changed since review. Review the fresh table before programming; no changes were made.",
             ));
         }
         progress("Saving pre-programming point-table backup");
@@ -597,77 +606,6 @@ impl BridgeSession {
         Ok(result)
     }
 
-    fn read_points(
-        &mut self,
-        result: &mut BridgeResult,
-        cancel: &AtomicBool,
-        deadline: Instant,
-        progress: &mut impl FnMut(&str),
-    ) -> Result<()> {
-        let count = result
-            .native_tsv
-            .lines()
-            .skip(1)
-            .filter(|l| !l.trim().is_empty())
-            .count();
-        let rows = parse_export(&result.native_tsv, count)?;
-        if count == 0 {
-            return Err(BridgeError::new(
-                ErrorCode::InvalidResponse,
-                "The E5 bridge has no configured points to read.",
-            ));
-        }
-        progress("Reading all configured Modbus points through the E5 bridge");
-        let slaves: std::collections::BTreeSet<_> = rows
-            .values()
-            .filter_map(|row| row.split('\t').nth(1))
-            .collect();
-        self.trace_event(&format!("Read All: {count} configured entries; slave addresses {}; host response limit {} seconds", slaves.into_iter().collect::<Vec<_>>().join(", "), self.read_all_response.as_secs()));
-        if let Some(settings) = self.line_settings() {
-            self.trace_event(&format!("E5 bridge downstream settings: {}; retries {}; sensor timeout {} ms; inter-message delay {} ms", settings.summary(), settings.retries, settings.timeout_ms, settings.delay_ms));
-        } else {
-            self.trace_event(
-                "E5 bridge downstream settings unavailable in the current menu; not inferred",
-            );
-        }
-        self.send("A", cancel, deadline, self.read_all_response)?;
-        if self.parser.state() == PromptState::ReadOptions {
-            self.send("D", cancel, deadline, self.read_all_response)?;
-        }
-        if !self
-            .parser
-            .text()
-            .to_ascii_lowercase()
-            .contains("modbus read completed")
-        {
-            return Err(BridgeError::new(
-                ErrorCode::InvalidResponse,
-                "E5 bridge Read All did not complete.",
-            ));
-        }
-        if !matches!(
-            self.parser.state(),
-            PromptState::ReadComplete | PromptState::Continue
-        ) {
-            return Err(BridgeError::new(
-                ErrorCode::UnsafeState,
-                "Read All ended at an unexpected prompt.",
-            ));
-        }
-        let (readings, exceptions) = parse_point_report(self.parser.text(), &rows)?;
-        result.readings = readings;
-        result.exceptions = exceptions;
-        self.send("", cancel, deadline, self.timing.response)?;
-        self.require(PromptState::ModbusMenu)?;
-        verify_summary(
-            self.parser.text(),
-            result.readings.len(),
-            result.exceptions.len(),
-        )?;
-        result.successful_reads = Some(result.readings.len());
-
-        Ok(())
-    }
     pub fn poll_with_export(
         &mut self,
         expected: &Identity,

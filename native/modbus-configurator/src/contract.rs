@@ -64,6 +64,10 @@ pub struct Event {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "event", content = "payload", rename_all = "snake_case")]
 pub enum EventKind {
+    /// A verified table or partial scan; the console operation is still active.
+    BridgeSnapshot {
+        result: crate::bridge::BridgeResult,
+    },
     LineSettings {
         settings: crate::bridge::LineSettings,
     },

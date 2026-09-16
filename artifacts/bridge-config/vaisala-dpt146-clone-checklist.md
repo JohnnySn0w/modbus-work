@@ -1,6 +1,6 @@
-# Vaisala DPT146 E5 bridge clone checklist
+# Vaisala DPT146 Modbus Bridge clone checklist
 
-Status: Modbus E5 bridge import, local reads, and Loriot payload validation complete. DSP integration is deferred until after the initial Modbus device POCs.
+Status: Modbus Modbus Bridge import, local reads, and Loriot payload validation complete. DSP integration is deferred until after the initial Modbus device POCs.
 
 ## Physical connection - check before configuration
 
@@ -8,12 +8,12 @@ Status: Modbus E5 bridge import, local reads, and Loriot payload validation comp
 
 - `CH1` and `CH2` on the transmitter's side label are analog measurement outputs.
 - Connector **I** carries those analog outputs.
-- Connector **II** carries RS-485/Modbus and is the required E5 bridge connection.
+- Connector **II** carries RS-485/Modbus and is the required Modbus Bridge connection.
 - Both sockets are 4-pin M8 A-coded connectors with the same conductor colors.
 
 Connector II wiring:
 
-| DPT146 conductor | Function | Synetica E5 bridge terminal |
+| DPT146 conductor | Function | Synetica Modbus Bridge terminal |
 |---|---|---|
 | Brown | 15-28 VDC positive | 20-24 VDC positive distribution |
 | Blue | Power ground / signal reference | Supply negative and RS485 `C` reference |

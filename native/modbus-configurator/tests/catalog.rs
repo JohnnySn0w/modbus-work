@@ -167,6 +167,34 @@ const CSV: &str = "register number,name,units,interpretation,decode,defaults\n5 
 const TABLE: &str = "Item\tID\tReg\tAddr\tData\tWord\tMult\tRead\n1\t1\tHold\t4\tF32\tHL\t1\tInt\n";
 
 #[test]
+fn confirmed_models_do_not_inherit_documentation_firmware_versions() {
+    let profiles = catalog::bundled().unwrap();
+    for id in ["hmd65", "hmd65-nonmetric", "wnd-m1-mb", "ati-f12"] {
+        let profile = profiles.iter().find(|p| p.info.id == id).unwrap();
+        assert_eq!(profile.info.confirmed_variants.len(), 1);
+        let variant = &profile.info.confirmed_variants[0];
+        if id == "ati-f12" {
+            assert_eq!(variant.model, "ATI F12 transmitter");
+            assert_eq!(variant.hardware_revision.as_deref(), Some("1.01"));
+            assert_eq!(variant.firmware.as_deref(), Some("1.25"));
+        } else {
+            assert!(variant.hardware_revision.is_none());
+            assert!(variant.firmware.is_none());
+        }
+        assert!(variant.evidence.contains("16 Sep 2026"));
+        assert_eq!(
+            profile.info.status,
+            Validation::ToTest,
+            "Model confirmation alone does not qualify every profile register"
+        );
+    }
+    assert!(
+        info().confirmed_variants.is_empty(),
+        "Older metadata must remain loadable"
+    );
+}
+
+#[test]
 fn malformed_csv_and_mismatched_register_spans_fail_closed() {
     assert!(Profile::load(info(), CSV, TABLE).is_err()); // extra field
     let csv = CSV.replace("float32,,,", "float32,,");

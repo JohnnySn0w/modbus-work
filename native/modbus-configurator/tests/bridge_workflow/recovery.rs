@@ -1,4 +1,4 @@
-//! E5 bridge recovery scenarios using the shared scripted transport.
+//! Modbus Bridge recovery scenarios using the shared scripted transport.
 use super::*;
 
 #[test]

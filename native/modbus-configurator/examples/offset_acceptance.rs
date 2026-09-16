@@ -61,7 +61,7 @@ fn run() -> Result<(), String> {
     let ports = serialport::available_ports().map_err(|e| e.to_string())?;
     let candidates: Vec<_> = ports.iter().filter(|p| matches!(&p.port_type, serialport::SerialPortType::UsbPort(u) if u.vid == 0x0483 && u.pid == 0x5740 && u.serial_number.as_ref() == Some(&args[0]))).collect();
     if candidates.len() != 1 {
-        return Err("Expected exactly one E5 bridge with the selected USB serial".into());
+        return Err("Expected exactly one Modbus Bridge with the selected USB serial".into());
     }
     let port = &candidates[0].port_name;
     stage(&format!("Opening {port}"));

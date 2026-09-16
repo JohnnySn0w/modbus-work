@@ -78,7 +78,7 @@ impl Configurator {
     /// List available routes and allow an explicit manual selection.
     fn diagnostic_interfaces(&mut self, ui: &mut egui::Ui) {
         ui.strong("USB interfaces");
-        ui.label("Choose the USB interface to use. E5 bridge console actions are available for a verified E5 bridge.");
+        ui.label("Choose the USB interface to use. Modbus Bridge console actions are available for a verified Modbus Bridge.");
         if self.ports.is_empty() {
             ui.label("No serial interfaces reported.");
         }
@@ -124,14 +124,14 @@ impl Configurator {
             );
         }
         ui.heading(format!(
-            "E5 bridge console{}",
+            "Modbus Bridge console{}",
             if self.selected.is_empty() {
                 String::new()
             } else {
                 format!(" — {}", self.selected)
             }
         ));
-        ui.label("Read now asks the E5 bridge to poll its configured instruments. Backups are available in Configuration.");
+        ui.label("Read now asks the Modbus Bridge to poll its configured instruments. Backups are available in Configuration.");
         ui.horizontal(|ui| {
             let ready = !self.selected.is_empty()
                 && !self.foreground_busy()

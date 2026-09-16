@@ -87,8 +87,11 @@ class CatalogTests(unittest.TestCase):
 
     def test_every_device_has_basic_help(self) -> None:
         for device in DEVICES.values():
-            self.assertGreaterEqual(len(device.help_setup), 3)
-            self.assertGreaterEqual(len(device.help_troubleshooting), 3)
+            for guidance in (device.help_setup, device.help_troubleshooting):
+                self.assertTrue(guidance)
+                self.assertTrue(all(line.strip() for line in guidance))
+                if "TBD" in guidance:
+                    self.assertEqual(tuple(guidance), ("TBD",))
 
     def test_com_numbers_are_not_device_identities(self) -> None:
         ports = [

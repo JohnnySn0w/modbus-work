@@ -1,9 +1,9 @@
-//! Edit downstream E5 bridge line settings without changing USB console framing.
+//! Edit downstream Modbus Bridge line settings without changing USB console framing.
 use super::*;
 impl Configurator {
     pub(super) fn line_configuration(&mut self, ui: &mut egui::Ui, source: Option<&PortInfo>) {
         crate::brand::collapsing(ui, "RS-485 line settings", |ui| {
-            ui.label("Shared by every sensor on the E5 bridge's RS-485 bus. These settings are separate from the point-table file.");
+            ui.label("Shared by every sensor on the Modbus Bridge's RS-485 bus. These settings are separate from the point-table file.");
             if ui
                 .add_enabled(
                     self.ports
@@ -18,10 +18,10 @@ impl Configurator {
                 self.hardware(Operation::BridgeExport);
             }
             let Some(current) = self.line_settings.clone().filter(|_| source.is_some()) else {
-                ui.weak("Waiting for line settings from the E5 bridge.");
+                ui.weak("Waiting for line settings from the Modbus Bridge.");
                 return;
             };
-            ui.weak(format!("On E5 bridge: {}", current.summary()));
+            ui.weak(format!("On Modbus Bridge: {}", current.summary()));
             let busy = self.foreground_busy() || self.programming_blocked;
             let draft = self.line_draft.get_or_insert(current.clone());
             egui::Grid::new("bridge-line-settings")

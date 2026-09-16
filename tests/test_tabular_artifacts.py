@@ -13,6 +13,7 @@ BRIDGE_HEADERS = ["Item", "ID", "Reg", "Addr", "Data", "Word", "Mult", "Read"]
 EXPECTED_TEST_PROFILES = {
     "ati-badger-f12-d12-documentation-test.tsv",
     "hmd65-documentation-test.tsv",
+    "hmd65-nonmetric-documentation-test.tsv",
     "micronics-u1000mkii-hm-documentation-test.tsv",
     "micronics-u3000-uf3300-documentation-test.tsv",
     "precision-digital-pd2-6000-documentation-test.tsv",

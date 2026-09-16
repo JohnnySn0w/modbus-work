@@ -1,4 +1,4 @@
-//! Inspect E5 bridge prompts while preserving their current values. The explicit
+//! Inspect Modbus Bridge prompts while preserving their current values. The explicit
 //! --verify-roundtrip option changes delay by 1 ms and restores it. Private traces
 //! and before-write snapshots remain under ignored tmp/serial-optimization.
 use modbus_configurator::{

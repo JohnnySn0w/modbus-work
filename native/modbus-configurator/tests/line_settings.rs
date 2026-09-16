@@ -1,4 +1,4 @@
-//! Transaction boundaries for E5 bridge line settings; no hardware is opened.
+//! Transaction boundaries for Modbus Bridge line settings; no hardware is opened.
 use modbus_configurator::{
     bridge::{BridgeSession, LineSettings, Timing},
     contract::{ErrorCode, Identity},

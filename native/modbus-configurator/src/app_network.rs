@@ -35,7 +35,7 @@ impl Configurator {
         }
     }
 
-    /// Render a four-device plan and publish a TSV only after complete validation.
+    /// Render a 32-device plan and publish a TSV only after complete validation.
     pub(super) fn network_configuration(&mut self, ui: &mut egui::Ui) -> bool {
         if self.network_unrecognized {
             brand::attention(
@@ -52,7 +52,7 @@ impl Configurator {
         ui.weak("Choose the configured model and slave address for each device. Models are not detected or verified from successful reads. Set each physical sensor to its assigned address; all devices must use the same RS-485 line settings.");
         let count: usize = self.network_devices.iter().map(|d| d.points.len()).sum();
         ui.strong(format!(
-            "{count} / 32 register entries · {} / 4 devices",
+            "{count} / 32 register entries · {} / 32 devices",
             self.network_devices.len()
         ));
         ui.weak("A multi-word value counts as one entry. Selections use the reviewed register encodings.");
@@ -82,10 +82,15 @@ impl Configurator {
                         if ui.button("Remove device").clicked() {
                             remove = Some(index);
                         }
+                        ui.vertical(|ui| {
+                            ui.set_width(270.0);
+                            crate::catalog_view::compatibility(ui, &self.profiles[device.profile]);
+                        });
                     });
                     let profile = &self.profiles[device.profile];
-                    crate::brand::collapsing(
+                    crate::brand::collapsing_id(
                         ui,
+                        "register-entries",
                         format!("Register entries · {} selected", device.points.len()),
                         |ui| {
                             ui.horizontal(|ui| {
@@ -115,7 +120,7 @@ impl Configurator {
                                 }
                             }
                             ui.weak(&profile.info.serial);
-                            ui.weak(profile.info.status.label());
+                            ui.weak(if !profile.info.confirmed_variants.is_empty() && profile.info.status == modbus_configurator::catalog::Validation::ToTest { "Model confirmed working · full profile verification not recorded" } else { profile.info.status.label() });
                         },
                     );
                 });
@@ -126,7 +131,7 @@ impl Configurator {
         }
         if ui
             .add_enabled(
-                self.network_devices.len() < 4,
+                self.network_devices.len() < 32,
                 egui::Button::new("Add device"),
             )
             .clicked()

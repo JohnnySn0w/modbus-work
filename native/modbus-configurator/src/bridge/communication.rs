@@ -4,6 +4,7 @@ use super::*;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct CommunicationSettings {
+    pub automatic_scan_budget: bool,
     pub initial_seconds: u64,
     pub command_seconds: u64,
     pub read_all_seconds: u64,
@@ -12,6 +13,7 @@ pub struct CommunicationSettings {
 impl Default for CommunicationSettings {
     fn default() -> Self {
         Self {
+            automatic_scan_budget: true,
             initial_seconds: 20,
             command_seconds: 5,
             read_all_seconds: 180,
@@ -23,6 +25,7 @@ impl CommunicationSettings {
     /// Bound persisted or externally supplied values before creating deadlines.
     pub fn bounded(self) -> Self {
         Self {
+            automatic_scan_budget: self.automatic_scan_budget,
             initial_seconds: self.initial_seconds.clamp(1, 120),
             command_seconds: self.command_seconds.clamp(1, 120),
             read_all_seconds: self.read_all_seconds.clamp(5, 900),
@@ -39,6 +42,7 @@ impl BridgeSession {
         trace: impl Fn(&str) + Send + 'static,
     ) {
         let settings = settings.bounded();
+        self.scale_scan_timeout = settings.automatic_scan_budget;
         self.initial_response = Duration::from_secs(settings.initial_seconds);
         self.read_all_response = Duration::from_secs(settings.read_all_seconds);
         self.timing.response = Duration::from_secs(settings.command_seconds);
@@ -124,6 +128,7 @@ mod tests {
             CommunicationSettings::default()
         );
         let values = CommunicationSettings {
+            automatic_scan_budget: true,
             initial_seconds: 0,
             command_seconds: u64::MAX,
             read_all_seconds: 1,

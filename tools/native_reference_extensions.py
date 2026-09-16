@@ -5,14 +5,14 @@ import re
 
 def extend(document, root):
     devices=document['devices']; regs=document['registers']
-    devices['hmd65']['description']='Eleven-entry E5 bridge configuration using one-based register numbers. Error-code registers 514-515 are excluded.'
-    devices['bridge']['name']='E5 bridge'
+    devices['hmd65']['description']='Eleven-entry Modbus Bridge configuration using one-based register numbers. Error-code registers 514-515 are excluded.'
+    devices['bridge']['name']='Modbus Bridge'
     devices['bridge']['artifact']=None
-    devices['synetica_usb']['name']='E5 bridge'
+    devices['synetica_usb']['name']='Modbus Bridge'
     devices['synetica_usb']['subtitle']='USB interface awaiting identification'
     devices['iaq_plus']['help_setup']=['TBD']; devices['iaq_plus']['help_troubleshooting']=['TBD']
-    devices['hmd65']['help_setup']=['Suggested: confirm Modbus serial mode, slave address, baud rate and parity from the HMD65 configuration switches (Vaisala M212264EN-B).','Suggested: prefer the documented 32-bit floating-point register group; metric starts at 1 and non-metric starts at 129. E5 bridge tables use one-based register numbers. Direct Modbus addresses remain zero-based.']
-    devices['hmd65']['help_troubleshooting']=['Check device and measurement status. Error-code registers 514-515 are excluded from E5 bridge tables.','Suggested: confirm the unit register group and word order against a known measurement before programming an E5 bridge profile.']
+    devices['hmd65']['help_setup']=['Suggested: confirm Modbus serial mode, slave address, baud rate and parity from the HMD65 configuration switches (Vaisala M212264EN-B).','Suggested: prefer the documented 32-bit floating-point register group; metric starts at 1 and non-metric starts at 129. Modbus Bridge tables use one-based register numbers. Direct Modbus addresses remain zero-based.']
+    devices['hmd65']['help_troubleshooting']=['Check device and measurement status. Error-code registers 514-515 are excluded from Modbus Bridge tables.','Suggested: confirm the unit register group and word order against a known measurement before programming a Modbus Bridge profile.']
     devices['wattnode']['help_setup']=['Suggested: confirm the WND-M1-MB label and communication settings using WND-M1-MB-Ref-1.10.','Suggested: check current transformer primary ratings and electrical service mapping before interpreting current and power.']
     devices['wattnode']['help_troubleshooting']=['Suggested: compare native floating-point readings and status with the WND-M1-MB reference manual.','Suggested: preserve existing calibration values; do not treat CurrentIntScale as milliamps.']
     ati=copy.deepcopy(devices['hmd65']);ati.update(key='ati-f12',name='ATI F12 — peracetic acid',subtitle='Toxic gas transmitter · peracetic acid sensor module',kind='sensor',status='Ready to test',description='Register configuration for the peracetic acid sensor module. Testing with a connected sensor is pending. Other sensor modules: TBD.',artifact='artifacts/bridge-config/ati-badger-f12-d12-documentation-test.tsv',help_setup=['TBD'],help_troubleshooting=['TBD'])
@@ -27,8 +27,10 @@ def extend(document, root):
     metric=[r for r in regs['hmd65'] if r['data_type'].startswith('F32')][:8]
     for i,r in enumerate(metric):
         r=copy.deepcopy(r);r['name']+=' (non-metric)';r['logical']='–'.join(str(int(x)+128) for x in r['logical'].split('–'));r['pdu']='–'.join(str(int(x)+128) for x in r['pdu'].split('–'));r['unit']=['%RH','°F','°F','°F','gr/ft³','gr/lb','°F','Btu/lb'][i];r['description']='Native non-metric 32-bit floating-point register group (Vaisala M212264EN-B).';regs['hmd65'].append(r)
+    devices['wattnode']['description']='WND-M1-MB operation through Modbus Bridge is confirmed. Tested hardware and firmware versions are not recorded. Confirm current-transformer and service settings for the installation.'
+    devices['ati-f12']['description']='F12 transmitter hardware 1.01 and software 1.25 confirmed working through Modbus Bridge. The tested gas module is not recorded; confirm units and range for the installed module.'
     for device in devices.values():
         for field in ['name','subtitle','description']:
-            device[field]=re.sub(r'(?<!E5 )\bbridge\b','E5 bridge',device[field],flags=re.I)
+            device[field]=re.sub(r'\b(?:(?:E5|Synetica|Modbus)\s+)?bridge\b','Modbus Bridge',device[field],flags=re.I)
         for field in ['help_setup','help_troubleshooting']:
-            device[field]=[re.sub(r'(?<!E5 )\bbridge\b','E5 bridge',s,flags=re.I).replace('COM3','the USB adapter') for s in device[field]]
+            device[field]=[re.sub(r'\b(?:(?:E5|Synetica|Modbus)\s+)?bridge\b','Modbus Bridge',s,flags=re.I).replace('COM3','the USB adapter') for s in device[field]]

@@ -296,7 +296,7 @@ fn active_operation_feedback_is_correlated_and_program_completion_resumes_pollin
     assert!(!a.programming && !a.programming_blocked && !a.auto_paused);
     assert_eq!(
         a.file_message,
-        "E5 bridge point table programmed and verified."
+        "Modbus Bridge point table programmed and verified."
     );
     start(&mut a);
     a.auto_request = true;
@@ -331,7 +331,7 @@ fn polling_is_quiet_and_programming_queues_without_interrupting_the_read() {
         matches!(&a.queued, Some((Operation::BridgeProgram { target: t, .. }, route)) if t == &target && route.port == port().port)
     );
     let ctx = egui::Context::default();
-    assert!(draw(&mut a, &ctx).contains("Program E5 bridge queued"));
+    assert!(draw(&mut a, &ctx).contains("Program Modbus Bridge queued"));
     let result = read(&a, 23.0);
     send(&mut a, EventKind::BridgeResult { result });
     a.start_queued();

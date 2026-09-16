@@ -44,9 +44,9 @@ impl Configurator {
     /// Render configuration actions and require a verified target before programming.
     pub(super) fn configuration_files(&mut self, ui: &mut egui::Ui) {
         use modbus_configurator::config_file as files;
-        ui.heading("Configure E5 bridge");
+        ui.heading("Configure Modbus Bridge");
         ui.weak("Sensor point tables").on_hover_text("Point-table programming and backups cover the sensor point table. Serial settings, radio settings and credentials are separate.");
-        if self.programming_blocked && self.active.is_none() {
+        if (self.programming_blocked || self.technician.bridge_fault) && self.active.is_none() {
             ui.label("Polling is paused until the console and current point table can be checked.");
             if ui.button("Check recovered console").clicked() && self.select_bridge_route() {
                 self.hardware(Operation::BridgeExport);
@@ -66,13 +66,16 @@ impl Configurator {
         } else {
             brand::attention(
                 ui,
-                "E5 bridge unavailable",
-                "Connect and switch on the E5 bridge to enable programming and backup. Configuration review and saving remain available.",
+                "Modbus Bridge unavailable",
+                "Connect and switch on the Modbus Bridge to enable programming and backup. Configuration review and saving remain available.",
             );
         }
         ui.add_space(12.0);
         self.line_configuration(ui, source.as_ref());
         ui.add_space(12.0);
+        ui.weak(
+            "Confirmed Modbus Bridge: ENL-MOD-32 · firmware 3.6 · hardware revision not recorded",
+        );
         ui.strong("1. Choose a point table");
         self.configuration_mode(ui);
         let network_valid = if self.multi_device {
@@ -99,12 +102,25 @@ impl Configurator {
                 }
                 if ui.button("Open configuration file…").clicked()
                     && let Some(path) = rfd::FileDialog::new()
-                        .add_filter("E5 bridge point table", &["tsv"])
+                        .add_filter("Modbus Bridge point table", &["tsv"])
                         .pick_file()
                 {
                     self.load_configuration(&path);
                 }
             });
+        }
+        if !self.multi_device
+            && let Some(profile) = self
+                .catalog_view
+                .selected
+                .and_then(|i| self.profiles.get(i))
+        {
+            ui.strong(format!(
+                "{} {}",
+                profile.info.manufacturer, profile.info.model
+            ));
+            crate::catalog_view::compatibility(ui, profile);
+            ui.add_space(8.0);
         }
         ui.horizontal_wrapped(|ui| {
             ui.label("Backup name");
@@ -117,7 +133,7 @@ impl Configurator {
             if ui
                 .add_enabled(
                     source.is_some() && !self.foreground_busy(),
-                    egui::Button::new("Back up E5 bridge"),
+                    egui::Button::new("Back up Modbus Bridge"),
                 )
                 .clicked()
             {
@@ -131,10 +147,12 @@ impl Configurator {
                 }
             }
             ui.menu_button("Load backup", |ui| {
-                ui.weak("Load a point table for review, then use Program E5 bridge to restore it.");
+                ui.weak(
+                    "Load a point table for review, then use Program Modbus Bridge to restore it.",
+                );
                 if ui.button("Choose backup file…").clicked() {
                     let mut dialog =
-                        rfd::FileDialog::new().add_filter("E5 bridge point table", &["tsv"]);
+                        rfd::FileDialog::new().add_filter("Modbus Bridge point table", &["tsv"]);
                     if let Ok(root) = &self.storage_root {
                         dialog = dialog.set_directory(root.join("Backups"));
                     }
@@ -152,7 +170,7 @@ impl Configurator {
                         .and_then(|root| files::history(&root, port))
                     {
                         Ok(paths) if paths.is_empty() => {
-                            ui.label("No saved point tables for this E5 bridge.");
+                            ui.label("No saved point tables for this Modbus Bridge.");
                         }
                         Ok(paths) => {
                             for (index, path) in paths.into_iter().enumerate() {
@@ -191,7 +209,7 @@ impl Configurator {
                         }
                     }
                 } else {
-                    ui.label("Connect the target E5 bridge to view its backups.");
+                    ui.label("Connect the target Modbus Bridge to view its backups.");
                 }
             });
         });
@@ -243,7 +261,7 @@ impl Configurator {
                     ui.label(self.profiles[index].info.status.label());
                 });
             } else {
-                ui.weak("Point-table files do not specify baud rate or parity; confirm the instrument and E5 bridge serial settings agree.");
+                ui.weak("Point-table files do not specify baud rate or parity; confirm the instrument and Modbus Bridge serial settings agree.");
             }
             if let Some(current) = &self.result {
                 let rows = |s: &str| -> std::collections::BTreeMap<u8, String> {
@@ -264,7 +282,7 @@ impl Configurator {
                     .collect();
                 let changed = new.iter().filter(|(k, v)| old.get(*k) != Some(*v)).count();
                 if changed == 0 && removed.is_empty() {
-                    ui.label("Matches the E5 bridge’s current point table.");
+                    ui.label("Matches the Modbus Bridge’s current point table.");
                 } else {
                     ui.label(format!(
                         "{changed} added or changed points; {} removed points",
@@ -308,7 +326,7 @@ impl Configurator {
                 }
             }
             ui.add_space(12.0);
-            ui.strong("3. Program E5 bridge");
+            ui.strong("3. Program Modbus Bridge");
             ui.label("A backup is saved before programming. The new point table is verified before readings resume.");
             ui.horizontal_wrapped(|ui| {
                 let ready = source.is_some()
@@ -319,7 +337,8 @@ impl Configurator {
                     .add_enabled(
                         ready,
                         egui::Button::new(
-                            egui::RichText::new("Program E5 bridge").color(egui::Color32::WHITE),
+                            egui::RichText::new("Program Modbus Bridge")
+                                .color(egui::Color32::WHITE),
                         )
                         .fill(brand::DARK_BLUE),
                     )
@@ -337,8 +356,8 @@ impl Configurator {
                 ui.horizontal_wrapped(|ui| {
                     if ui.button("Save configuration file…").clicked()
                         && let Some(path) = rfd::FileDialog::new()
-                            .add_filter("E5 bridge point table", &["tsv"])
-                            .set_file_name("E5 bridge-configuration.tsv")
+                            .add_filter("Modbus Bridge point table", &["tsv"])
+                            .set_file_name("Modbus Bridge-configuration.tsv")
                             .save_file()
                     {
                         self.file_message = match files::save(&path, &table) {

@@ -10,6 +10,7 @@ mod app_frame;
 mod app_line_settings;
 mod app_network;
 mod app_settings;
+mod app_snapshot;
 mod diagnostic_checks;
 mod diagnostic_log;
 mod reference_files;

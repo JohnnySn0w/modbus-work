@@ -2,7 +2,7 @@
 use super::*;
 
 impl Configurator {
-    /// Select a unique E5 route; return false when it is ambiguous or missing.
+    /// Select a unique Modbus Bridge route; return false when it is ambiguous or missing.
     pub(super) fn select_bridge_route(&mut self) -> bool {
         let candidates: Vec<_> = self
             .ports
@@ -124,7 +124,7 @@ impl Configurator {
                 "Line settings queued · waiting for the current read to finish"
             }
             Operation::BridgeProgram { .. } => {
-                "Program E5 bridge queued · waiting for the current read to finish"
+                "Program Modbus Bridge queued · waiting for the current read to finish"
             }
             Operation::BridgeExport | Operation::BridgeNamedBackup { .. } => {
                 "Backup queued · waiting for the current read to finish"
@@ -194,7 +194,7 @@ impl Configurator {
         }
         self.last_fetch = Instant::now();
         self.status = if self.programming {
-            "Preparing E5 bridge programming…"
+            "Preparing Modbus Bridge programming…"
         } else {
             "Reading device…"
         }

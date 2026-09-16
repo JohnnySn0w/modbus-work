@@ -30,11 +30,13 @@ impl Configurator {
     }
     pub(super) fn operation_description(operation: &Operation) -> String {
         match operation {
-            Operation::BridgeReadAll => "Read E5 bridge measurements".into(),
-            Operation::BridgeExport => "Read E5 bridge configuration and save backup".into(),
-            Operation::BridgeNamedBackup { name } => format!("Save E5 bridge backup named {name}"),
+            Operation::BridgeReadAll => "Read Modbus Bridge measurements".into(),
+            Operation::BridgeExport => "Read Modbus Bridge configuration and save backup".into(),
+            Operation::BridgeNamedBackup { name } => {
+                format!("Save Modbus Bridge backup named {name}")
+            }
             Operation::BridgeProgram { target, .. } => format!(
-                "Program E5 bridge: {} point entries",
+                "Program Modbus Bridge: {} point entries",
                 target
                     .lines()
                     .skip(1)
@@ -108,8 +110,32 @@ impl Configurator {
                 settings.timeout_ms,
                 settings.delay_ms
             )),
+            EventKind::BridgeSnapshot { result } => Some(format!(
+                "Scan progress: {} point readings; {} point errors; verified table available{}",
+                result.readings.len(),
+                result.exceptions.len(),
+                result
+                    .exceptions
+                    .iter()
+                    .map(|e| {
+                        let slave = result
+                            .native_tsv
+                            .lines()
+                            .find(|row| {
+                                row.split('\t').next().and_then(|n| n.parse::<u8>().ok())
+                                    == Some(e.item)
+                            })
+                            .and_then(|row| row.split('\t').nth(1))
+                            .unwrap_or("unknown");
+                        format!(
+                            "; slave {slave}, point {}: exception {}: {}",
+                            e.item, e.code, e.message
+                        )
+                    })
+                    .collect::<String>()
+            )),
             EventKind::BridgeResult { result } => Some(format!(
-                "E5 bridge {} firmware {}: {} configured entries; {} returned values; {} exceptions{}",
+                "Modbus Bridge {} firmware {}: {} configured entries; {} returned values; {} exceptions{}",
                 result.identity.model,
                 result.identity.firmware,
                 result
@@ -150,6 +176,7 @@ impl Configurator {
                 }
             );
             let failure = matches!(&event.kind, EventKind::Error { .. })
+                || matches!(&event.kind, EventKind::BridgeSnapshot { result } if !result.exceptions.is_empty())
                 || matches!(&event.kind, EventKind::BridgeResult { result } if !result.exceptions.is_empty())
                 || matches!(&event.kind, EventKind::AdapterResult { result } if !result.errors.is_empty());
             if self.auto_request && !failure && !scan {

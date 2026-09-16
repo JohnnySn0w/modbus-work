@@ -28,7 +28,7 @@ impl TechnicianView {
         selected: Option<usize>,
     ) {
         crate::brand::collapsing(ui, "Custom profiles", |ui| {
-            ui.weak("Saved on this computer and reused for matching register sets, including other slave addresses. This does not program the E5 bridge.");
+            ui.weak("Saved on this computer and reused for matching register sets, including other slave addresses. This does not program the Modbus Bridge.");
             ui.horizontal_wrapped(|ui| {
                 ui.label("Profile name");
                 ui.add(

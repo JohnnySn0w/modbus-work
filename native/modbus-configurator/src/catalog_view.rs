@@ -1,3 +1,4 @@
+//! Configuration profile details and recorded working hardware variants.
 use eframe::egui;
 use modbus_configurator::{
     bridge::BridgeResult,
@@ -9,6 +10,29 @@ pub struct CatalogView {
     pub selected: Option<usize>,
     query: String,
     only_points: bool,
+}
+
+/// Show recorded compatibility without treating unknown versions as universal support.
+pub fn compatibility(ui: &mut egui::Ui, profile: &Profile) {
+    ui.strong("Confirmed working variants");
+    if profile.info.confirmed_variants.is_empty() {
+        ui.label("No confirmed variants recorded");
+    }
+    for variant in &profile.info.confirmed_variants {
+        ui.label(&variant.model);
+        ui.label(format!(
+            "Hardware revision: {}",
+            variant
+                .hardware_revision
+                .as_deref()
+                .unwrap_or("not recorded")
+        ));
+        ui.label(format!(
+            "Firmware: {}",
+            variant.firmware.as_deref().unwrap_or("not recorded")
+        ));
+        ui.weak(&variant.evidence);
+    }
 }
 
 impl CatalogView {
@@ -25,7 +49,16 @@ impl CatalogView {
             Validation::Validated => crate::brand::DARK_BLUE,
             Validation::ToTest => crate::brand::DARK_GREY,
         };
-        ui.colored_label(color, profile.info.status.label());
+        ui.colored_label(
+            color,
+            if !profile.info.confirmed_variants.is_empty()
+                && profile.info.status == Validation::ToTest
+            {
+                "Model confirmed working · full profile verification not recorded"
+            } else {
+                profile.info.status.label()
+            },
+        );
         ui.label(&profile.info.serial);
         crate::brand::collapsing(ui, "Setup and troubleshooting", |ui| {
             for help in &profile.info.help {
@@ -38,9 +71,9 @@ impl CatalogView {
         let matched = result.is_some_and(|r| profile.matches(r));
         if result.is_some() {
             ui.weak(if matched {
-                "Matches last E5 bridge backup"
+                "Matches last Modbus Bridge backup"
             } else {
-                "Differs from last E5 bridge backup"
+                "Differs from last Modbus Bridge backup"
             });
         }
         ui.add_space(8.0);
@@ -48,7 +81,10 @@ impl CatalogView {
             ui.horizontal(|ui| {
                 ui.label("Find");
                 ui.text_edit_singleline(&mut self.query);
-                ui.checkbox(&mut self.only_points, "Configured E5 bridge points only");
+                ui.checkbox(
+                    &mut self.only_points,
+                    "Configured Modbus Bridge points only",
+                );
             });
             let query = self.query.trim().to_ascii_lowercase();
             egui::ScrollArea::horizontal()
@@ -63,7 +99,7 @@ impl CatalogView {
                                 "Transmitted address",
                                 "Register",
                                 "Point",
-                                "E5 bridge data type / word order",
+                                "Modbus Bridge data type / word order",
                                 "Last reading",
                                 "Units",
                             ] {

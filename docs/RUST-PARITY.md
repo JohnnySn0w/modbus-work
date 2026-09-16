@@ -4,13 +4,13 @@ Rust is the supported Windows deliverable. Python remains a prototype/reference 
 
 | Workflow | Rust state |
 |---|---|
-| Dynamic USB discovery and E5 identification | Implemented; observed routes are not fixed COM numbers |
-| Persistent E5 reads and receive recovery | Implemented; locally exercised |
-| E5 program, backup, restore and readback | Implemented and DPT146 bench-tested; power-loss persistence pending |
+| Dynamic USB discovery and Modbus Bridge identification | Implemented; observed routes are not fixed COM numbers |
+| Persistent Modbus Bridge reads and receive recovery | Implemented; locally exercised |
+| Modbus Bridge program, backup, restore and readback | Implemented and DPT146 bench-tested; power-loss persistence pending |
 | File selection, saving and backup history | Implemented; Windows GUI acceptance recorded |
 | DPT146 direct adapter | Implemented and bench-tested |
 | HMD65 and WattNode adapter/profile support | Implemented; physical acceptance pending |
-| ATI F12/PAA | E5 candidate and reference decoding only; direct adapter pending |
+| ATI F12/PAA | Modbus Bridge candidate and reference decoding only; direct adapter pending |
 | History/chart/CSV, settings, branding, manuals | Implemented |
 | IAQ native identity/readings/console backup | Pending; historical Python observations do not prove Rust support |
 | Radio configuration writes | Not qualified/enabled as a native commissioning workflow |

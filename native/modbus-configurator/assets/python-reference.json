@@ -8,7 +8,7 @@
   "devices": {
     "synetica_usb": {
       "key": "synetica_usb",
-      "name": "E5 bridge",
+      "name": "Modbus Bridge",
       "subtitle": "USB interface awaiting identification",
       "kind": "bridge",
       "status": "Connected · device details not yet read",
@@ -25,16 +25,16 @@
       "help_troubleshooting": [
         "The STM32 VID/PID is shared by bridges and sensors, so USB metadata alone is not an exact identity.",
         "If identity remains pending, power-cycle the device and reconnect USB with only one GUI running.",
-        "Direct RS-485 polling stays disabled while this possible E5 bridge master is connected."
+        "Direct RS-485 polling stays disabled while this possible Modbus Bridge master is connected."
       ]
     },
     "bridge": {
       "key": "bridge",
-      "name": "E5 bridge",
-      "subtitle": "Synetica ENL-MOD-32 E5 bridge",
+      "name": "Modbus Bridge",
+      "subtitle": "Synetica ENL-MOD-32 Modbus Bridge",
       "kind": "bridge",
       "status": "Validated",
-      "description": "32-point Modbus RTU master and North American 915 MHz LoRaWAN E5 bridge.",
+      "description": "32-point Modbus RTU master and North American 915 MHz LoRaWAN Modbus Bridge.",
       "color": "#4C78A8",
       "readouts": [
         {
@@ -61,7 +61,7 @@
         "ENL-MOD-32"
       ],
       "help_setup": [
-        "Power the E5 bridge from 12–24 volts direct current; USB is configuration-only.",
+        "Power the Modbus Bridge from 12–24 volts direct current; USB is configuration-only.",
         "Connect the Modbus instrument to RS485 IN and keep only one active master on the bus.",
         "Back up the existing table before selecting or importing a configuration.",
         "After import, use Read All Data Points and require zero exceptions."
@@ -118,7 +118,7 @@
       "help_troubleshooting": [
         "No response: confirm connector II, supply power, common wiring and the configured slave address. Address 1 was used in the recorded test; other installations may differ.",
         "Plausible but wrong readings: use zero-based transmitted register addresses and the word order specified by the reviewed profile.",
-        "Switch the E5 bridge off using its hardware switch before reading through the USB adapter on the same bus. External power can remain connected.",
+        "Switch the Modbus Bridge off using its hardware switch before reading through the USB adapter on the same bus. External power can remain connected.",
         "If status is unhealthy, record raw status registers before changing configuration."
       ]
     },
@@ -128,7 +128,7 @@
       "subtitle": "Humidity and temperature transmitter",
       "kind": "humidity",
       "status": "Ready to test",
-      "description": "Eleven-entry E5 bridge configuration using one-based register numbers. Error-code registers 514-515 are excluded.",
+      "description": "Eleven-entry Modbus Bridge configuration using one-based register numbers. Error-code registers 514-515 are excluded.",
       "color": "#73A942",
       "readouts": [
         {
@@ -152,11 +152,11 @@
       "detect_tokens": [],
       "help_setup": [
         "Suggested: confirm Modbus serial mode, slave address, baud rate and parity from the HMD65 configuration switches (Vaisala M212264EN-B).",
-        "Suggested: prefer the documented 32-bit floating-point register group; metric starts at 1 and non-metric starts at 129. E5 bridge tables use one-based register numbers. Direct Modbus addresses remain zero-based."
+        "Suggested: prefer the documented 32-bit floating-point register group; metric starts at 1 and non-metric starts at 129. Modbus Bridge tables use one-based register numbers. Direct Modbus addresses remain zero-based."
       ],
       "help_troubleshooting": [
-        "Check device and measurement status. Error-code registers 514-515 are excluded from E5 bridge tables.",
-        "Suggested: confirm the unit register group and word order against a known measurement before programming an E5 bridge profile."
+        "Check device and measurement status. Error-code registers 514-515 are excluded from Modbus Bridge tables.",
+        "Suggested: confirm the unit register group and word order against a known measurement before programming a Modbus Bridge profile."
       ]
     },
     "wattnode": {
@@ -165,7 +165,7 @@
       "subtitle": "Module for Modbus",
       "kind": "meter",
       "status": "Ready to test",
-      "description": "12-register configuration for the WND-M1-MB, using floating-point measurements. Testing with a connected meter is pending.",
+      "description": "WND-M1-MB operation through Modbus Bridge is confirmed. Tested hardware and firmware versions are not recorded. Confirm current-transformer and service settings for the installation.",
       "color": "#E0A458",
       "readouts": [
         {
@@ -278,7 +278,7 @@
       "subtitle": "Toxic gas transmitter · peracetic acid sensor module",
       "kind": "sensor",
       "status": "Ready to test",
-      "description": "Register configuration for the peracetic acid sensor module. Testing with a connected sensor is pending. Other sensor modules: TBD.",
+      "description": "F12 transmitter hardware 1.01 and software 1.25 confirmed working through Modbus Bridge. The tested gas module is not recorded; confirm units and range for the installed module.",
       "color": "#73A942",
       "readouts": [
         {
