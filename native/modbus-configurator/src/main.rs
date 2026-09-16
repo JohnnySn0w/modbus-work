@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 //! Native Windows entry point and shared application state.
 use eframe::egui;
+mod activity;
 mod app_commands;
 mod app_configuration;
 mod app_events;
@@ -8,6 +9,7 @@ mod app_frame;
 mod app_line_settings;
 mod app_network;
 mod app_settings;
+mod diagnostic_log;
 mod reference_files;
 #[cfg(test)]
 use reference_files::extract_reference_artifact;
@@ -150,10 +152,15 @@ impl Configurator {
     // Conservatively block interrupted programming here; a late event may be ignored.
     /// Keep a bounded history of manual activity for diagnostics.
     fn record_activity(&mut self, message: String) {
+        diagnostic_log::write(&message.replace(['\r', '\n'], " "));
         if self.replay_log.len() == 64 {
             self.replay_log.remove(0);
         }
-        self.replay_log.push(message);
+        self.replay_log.push(format!(
+            "{} | {}",
+            modbus_configurator::last_good::timestamp(),
+            message.replace(['\r', '\n'], " ")
+        ));
     }
 }
 
@@ -166,6 +173,7 @@ fn transfer_progress(stage: &str) -> Option<f32> {
 }
 /// Initialize reference data and the selected backend, then run the native window.
 fn main() -> eframe::Result {
+    diagnostic_log::initialize();
     let reference = modbus_configurator::reference::Reference::bundled()
         .map_err(|e| eframe::Error::AppCreation(Box::new(std::io::Error::other(e))))?;
     let profiles = modbus_configurator::catalog::bundled()

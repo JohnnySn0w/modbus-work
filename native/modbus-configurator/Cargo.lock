@@ -1580,6 +1580,7 @@ dependencies = [
 name = "modbus-configurator"
 version = "0.1.0"
 dependencies = [
+ "arboard",
  "csv",
  "eframe",
  "image",

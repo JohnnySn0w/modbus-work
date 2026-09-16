@@ -812,12 +812,20 @@ fn diagnostics_and_cancel_buttons_preserve_the_selected_usb_route() {
     a.technician.page = Page::Console;
     click(&mut a, &ctx, "Use this interface");
     assert_eq!(a.selected, port().port);
+    assert!(!a.preferences.automatic_polling);
+    // Polling must stay off even after a manual action clears the transient pause.
+    a.auto_paused = false;
+    a.last_fetch = Instant::now() - Duration::from_secs(30);
+    a.last_scan = Instant::now();
+    let _ = ctx.run(Default::default(), |ctx| a.frame(ctx));
+    assert!(a.active.is_none());
     assert_eq!(
         a.preferred_route.as_ref().unwrap().serial_number,
         port().serial_number
     );
     click(&mut a, &ctx, "Read now");
     assert!(a.active.is_some());
+    assert!(!a.preferences.automatic_polling);
     a.active = None;
     click(&mut a, &ctx, "Release console");
     assert!(a.auto_paused);
@@ -1152,7 +1160,7 @@ fn activity_log_groups_repeats_and_keeps_recent_events() {
         a.record_activity(format!("Event {n}"));
     }
     assert_eq!(a.replay_log.len(), 64);
-    assert_eq!(a.replay_log[0], "Event 1");
+    assert!(a.replay_log[0].ends_with(" | Event 1"));
     a.replay_log = vec![
         "E5 bridge verified".into(),
         "E5 bridge verified".into(),
@@ -1407,4 +1415,60 @@ fn device_manuals_extract_as_pdf_files_offline() {
         }
     }
     std::fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn activity_records_timestamped_results_and_background_failures_without_poll_noise() {
+    let mut a = app();
+    start(&mut a);
+    a.auto_request = true;
+    send(
+        &mut a,
+        EventKind::Progress {
+            stage: "routine polling".into(),
+        },
+    );
+    assert!(a.replay_log.is_empty());
+    send(
+        &mut a,
+        EventKind::Error {
+            code: ErrorCode::Timeout,
+            message: "Sensor did not respond".into(),
+            recoverable: true,
+        },
+    );
+    let error = a.replay_log.last().unwrap();
+    assert!(error.contains("Request 42 | COM41 | Error Timeout: Sensor did not respond"));
+    assert!(error.starts_with(&modbus_configurator::last_good::timestamp()[..10]));
+    assert!(error.contains(" (local) | "));
+    start(&mut a);
+    a.auto_request = false;
+    send(
+        &mut a,
+        EventKind::Backup {
+            path: Some("Backups/test.tsv".into()),
+            error: None,
+        },
+    );
+    let mut result = read(&a, 22.5);
+    result.exceptions.push(PointException {
+        item: 2,
+        code: 2,
+        message: "Illegal address".into(),
+    });
+    send(&mut a, EventKind::BridgeResult { result });
+    start(&mut a);
+    send(
+        &mut a,
+        EventKind::Result {
+            message: "Read complete".into(),
+        },
+    );
+    let text = a.replay_log.join("\n");
+    assert!(text.contains("Backup saved: Backups/test.tsv"));
+    assert!(
+        text.contains("1 returned values; 1 exceptions; point 2: exception 2: Illegal address")
+    );
+    assert!(text.contains("Completed: Read complete"));
+    assert!(!text.contains("Item\tID"));
 }

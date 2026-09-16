@@ -21,6 +21,7 @@ impl Configurator {
     pub(super) fn handle_event(&mut self, event: Event) {
         let is_scan = self.scan_pending == Some(event.request_id);
         let is_active = self.active == Some(event.request_id);
+        self.record_service_activity(&event, is_active, is_scan);
         let quiet = is_active
             && self.auto_request
             && matches!(
@@ -276,16 +277,11 @@ impl Configurator {
                 }
             }
             EventKind::PromptState { state } => {
-                if !(is_active && self.auto_request) {
-                    self.record_activity(format!("{state:?}"));
-                }
+                let _ = state;
             }
             EventKind::Progress { stage } => {
                 if is_active {
                     self.status = stage.clone();
-                    if !self.auto_request {
-                        self.record_activity(stage);
-                    }
                 }
             }
             EventKind::Result { message } => {

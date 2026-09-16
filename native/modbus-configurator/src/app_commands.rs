@@ -151,6 +151,22 @@ impl Configurator {
     }
     /// Serialize manual hardware work behind any active poll.
     pub(super) fn hardware(&mut self, operation: Operation) {
+        self.hardware_with_activity(operation, false);
+    }
+    /// Start automatic reads quietly while recording explicit manual operations.
+    pub(super) fn hardware_with_activity(&mut self, operation: Operation, automatic: bool) {
+        if !automatic {
+            self.record_activity(format!(
+                "{} | {} | {}",
+                if self.active.is_some() {
+                    "Requested while busy"
+                } else {
+                    "Starting"
+                },
+                self.selected,
+                Self::operation_description(&operation)
+            ));
+        }
         if self.active.is_some() {
             if self.auto_request
                 && self.queued.is_none()

@@ -100,11 +100,14 @@ impl Configurator {
                 self.selected = route.port.clone();
                 self.preferred_route = Some(route.clone());
                 let previous_status = self.status.clone();
-                self.hardware(if is_bridge(&route) {
-                    Operation::BridgeReadAll
-                } else {
-                    Operation::AdapterRead
-                });
+                self.hardware_with_activity(
+                    if is_bridge(&route) {
+                        Operation::BridgeReadAll
+                    } else {
+                        Operation::AdapterRead
+                    },
+                    true,
+                );
                 self.auto_request = true;
                 self.status = previous_status;
             } else if self.ports.iter().filter(|p| candidate(p)).count() > 1 {
@@ -218,12 +221,15 @@ impl Configurator {
                         if ui.add_enabled(candidate && self.active.is_none(), egui::Button::selectable(self.selected == port.port, "Use this interface")).clicked() {
                             self.selected = port.port.clone();
                             self.preferred_route = Some(port.clone());
-                            self.auto_paused = false;
-                            self.last_fetch = Instant::now() - Duration::from_secs(5);
+                            self.preferences.automatic_polling = false;
+                            self.status = "Automatic polling is off. Manual interface selected.".into();
                         }
                     });
                 }
                 ui.add_space(10.0);
+                if !self.preferences.automatic_polling {
+                    ui.weak("Automatic polling is off. Enable it in Settings to resume automatic readings.");
+                }
                 ui.heading(format!("E5 bridge console{}", if self.selected.is_empty() { String::new() } else { format!(" — {}", self.selected) }));
                 ui.label("Read now asks the E5 bridge to poll its configured instruments. Backups are available in Configuration.");
                 ui.horizontal(|ui| {
@@ -254,10 +260,30 @@ impl Configurator {
                 }
                 ui.separator();
                 crate::brand::collapsing(ui, "Activity log", |ui| {
-                    ui.weak("Recent manual actions and offline replay. Automatic polling is omitted.");
+                    ui.weak("Timestamped actions, results, and connection changes. Automatic polling appears only when it fails.");
                     ui.horizontal(|ui| {
+                        if ui.button("Export diagnostics…").clicked()
+                            && let Some(path) = rfd::FileDialog::new().add_filter("Text log", &["txt"]).set_file_name("polygon-diagnostics.txt").save_file()
+                        {
+                            self.status = match crate::diagnostic_log::export(&path) {
+                                Ok(()) => "Diagnostic logs exported.".into(),
+                                Err(error) => format!("Could not export diagnostics: {error}"),
+                            };
+                        }
                         if ui.add_enabled(!self.replay_log.is_empty(), egui::Button::new("Copy log")).clicked() {
-                            ui.ctx().copy_text(self.replay_log.join("\n"));
+                            let text = self.replay_log.join("\r\n");
+                            self.status = match arboard::Clipboard::new().and_then(|mut clipboard| clipboard.set_text(text)) {
+                                Ok(()) => "Activity log copied to clipboard.".into(),
+                                Err(error) => format!("Could not copy activity log: {error}. Use Save log instead."),
+                            };
+                        }
+                        if ui.add_enabled(!self.replay_log.is_empty(), egui::Button::new("Save log…")).clicked()
+                            && let Some(path) = rfd::FileDialog::new().add_filter("Text log", &["txt"]).set_file_name("activity-log.txt").save_file()
+                        {
+                            self.status = match std::fs::write(path, self.replay_log.join("\r\n")) {
+                                Ok(()) => "Activity log saved.".into(),
+                                Err(error) => format!("Could not save activity log: {error}"),
+                            };
                         }
                         if ui.add_enabled(!self.replay_log.is_empty(), egui::Button::new("Clear log")).clicked() { self.replay_log.clear(); }
                     });

@@ -150,7 +150,7 @@ jobs:
           @"
           Windows x64 beta of Polygon Device Configurator.
 
-          Download the ZIP for the executable, README, and dependency notices. The standalone EXE is also included. SHA-256 checksums accompany both.
+          Download the ZIP for the executable, matching full debug symbols, README, and dependency notices. The standalone EXE is also included; its debug symbols are in the ZIP. SHA-256 checksums accompany both downloads.
 
           Checks: rustfmt, Clippy, test suite, 90% headless line-coverage gate, static-runtime dependency inspection, and package integrity. Hosted CI does not qualify physical hardware or native desktop rendering. Firmware flashing is not implemented.
 

@@ -5,6 +5,18 @@ No Python, PowerShell, Rust installation or separate Visual C++ runtime is
 required by this executable. It uses Windows system DLLs and the graphics driver.
 No installer or administrator access is required to launch the app.
 
+Release builds include full debug symbols, debug assertions and integer overflow
+checks. Keep modbus_configurator.pdb with this exact executable when debugging;
+symbols from another build cannot be substituted. The ZIP includes both files.
+The executable remains optimized, so some variables or frames may be unavailable
+in a debugger. Symbols do not automatically record crashes or create crash dumps.
+
+For troubleshooting, use Diagnostics > Activity log > Export diagnostics.
+This saves retained timestamped logs, build identification, background operation
+summaries and Rust panic backtraces in one text file. Logs persist under the
+application data folder in Logs; up to ten process logs and their rotation files
+are retained. Native crashes and forced termination may leave no final entry.
+
 Normal launch automatically discovers supported USB interfaces and reads live
 values. Close other programs using the same serial interface before connecting.
 COM port numbers are discovered dynamically; they are not installation settings.

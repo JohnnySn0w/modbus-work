@@ -17,6 +17,9 @@ if ($executables.Count -ne 1) { throw 'Package must contain exactly one Polygon 
 $exe = $executables[0].FullName
 $packageInfo = Get-Content -LiteralPath (Join-Path $executables[0].DirectoryName 'build-info.json') -Raw | ConvertFrom-Json
 if ((Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $packageInfo.exe_sha256) { throw 'Extracted executable checksum mismatch.' }
+if ($packageInfo.debug_symbols -ne 'full') { throw 'Package must include full release debug symbols.' }
+$symbols = Join-Path $executables[0].DirectoryName 'modbus_configurator.pdb'
+if (!(Test-Path -LiteralPath $symbols) -or (Get-FileHash -LiteralPath $symbols -Algorithm SHA256).Hash.ToLowerInvariant() -ne $packageInfo.pdb_sha256) { throw 'Release debug symbols are missing or their checksum does not match.' }
 # Headless hosted runners can validate packaging without claiming GUI acceptance.
 if ($SkipLaunch) {
     foreach ($file in @('README.txt', 'DEPENDENCIES.txt', 'licenses')) {

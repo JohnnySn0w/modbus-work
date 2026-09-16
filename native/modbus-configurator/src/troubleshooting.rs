@@ -70,7 +70,7 @@ pub fn show(ui: &mut egui::Ui, reference: &Reference, selected: &mut Option<Stri
             ),
             (
                 "Collect information for troubleshooting",
-                "In Diagnostics, expand Activity log and use Copy log. Include the affected device, USB identity, action attempted and last good reading timestamp. Automatic polling is omitted from this log. Offline prompt replay checks bundled protocol scenarios; it does not test connected hardware.",
+                "In Diagnostics, expand Activity log and use Copy log. Include the affected device, USB identity, action attempted and last good reading timestamp. Successful automatic polling is omitted; polling failures are timestamped. Offline prompt replay checks bundled protocol scenarios; it does not test connected hardware.",
             ),
         ] {
             ui.strong(title);
