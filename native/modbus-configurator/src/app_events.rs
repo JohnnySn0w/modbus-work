@@ -21,6 +21,51 @@ impl Configurator {
     pub(super) fn handle_event(&mut self, event: Event) {
         let is_scan = self.scan_pending == Some(event.request_id);
         let is_active = self.active == Some(event.request_id);
+        if is_active {
+            let findings = match &event.kind {
+                EventKind::BridgeResult { result } => Some(diagnostic_checks::bridge(
+                    result,
+                    &self.profiles,
+                    self.line_settings.as_ref(),
+                )),
+                EventKind::AdapterResult { result } => {
+                    Some(diagnostic_checks::adapter(result, &self.profiles))
+                }
+                _ => None,
+            };
+            if let Some(findings) = findings {
+                let changed = self
+                    .diagnostic_report
+                    .as_ref()
+                    .is_none_or(|(port, _, previous)| {
+                        port != &self.selected || previous != &findings
+                    });
+                for finding in &findings {
+                    let message = format!(
+                        "Request {} | {} | Diagnostic {} | {}: {}",
+                        event.request_id,
+                        self.selected,
+                        if finding.warning {
+                            "review"
+                        } else {
+                            "information"
+                        },
+                        finding.subject,
+                        finding.detail
+                    );
+                    if !self.auto_request || changed {
+                        self.record_activity(message);
+                    } else {
+                        diagnostic_log::write(&message);
+                    }
+                }
+                self.diagnostic_report = Some((
+                    self.selected.clone(),
+                    modbus_configurator::last_good::timestamp(),
+                    findings,
+                ));
+            }
+        }
         self.record_service_activity(&event, is_active, is_scan);
         let quiet = is_active
             && self.auto_request

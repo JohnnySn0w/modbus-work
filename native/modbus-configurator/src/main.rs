@@ -9,6 +9,7 @@ mod app_frame;
 mod app_line_settings;
 mod app_network;
 mod app_settings;
+mod diagnostic_checks;
 mod diagnostic_log;
 mod reference_files;
 #[cfg(test)]
@@ -42,6 +43,7 @@ impl Default for Preferences {
     }
 }
 struct Configurator {
+    diagnostic_report: Option<(String, String, Vec<diagnostic_checks::Finding>)>,
     multi_device: bool,
     network_devices: Vec<modbus_configurator::network::Device>,
     network_unrecognized: bool,
@@ -98,6 +100,7 @@ impl Configurator {
         profiles: Vec<modbus_configurator::catalog::Profile>,
     ) -> Self {
         Configurator {
+            diagnostic_report: None,
             multi_device: false,
             network_devices: Vec::new(),
             network_unrecognized: false,

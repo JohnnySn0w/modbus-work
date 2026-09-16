@@ -2,6 +2,28 @@
 use super::*;
 
 impl Configurator {
+    /// Include the complete latest assessment even if older activity rows were trimmed.
+    pub(super) fn log_text(&self) -> String {
+        let mut text = self.replay_log.join("\r\n");
+        if let Some((port, at, findings)) = &self.diagnostic_report {
+            text.push_str(&format!(
+                "\r\n\r\nCommunication and data checks | {port} | {at}\r\n"
+            ));
+            for finding in findings {
+                text.push_str(&format!(
+                    "{} | {}: {}\r\n",
+                    if finding.warning {
+                        "Review"
+                    } else {
+                        "Information"
+                    },
+                    finding.subject,
+                    finding.detail
+                ));
+            }
+        }
+        text
+    }
     pub(super) fn operation_description(operation: &Operation) -> String {
         match operation {
             Operation::BridgeReadAll => "Read E5 bridge measurements".into(),

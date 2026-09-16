@@ -1,0 +1,45 @@
+{
+  "identity": {
+    "model": "ENL-MOD-32",
+    "firmware": "3.6"
+  },
+  "native_tsv": "Item\tID\tReg\tAddr\tData\tWord\tMult\tRead\r\n1\t1\tHold\t5\tF32\tHL\t1\tInt\r\n2\t1\tHold\t7\tF32\tHL\t1\tInt\r\n3\t1\tHold\t11\tF32\tHL\t1\tInt\r\n4\t1\tHold\t21\tF32\tHL\t1\tInt\r\n5\t1\tHold\t45\tF32\tHL\t1\tInt\r\n6\t1\tHold\t513\tU16\tHH\t1\tInt\r\n7\t1\tHold\t514\tU16\tHH\t1\tInt\r\n8\t1\tHold\t516\tU32\tHL\t1\tInt\r\n",
+  "readings": [
+    {
+      "item": 1,
+      "value": -6.2619849e-22
+    },
+    {
+      "item": 2,
+      "value": 5.8891551e-39
+    },
+    {
+      "item": 3,
+      "value": 5.8891544e-39
+    },
+    {
+      "item": 4,
+      "value": 5.8900729e-39
+    },
+    {
+      "item": 5,
+      "value": 5.8888629e-39
+    },
+    {
+      "item": 6,
+      "value": 0.0
+    },
+    {
+      "item": 7,
+      "value": 0.0
+    }
+  ],
+  "successful_reads": 7,
+  "exceptions": [
+    {
+      "item": 8,
+      "code": 2,
+      "message": "Illegal Data Address"
+    }
+  ]
+}

@@ -208,6 +208,20 @@ impl Configurator {
                 }
                 ui.separator();
                 ui.heading("Diagnostics");
+                ui.group(|ui| {
+                    ui.heading("Communication and data checks");
+                    ui.label("Read-only assessment of the last response. Plausible values do not prove correct indexing, word order, device identity, or sensor accuracy. Zero is not automatically an error.");
+                    if let Some((port, at, findings)) = &self.diagnostic_report {
+                        ui.strong(format!("{} items to review · {port} · {at}", findings.iter().filter(|f| f.warning).count()));
+                        ui.weak("Snapshot from that request; not a live connection indicator. Retained readings are excluded from these checks.");
+                        for finding in findings {
+                            ui.separator();
+                            if finding.warning { ui.colored_label(crate::brand::ORANGE, format!("Review · {}", finding.subject)); }
+                            else { ui.strong(&finding.subject); }
+                            ui.label(&finding.detail);
+                        }
+                    } else { ui.label("No response assessed yet. Select an interface and request readings; no extra bus probes are performed by these checks."); }
+                });
                 ui.strong("USB interfaces");
                 ui.label("Choose the USB interface to use. E5 bridge console actions are available for a verified E5 bridge.");
                 if self.ports.is_empty() { ui.label("No serial interfaces reported."); }
@@ -270,17 +284,17 @@ impl Configurator {
                                 Err(error) => format!("Could not export diagnostics: {error}"),
                             };
                         }
-                        if ui.add_enabled(!self.replay_log.is_empty(), egui::Button::new("Copy log")).clicked() {
-                            let text = self.replay_log.join("\r\n");
+                        if ui.add_enabled(!self.replay_log.is_empty() || self.diagnostic_report.is_some(), egui::Button::new("Copy log")).clicked() {
+                            let text = self.log_text();
                             self.status = match arboard::Clipboard::new().and_then(|mut clipboard| clipboard.set_text(text)) {
                                 Ok(()) => "Activity log copied to clipboard.".into(),
                                 Err(error) => format!("Could not copy activity log: {error}. Use Save log instead."),
                             };
                         }
-                        if ui.add_enabled(!self.replay_log.is_empty(), egui::Button::new("Save log…")).clicked()
+                        if ui.add_enabled(!self.replay_log.is_empty() || self.diagnostic_report.is_some(), egui::Button::new("Save log…")).clicked()
                             && let Some(path) = rfd::FileDialog::new().add_filter("Text log", &["txt"]).set_file_name("activity-log.txt").save_file()
                         {
-                            self.status = match std::fs::write(path, self.replay_log.join("\r\n")) {
+                            self.status = match std::fs::write(path, self.log_text()) {
                                 Ok(()) => "Activity log saved.".into(),
                                 Err(error) => format!("Could not save activity log: {error}"),
                             };

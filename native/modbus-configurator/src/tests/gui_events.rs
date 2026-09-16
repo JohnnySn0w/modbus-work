@@ -1472,3 +1472,44 @@ fn activity_records_timestamped_results_and_background_failures_without_poll_noi
     assert!(text.contains("Completed: Read complete"));
     assert!(!text.contains("Item\tID"));
 }
+
+#[test]
+fn diagnostic_snapshot_uses_current_response_before_retained_values() {
+    let mut a = app();
+    start(&mut a);
+    let previous = read(&a, 22.0);
+    send(&mut a, EventKind::BridgeResult { result: previous });
+    start(&mut a);
+    let mut current = read(&a, 0.0);
+    current.readings.clear();
+    current.successful_reads = Some(0);
+    send(&mut a, EventKind::BridgeResult { result: current });
+    let (port, at, findings) = a.diagnostic_report.as_ref().unwrap();
+    assert_eq!(port, "COM41");
+    assert!(at.contains("(local)"));
+    assert!(
+        findings
+            .iter()
+            .any(|f| f.subject == "Slave 1 · point 1" && f.detail.contains("No value"))
+    );
+    assert_eq!(a.result.as_ref().unwrap().readings[0].value, 22.0);
+    assert!(
+        a.replay_log
+            .iter()
+            .any(|entry| entry.contains("Diagnostic review | Slave 1 · point 1"))
+    );
+    a.replay_log.clear();
+    let text = a.log_text();
+    assert!(text.contains("Communication and data checks | COM41"));
+    assert!(text.contains("No value or exception returned"));
+    start(&mut a);
+    a.auto_request = true;
+    let mut repeated = read(&a, 0.0);
+    repeated.readings.clear();
+    repeated.successful_reads = Some(0);
+    send(&mut a, EventKind::BridgeResult { result: repeated });
+    assert!(
+        a.replay_log.is_empty(),
+        "Unchanged automatic findings should not flood activity"
+    );
+}
