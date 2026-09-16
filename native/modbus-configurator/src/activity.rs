@@ -5,6 +5,10 @@ impl Configurator {
     /// Include the complete latest assessment even if older activity rows were trimmed.
     pub(super) fn log_text(&self) -> String {
         let mut text = self.replay_log.join("\r\n");
+        if !self.communication_log.is_empty() {
+            text.push_str("\r\n\r\nCommunication timeline\r\n");
+            text.push_str(&self.communication_log.join("\r\n"));
+        }
         if let Some((port, at, findings)) = &self.diagnostic_report {
             text.push_str(&format!(
                 "\r\n\r\nCommunication and data checks | {port} | {at}\r\n"
@@ -63,7 +67,7 @@ impl Configurator {
                 message,
                 recoverable,
             } => Some(format!(
-                "Error {code:?}: {message}; recovery available: {recoverable}"
+                "Error {code:?}: {message}; retry permitted: {recoverable} (recovery not confirmed)"
             )),
             EventKind::PortSnapshot { ports } if scan => {
                 let previous: Vec<_> = self

@@ -14,7 +14,10 @@ impl Configurator {
                 Err(e) => Err(e),
             });
         match result {
-            Ok(preferences) => self.preferences = preferences,
+            Ok(mut preferences) => {
+                preferences.communication = preferences.communication.bounded();
+                self.preferences = preferences;
+            }
             Err(e) => {
                 self.preferences.automatic_polling = false;
                 self.settings_message = format!(
@@ -112,7 +115,52 @@ impl Configurator {
         if theme_changed {
             self.apply_theme(ui.ctx());
         }
-        if theme_changed || polling_changed || units_changed {
+        ui.add_space(24.0);
+        ui.strong("Advanced communication settings");
+        ui.label("Host-side limits in seconds. Changes apply to the next operation; an active operation keeps its current limits. These do not change E5 bridge sensor settings.");
+        let mut communication_changed = false;
+        egui::Grid::new("communication-settings").show(ui, |ui| {
+            for (label, value, range) in [
+                (
+                    "Initial console response",
+                    &mut self.preferences.communication.initial_seconds,
+                    1..=120,
+                ),
+                (
+                    "Menu and command response",
+                    &mut self.preferences.communication.command_seconds,
+                    1..=120,
+                ),
+                (
+                    "Read All response (each phase)",
+                    &mut self.preferences.communication.read_all_seconds,
+                    5..=900,
+                ),
+                (
+                    "Automatic retry delay after failure",
+                    &mut self.preferences.communication.retry_seconds,
+                    5..=300,
+                ),
+            ] {
+                ui.label(label);
+                communication_changed |= ui
+                    .add(egui::DragValue::new(value).range(range).suffix(" seconds"))
+                    .changed();
+                ui.end_row();
+            }
+        });
+        ui.weak("A silent initial connection can use two waits: the initial response and one wake attempt. A longer Read All limit allows more time; it does not prove the E5 bridge is still scanning.");
+        if ui.button("Reset communication defaults").clicked() {
+            self.preferences.communication = Default::default();
+            communication_changed = true;
+        }
+        if communication_changed {
+            self.record_activity(format!(
+                "Communication settings changed: {:?}; applies to next operation",
+                self.preferences.communication
+            ));
+        }
+        if theme_changed || polling_changed || units_changed || communication_changed {
             self.settings_message = match self
                 .storage_root
                 .clone()

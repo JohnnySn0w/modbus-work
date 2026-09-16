@@ -1405,7 +1405,13 @@ fn empty_program_target_and_oversized_responses_stop_before_mutation() {
     f.initial = "x".repeat(modbus_configurator::console::MAX_RESPONSE_BYTES + 1);
     let script = Script::new(f, 1024);
     let writes = script.writes.clone();
-    let error = BridgeSession::new(Box::new(script), timing())
+    // This tests the byte limit, not parser throughput under coverage instrumentation.
+    let limit_timing = Timing {
+        response: Duration::from_secs(5),
+        operation: Duration::from_secs(10),
+        ..timing()
+    };
+    let error = BridgeSession::new(Box::new(script), limit_timing)
         .run(&identity(), true, &AtomicBool::new(false), |_| {})
         .unwrap_err();
     assert!(matches!(error.code, ErrorCode::InvalidResponse));

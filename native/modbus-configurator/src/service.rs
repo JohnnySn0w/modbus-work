@@ -7,7 +7,7 @@ use crate::{
 use std::{
     collections::HashMap,
     sync::{
-        Arc,
+        Arc, Mutex,
         atomic::{AtomicBool, AtomicU64, Ordering},
         mpsc::{self, Receiver, Sender},
     },
@@ -124,6 +124,7 @@ impl Actor {
         events: Sender<Event>,
         timing: Timing,
         usb: PortInfo,
+        communication: Arc<Mutex<Option<crate::bridge::CommunicationSettings>>>,
     ) -> std::io::Result<Self> {
         let usb = Some(usb);
         let session_usb = usb.clone();
@@ -205,6 +206,13 @@ impl Actor {
                                     stage: format!("Opening {port} E5 bridge console"),
                                 });
                                 session = Some(BridgeSession::new(backend.open(&port)?, timing));
+                            }
+                            if let Some(settings) = *communication.lock().unwrap_or_else(|e| e.into_inner()) {
+                                let trace_events = events.clone();
+                                let request_id = command.request_id;
+                                session.as_mut().unwrap().configure_communication(settings, move |message| {
+                                    let _ = trace_events.send(Event { request_id, kind: EventKind::Progress { stage: format!("Communication | {message}") } });
+                                });
                             }
                             if let Operation::BridgeLineSettings { target, reviewed } = &command.operation {
                                 return session.as_mut().unwrap().configure_line(expected, target, reviewed, &cancel,
@@ -328,11 +336,16 @@ impl Drop for Actor {
 }
 
 pub struct Service {
+    communication: Arc<Mutex<Option<crate::bridge::CommunicationSettings>>>,
     commands: Option<Sender<Command>>,
     pub events: Receiver<Event>,
     worker: Option<JoinHandle<()>>,
 }
 impl Service {
+    /// Apply host deadlines between operations; never interrupt an active request.
+    pub fn set_communication(&self, settings: crate::bridge::CommunicationSettings) {
+        *self.communication.lock().unwrap_or_else(|e| e.into_inner()) = Some(settings.bounded());
+    }
     pub fn offline() -> std::io::Result<Self> {
         Self::with_backend(Arc::new(OfflineBackend), Timing::default())
     }
@@ -341,6 +354,8 @@ impl Service {
         Self::with_backend(Arc::new(SerialBackend), Timing::default())
     }
     pub fn with_backend(backend: Arc<dyn Backend>, timing: Timing) -> std::io::Result<Self> {
+        let communication = Arc::new(Mutex::new(None));
+        let actor_communication = communication.clone();
         let (commands, requests) = mpsc::channel::<Command>();
         let (events, receiver) = mpsc::channel();
         let worker = thread::Builder::new().name("hardware-service".into()).spawn(move || {
@@ -418,7 +433,7 @@ impl Service {
                             if matches!(command.operation, Operation::ClosePort) {
                                 emit(EventKind::Result { message: "Port is already released.".into() }); continue;
                             }
-                            match Actor::spawn(port.clone(), backend.clone(), events.clone(), timing, selected_usb.expect("validated hardware route")) {
+                            match Actor::spawn(port.clone(), backend.clone(), events.clone(), timing, selected_usb.expect("validated hardware route"), actor_communication.clone()) {
                                 Ok(actor) => { actors.insert(port.clone(), actor); },
                                 Err(_) => { error(ErrorCode::Transport, "Unable to start serial worker."); continue; }
                             }
@@ -438,6 +453,7 @@ impl Service {
             for actor in actors.values() { actor.cancelled.store(true, Ordering::Release); }
         })?;
         Ok(Self {
+            communication,
             commands: Some(commands),
             events: receiver,
             worker: Some(worker),

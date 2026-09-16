@@ -1,6 +1,8 @@
 Polygon Device Configurator — Windows x64 portable build
 
 Extract the ZIP into a folder and double-click Polygon Device Configurator.exe.
+The window title shows the release tag or local build identifier so copies can
+be distinguished even when the executable has been renamed or moved.
 No Python, PowerShell, Rust installation or separate Visual C++ runtime is
 required by this executable. It uses Windows system DLLs and the graphics driver.
 No installer or administrator access is required to launch the app.

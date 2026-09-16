@@ -1513,3 +1513,37 @@ fn diagnostic_snapshot_uses_current_response_before_retained_values() {
         "Unchanged automatic findings should not flood activity"
     );
 }
+
+#[test]
+fn communication_timeline_is_bounded_transferable_and_does_not_replace_status() {
+    let mut a = app();
+    start(&mut a);
+    a.auto_request = true;
+    a.status = "Ready".into();
+    for i in 0..140 {
+        send(
+            &mut a,
+            EventKind::Progress {
+                stage: format!("Communication | Waiting sample {i}"),
+            },
+        );
+    }
+    assert_eq!(a.communication_log.len(), 128);
+    assert!(a.communication_log[0].contains("Waiting sample 12"));
+    assert_eq!(a.status, "Ready");
+    assert!(a.replay_log.is_empty());
+    assert!(
+        a.log_text()
+            .contains("Request 42 | COM41 | Communication | Waiting sample 139")
+    );
+    a.active = None;
+    send(
+        &mut a,
+        EventKind::Progress {
+            stage: "Communication | stale request".into(),
+        },
+    );
+    assert!(!a.log_text().contains("stale request"));
+    let settings: Preferences = serde_json::from_str(r#"{"automatic_polling": false}"#).unwrap();
+    assert_eq!(settings.communication.read_all_seconds, 180);
+}

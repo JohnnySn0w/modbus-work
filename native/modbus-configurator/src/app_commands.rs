@@ -81,6 +81,10 @@ impl Configurator {
     }
     /// Submit a correlated service request; return its ID only when accepted.
     pub(super) fn request(&mut self, operation: Operation, hardware: bool) -> Option<u64> {
+        if hardware {
+            self.service
+                .set_communication(self.preferences.communication);
+        }
         self.next_id += 1;
         let expected_identity = matches!(
             operation,

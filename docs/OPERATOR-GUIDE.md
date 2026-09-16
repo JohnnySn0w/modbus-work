@@ -44,6 +44,10 @@ Value checks flag non-finite numbers, broad physical bounds (such as relative hu
 
 Serial checks show the reported E5 bridge settings, flag incompatible data-bit settings, and compare the timeout against an estimated request/response transmission time. Instrument baud rate and parity cannot be inferred from a timeout or from a successful USB console connection. No automatic baud scan, alternate-address reads, or configuration writes are performed. Findings are included in exported diagnostics.
 
+**Settings → Advanced communication settings** controls the application's waits, independently of the E5 bridge's sensor settings. Defaults are 20 seconds for the initial console response, 5 seconds for menu/command replies, 180 seconds for each Read All phase, and 30 seconds before an automatic retry after failure. Changes apply at the next operation without reopening the active connection. A silent initial connection can consume an initial wait plus one wake-response wait. Read All can have two response phases. Longer limits allow more waiting but do not establish that a scan is progressing. Reset communication defaults restores these values.
+
+For a connection failure, turn automatic polling off, use **Read configuration only** in Diagnostics to check console access without polling instruments, then use **Read now** for the sensor read. **Live communication timeline** shows response deadlines, first-byte latency, byte counts, last-byte age, parser state, and bounded receive-recovery attempts. Read All also records configured entry count, slave addresses, and downstream settings when available. A successful recovery call is not proof that data resumed. No passwords or response payloads are recorded. **Copy log**, **Save log…**, and **Export diagnostics…** include the timeline. Use Export diagnostics for the longer retained history.
+
 Settings.json, Selected.tsv and Backups are stored beneath `%LOCALAPPDATA%/Polygon/Device Configurator/`. History itself is not persisted. Avoid sharing logs or configuration material that includes credentials.
 
 Firmware updating is not available yet. See [firmware plan](FIRMWARE-UPDATES.md).

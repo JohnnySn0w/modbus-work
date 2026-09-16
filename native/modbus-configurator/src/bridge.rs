@@ -1,5 +1,8 @@
 //! Firmware 3.6 console workflows through one persistent transport.
+mod communication;
 mod line_settings;
+mod receive;
+pub use communication::CommunicationSettings;
 mod parsing;
 pub use line_settings::LineSettings;
 use parsing::{export_count, verify_summary};
@@ -42,6 +45,7 @@ impl From<io::Error> for BridgeError {
     }
 }
 type Result<T> = std::result::Result<T, BridgeError>;
+type TraceSink = Box<dyn Fn(&str) + Send>;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Reading {
@@ -86,6 +90,9 @@ pub struct BridgeSession {
     identity: Option<Identity>,
     login: Option<String>,
     timing: Timing,
+    initial_response: Duration,
+    read_all_response: Duration,
+    trace: Option<TraceSink>,
     received_bytes: usize,
     cached_table: Option<(BridgeResult, Instant)>,
     import_ack: Option<&'static str>,
@@ -145,6 +152,9 @@ impl BridgeSession {
             identity: None,
             login: None,
             timing,
+            initial_response: timing.response,
+            read_all_response: Duration::from_secs(60),
+            trace: None,
             received_bytes: 0,
             cached_table: None,
             import_ack: None,
@@ -167,97 +177,6 @@ impl BridgeSession {
         Ok(())
     }
 
-    // A recognized prompt must be followed by quiet input. This allows later
-    // menu fields/identity/summary to arrive in separate serial reads.
-    fn receive(
-        &mut self,
-        cancel: &AtomicBool,
-        deadline: Instant,
-        allow_silent: bool,
-    ) -> Result<()> {
-        self.receive_segment(cancel, deadline, allow_silent, false)
-    }
-
-    fn receive_segment(
-        &mut self,
-        cancel: &AtomicBool,
-        deadline: Instant,
-        allow_silent: bool,
-        preserve: bool,
-    ) -> Result<()> {
-        self.received_bytes = 0;
-        let mut last_data = Instant::now();
-        let mut last_recovery = Instant::now();
-        let mut recoveries = 0;
-        let mut received = false;
-        let mut total = if preserve {
-            self.parser.text().len()
-        } else {
-            0
-        };
-        let mut bytes = [0; 1024];
-        loop {
-            Self::check(cancel, deadline)?;
-            match self.transport.read(&mut bytes) {
-                Ok(0) => return Err(io::Error::from(io::ErrorKind::UnexpectedEof).into()),
-                Ok(count) => {
-                    self.received_bytes += count;
-                    if !received && !preserve {
-                        self.parser.reset();
-                    }
-                    received = true;
-                    total += count;
-                    if total > crate::console::MAX_RESPONSE_BYTES {
-                        return Err(BridgeError::new(
-                            ErrorCode::InvalidResponse,
-                            "Console response exceeded the supported size.",
-                        ));
-                    }
-                    self.parser.feed(&bytes[..count]);
-                    last_data = Instant::now();
-                }
-                Err(e)
-                    if matches!(
-                        e.kind(),
-                        io::ErrorKind::TimedOut | io::ErrorKind::WouldBlock
-                    ) =>
-                {
-                    if self.transport.continuous_receive()
-                        && (!allow_silent || received)
-                        && !self.response_ready()
-                        && last_data.elapsed() >= Duration::from_millis(500)
-                        && last_recovery.elapsed() >= Duration::from_millis(500)
-                        && recoveries < 16
-                    {
-                        if let Err(e) = self.transport.resume_receive()
-                            && e.kind() != io::ErrorKind::Unsupported
-                        {
-                            return Err(e.into());
-                        }
-                        recoveries += 1;
-                        last_recovery = Instant::now();
-                    }
-                    if !self.transport.continuous_receive()
-                        && received
-                        && last_data.elapsed() >= self.timing.quiet
-                        && !self.response_ready()
-                    {
-                        return Err(BridgeError::new(
-                            ErrorCode::Timeout,
-                            "Console reply stalled before its final prompt.",
-                        ));
-                    }
-                    if last_data.elapsed() >= self.timing.quiet
-                        && ((received && self.response_ready()) || (allow_silent && !received))
-                    {
-                        return Ok(());
-                    }
-                }
-                Err(e) => return Err(e.into()),
-            }
-        }
-    }
-
     fn send(
         &mut self,
         line: &str,
@@ -266,6 +185,12 @@ impl BridgeSession {
         timeout: Duration,
     ) -> Result<()> {
         Self::check(cancel, deadline)?;
+        self.trace_event(&format!(
+            "Console write: {} bytes from parser state {:?}; response deadline {} ms",
+            line.len() + 1,
+            self.parser.state(),
+            timeout.as_millis()
+        ));
         if self.transport.continuous_receive() {
             self.parser.reset();
             self.transport.write(format!("{line}\r").as_bytes())?;
@@ -404,7 +329,7 @@ impl BridgeSession {
         progress("Checking E5 bridge console and identity");
         let initial = self.receive(
             cancel,
-            deadline.min(Instant::now() + self.timing.response),
+            deadline.min(Instant::now() + self.initial_response),
             self.identity.is_some(),
         );
         match initial {
@@ -417,7 +342,7 @@ impl BridgeSession {
                 // console helper. Never use it after any observed unknown/import
                 // output, or as a retry for a failed navigation command.
                 progress("Waking silent USB console once");
-                self.send("", cancel, deadline, self.timing.response)?;
+                self.send("", cancel, deadline, self.initial_response)?;
             }
             other => other?,
         }
@@ -693,9 +618,21 @@ impl BridgeSession {
             ));
         }
         progress("Reading all configured Modbus points through the E5 bridge");
-        self.send("A", cancel, deadline, Duration::from_secs(60))?;
+        let slaves: std::collections::BTreeSet<_> = rows
+            .values()
+            .filter_map(|row| row.split('\t').nth(1))
+            .collect();
+        self.trace_event(&format!("Read All: {count} configured entries; slave addresses {}; host response limit {} seconds", slaves.into_iter().collect::<Vec<_>>().join(", "), self.read_all_response.as_secs()));
+        if let Some(settings) = self.line_settings() {
+            self.trace_event(&format!("E5 bridge downstream settings: {}; retries {}; sensor timeout {} ms; inter-message delay {} ms", settings.summary(), settings.retries, settings.timeout_ms, settings.delay_ms));
+        } else {
+            self.trace_event(
+                "E5 bridge downstream settings unavailable in the current menu; not inferred",
+            );
+        }
+        self.send("A", cancel, deadline, self.read_all_response)?;
         if self.parser.state() == PromptState::ReadOptions {
-            self.send("D", cancel, deadline, Duration::from_secs(60))?;
+            self.send("D", cancel, deadline, self.read_all_response)?;
         }
         if !self
             .parser

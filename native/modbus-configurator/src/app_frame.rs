@@ -208,6 +208,19 @@ impl Configurator {
                 }
                 ui.separator();
                 ui.heading("Diagnostics");
+                crate::brand::collapsing(ui, "Live communication timeline", |ui| {
+                    ui.label("Recent serial waits, byte counts, parser states, and recovery attempts. Included in Copy log, Save log, and Export diagnostics. Configure time limits in Settings.");
+                    egui::ScrollArea::vertical().id_salt("communication-timeline").max_height(220.0).show(ui, |ui| {
+                        for line in self.communication_log.iter().rev() { ui.label(line); }
+                    });
+                    if self.communication_log.is_empty() { ui.weak("No communication events yet."); }
+                    if let Some(request_id) = self.active.filter(|_| !self.programming)
+                        && ui.button("Cancel current read").clicked() {
+                        self.auto_paused = true;
+                        self.request(Operation::Cancel { request_id }, false);
+                        self.status = "Cancelling the read; automatic polling paused.".into();
+                    }
+                });
                 ui.group(|ui| {
                     ui.heading("Communication and data checks");
                     ui.label("Read-only assessment of the last response. Plausible values do not prove correct indexing, word order, device identity, or sensor accuracy. Zero is not automatically an error.");
@@ -250,6 +263,7 @@ impl Configurator {
                     let ready = !self.selected.is_empty() && !self.foreground_busy()
                         && self.ports.iter().any(|p| p.port == self.selected && modbus_configurator::adapter::is_bridge(p));
                     if ui.add_enabled(ready, egui::Button::new("Read now")).clicked() { self.hardware(Operation::BridgeReadAll); }
+                    if ui.add_enabled(ready, egui::Button::new("Read configuration only")).clicked() { self.hardware(Operation::BridgeExport); }
                     if ui.add_enabled(ready, egui::Button::new("Release console")).clicked() { self.hardware(Operation::ClosePort); }
                 });
                 if let Some(result) = &self.result {
@@ -284,14 +298,14 @@ impl Configurator {
                                 Err(error) => format!("Could not export diagnostics: {error}"),
                             };
                         }
-                        if ui.add_enabled(!self.replay_log.is_empty() || self.diagnostic_report.is_some(), egui::Button::new("Copy log")).clicked() {
+                        if ui.add_enabled(!self.replay_log.is_empty() || !self.communication_log.is_empty() || self.diagnostic_report.is_some(), egui::Button::new("Copy log")).clicked() {
                             let text = self.log_text();
                             self.status = match arboard::Clipboard::new().and_then(|mut clipboard| clipboard.set_text(text)) {
                                 Ok(()) => "Activity log copied to clipboard.".into(),
                                 Err(error) => format!("Could not copy activity log: {error}. Use Save log instead."),
                             };
                         }
-                        if ui.add_enabled(!self.replay_log.is_empty() || self.diagnostic_report.is_some(), egui::Button::new("Save log…")).clicked()
+                        if ui.add_enabled(!self.replay_log.is_empty() || !self.communication_log.is_empty() || self.diagnostic_report.is_some(), egui::Button::new("Save log…")).clicked()
                             && let Some(path) = rfd::FileDialog::new().add_filter("Text log", &["txt"]).set_file_name("activity-log.txt").save_file()
                         {
                             self.status = match std::fs::write(path, self.log_text()) {

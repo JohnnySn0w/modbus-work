@@ -21,6 +21,21 @@ impl Configurator {
     pub(super) fn handle_event(&mut self, event: Event) {
         let is_scan = self.scan_pending == Some(event.request_id);
         let is_active = self.active == Some(event.request_id);
+        if is_active
+            && let EventKind::Progress { stage } = &event.kind
+            && stage.starts_with("Communication | ")
+        {
+            let message = format!("Request {} | {} | {stage}", event.request_id, self.selected);
+            diagnostic_log::write(&message);
+            if self.communication_log.len() >= 128 {
+                self.communication_log.remove(0);
+            }
+            self.communication_log.push(format!(
+                "{} | {message}",
+                modbus_configurator::last_good::timestamp()
+            ));
+            return;
+        }
         if is_active {
             let findings = match &event.kind {
                 EventKind::BridgeResult { result } => Some(diagnostic_checks::bridge(
@@ -162,7 +177,10 @@ impl Configurator {
                 }
                 if is_active {
                     self.active = None;
-                    self.last_fetch = Instant::now() + Duration::from_secs(25);
+                    self.last_fetch = Instant::now()
+                        + Duration::from_secs(
+                            self.preferences.communication.bounded().retry_seconds - 5,
+                        );
                 }
                 if let Some(port) = self
                     .ports

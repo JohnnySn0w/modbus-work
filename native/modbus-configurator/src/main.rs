@@ -29,6 +29,7 @@ use std::time::{Duration, Instant};
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 struct Preferences {
+    communication: modbus_configurator::bridge::CommunicationSettings,
     dark_mode: Option<bool>,
     units: units::Preset,
     automatic_polling: bool,
@@ -36,6 +37,7 @@ struct Preferences {
 impl Default for Preferences {
     fn default() -> Self {
         Self {
+            communication: Default::default(),
             dark_mode: None,
             units: units::Preset::System,
             automatic_polling: true,
@@ -43,6 +45,7 @@ impl Default for Preferences {
     }
 }
 struct Configurator {
+    communication_log: Vec<String>,
     diagnostic_report: Option<(String, String, Vec<diagnostic_checks::Finding>)>,
     multi_device: bool,
     network_devices: Vec<modbus_configurator::network::Device>,
@@ -100,6 +103,7 @@ impl Configurator {
         profiles: Vec<modbus_configurator::catalog::Profile>,
     ) -> Self {
         Configurator {
+            communication_log: Vec::new(),
             diagnostic_report: None,
             multi_device: false,
             network_devices: Vec::new(),
@@ -190,6 +194,13 @@ fn main() -> eframe::Result {
     .map_err(|e| eframe::Error::AppCreation(Box::new(e)))?;
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
+            .with_title(format!(
+                "Polygon Device Configurator — {}",
+                option_env!("POLYGON_BUILD_ID")
+                    .and_then(|build| build.split('|').next())
+                    .map(str::trim)
+                    .unwrap_or(concat!("v", env!("CARGO_PKG_VERSION"), " (development)"))
+            ))
             .with_icon(brand::icon())
             .with_inner_size([1180.0, 760.0])
             .with_min_inner_size([960.0, 640.0]),
