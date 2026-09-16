@@ -4,6 +4,7 @@ use eframe::egui;
 mod activity;
 mod app_commands;
 mod app_configuration;
+mod app_diagnostics;
 mod app_events;
 mod app_frame;
 mod app_line_settings;
