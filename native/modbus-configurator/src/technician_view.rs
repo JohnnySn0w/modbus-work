@@ -145,9 +145,6 @@ fn configuration_warning(
     if stale {
         return Some("Read failed. Check the sensor type, wiring and serial settings; retained readings are stale.".into());
     }
-    if result.successful_reads.is_none() {
-        return Some("Awaiting live validation of the configured point table.".into());
-    }
     let implausible = profile.map_or(0, |p| {
         result
             .readings
@@ -157,7 +154,7 @@ fn configuration_warning(
                     return false;
                 };
                 match register.units.as_str() {
-                    "°C" => !(-150.0..=200.0).contains(&reading.value),
+                    "°C" | "deg C" => !(-150.0..=200.0).contains(&reading.value),
                     "%RH" => !(0.0..=100.0).contains(&reading.value),
                     "bara" => !(0.0..=12.0).contains(&reading.value),
                     "ppmv" => !(0.0..=1_000_000.0).contains(&reading.value),
@@ -404,6 +401,49 @@ mod tests {
     }
     use super::*;
     use modbus_configurator::{bridge::Reading, contract::Identity};
+
+    #[test]
+    fn polling_is_quiet_but_partial_errors_and_stale_values_warn() {
+        let profiles = modbus_configurator::catalog::bundled().unwrap();
+        let profile = profiles
+            .iter()
+            .find(|p| p.point_register(1).is_some_and(|r| r.units == "deg C"))
+            .unwrap();
+        let mut result = BridgeResult {
+            identity: Identity {
+                model: "ENL-MOD-32".into(),
+                firmware: "3.6".into(),
+            },
+            native_tsv: profile.native_tsv.clone(),
+            readings: vec![],
+            successful_reads: None,
+            exceptions: vec![],
+        };
+        assert!(configuration_warning(Some(profile), Some(&result), false).is_none());
+        assert!(configuration_warning(Some(profile), Some(&result), true).is_some());
+        result
+            .exceptions
+            .push(modbus_configurator::bridge::PointException {
+                item: 1,
+                code: 11,
+                message: "No response".into(),
+            });
+        assert!(
+            configuration_warning(Some(profile), Some(&result), false)
+                .unwrap()
+                .contains("1 point errors")
+        );
+        result.exceptions.clear();
+        result.readings.push(Reading {
+            item: 1,
+            value: 900.0,
+        });
+        assert!(
+            configuration_warning(Some(profile), Some(&result), false)
+                .unwrap()
+                .contains("1 implausible")
+        );
+    }
 
     #[test]
     fn readout_mapping_uses_python_semantics_only_for_an_exact_table() {

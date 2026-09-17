@@ -31,24 +31,16 @@ fn sample(definition: &str, value: Option<f64>) -> Sample {
     }
 }
 #[test]
-fn expired_series_selection_recovers_and_empty_history_clears_it() {
-    let mut view = HistoryView {
-        selected: Some(("fixture-usb".into(), "old point".into())),
-        ..Default::default()
-    };
+fn graphs_follow_recorded_series_and_empty_history() {
+    let mut view = HistoryView::default();
     let mut history = History {
         samples: [sample("new point", Some(23.5))].into(),
         discarded: 1,
     };
     let text = render(&mut view, &history);
-    assert_eq!(
-        view.selected,
-        Some(("fixture-usb".into(), "new point".into()))
-    );
     assert!(text.contains("23.5"));
     history.samples.clear();
     let text = render(&mut view, &history);
-    assert!(view.selected.is_none());
     assert!(text.contains("Waiting for live readings"));
 }
 #[test]
@@ -83,4 +75,32 @@ fn adapter_series_names_distinguish_points_and_chart_has_scales() {
     let text = render(&mut HistoryView::default(), &history);
     assert!(text.contains("Native units: °C"), "{text}");
     assert!(text.contains("Elapsed time from first sample"));
+}
+
+#[test]
+fn every_slave_register_and_source_has_a_separate_graph() {
+    let mut history = History::default();
+    for slave in 1..=32 {
+        history.samples.push_back(sample(
+            &format!("Temperature (°C) · 1 / {slave} / Hold / 4 / F32 / HL / 1 / Int"),
+            Some(f64::from(slave)),
+        ));
+    }
+    history.samples.push_back(sample(
+        "Temperature (°C) · 1 / 1 / Hold / 6 / F32 / HL / 1 / Int",
+        None,
+    ));
+    let mut other_source = history.samples[0].clone();
+    other_source.source = "second-usb".into();
+    history.samples.push_back(other_source);
+    let groups = group_samples(&history);
+    assert_eq!(groups.len(), 34);
+    assert!(groups.values().all(|samples| samples.len() == 1));
+    for ((source, definition), _) in groups {
+        let label = series_label(source, definition);
+        assert!(
+            label.contains("Slave ") && label.contains("Register ") && label.contains("°C"),
+            "{label}"
+        );
+    }
 }

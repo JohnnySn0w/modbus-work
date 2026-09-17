@@ -61,7 +61,7 @@ impl History {
         }
         let source = source(port);
         let profiles = crate::catalog::bundled().unwrap_or_default();
-        let profile = profiles.iter().find(|p| p.contains_points(result));
+        let devices = crate::network::recognize(&result.native_tsv, &profiles).unwrap_or_default();
         for row in result.native_tsv.lines().skip(1) {
             let Some(item) = row.split('\t').next().and_then(|s| s.parse::<u8>().ok()) else {
                 continue;
@@ -83,7 +83,22 @@ impl History {
                 },
                 |e| format!("Exception {}: {}", e.code, e.message),
             );
-            let name = profile.and_then(|p| p.point_register(item)).map_or_else(
+            let register = row
+                .split('\t')
+                .nth(1)
+                .and_then(|id| id.parse::<u8>().ok())
+                .and_then(|slave| devices.iter().find(|device| device.slave == slave))
+                .and_then(|device| {
+                    let profile = &profiles[device.profile];
+                    profile
+                        .rows
+                        .iter()
+                        .find(|(_, candidate)| {
+                            candidate.split('\t').skip(2).eq(row.split('\t').skip(2))
+                        })
+                        .and_then(|(point, _)| profile.point_register(*point))
+                });
+            let name = register.map_or_else(
                 || format!("Modbus Bridge point {item}"),
                 |r| format!("{} ({})", r.name, r.units),
             );
@@ -232,5 +247,33 @@ mod tests {
         r.successful_reads = Some(0);
         h.bridge(&p, &r, "time", 5);
         assert_ne!(h.samples[3].definition, h.samples[0].definition);
+        // Reordered, repeated models retain their own register names and units.
+        let profiles = crate::catalog::bundled().unwrap();
+        let index = profiles
+            .iter()
+            .position(|p| {
+                p.point_register(1)
+                    .is_some_and(|r| r.name == "Temperature" && r.units == "deg C")
+            })
+            .unwrap();
+        r.native_tsv = crate::network::compose(
+            &[
+                crate::network::Device::new(index, 3, &profiles),
+                crate::network::Device::new(index, 1, &profiles),
+            ],
+            &profiles,
+        )
+        .unwrap();
+        let start = h.samples.len();
+        h.bridge(&p, &r, "time", 6);
+        let points = profiles[index].rows.len();
+        assert!(h.samples[start].definition.contains("Temperature (deg C)"));
+        assert!(h.samples[start].definition.contains(" / 3 / "));
+        assert!(
+            h.samples[start + points]
+                .definition
+                .contains("Temperature (deg C)")
+        );
+        assert!(h.samples[start + points].definition.contains(" / 1 / "));
     }
 }
