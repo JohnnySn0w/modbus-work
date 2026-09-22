@@ -6,5 +6,4 @@ Item	ID	Reg	Addr	Data	Word	Mult	Read
 5	1	Hold	9	F32	HH	1	Int
 6	1	Hold	11	F32	HH	1	Int
 7	1	Hold	13	F32	HH	1	Int
-8	1	Hold	15	F32	HH	1	Int
-9	1	Hold	513	S16	HH	1	Int
+8	1	Hold	513	S16	HH	1	Int

@@ -296,12 +296,9 @@ pub fn poll(
                         .then_some(true))
                 }
                 "hmd65" => {
-                    let raw = read(3, 0, 16)?;
-                    let status = read(3, 512, 7)?;
-                    if raw.len() != 32
-                        || status.len() != 14
-                        || [0, 10, 12].iter().any(|i| word(&status[*i..]) > 0x1ff)
-                    {
+                    let raw = read(3, 0, 14)?;
+                    let status = read(3, 512, 1)?;
+                    if raw.len() != 28 || status.len() != 2 || word(&status) > 0x1ff {
                         return Ok(None);
                     }
                     let orders: Vec<_> = [false, true]

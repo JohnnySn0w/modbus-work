@@ -166,15 +166,15 @@ def _probe_dpt146(port: str, slave: int, parity: str, stopbits: int):
 def _probe_hmd65(port: str, slave: int, parity: str, stopbits: int):
     def run() -> ProbeResult | None:
         client = ModbusClient(port, 19200, parity, stopbits)
-        values = client.request(slave, 3, 0, 16)
-        status = client.request(slave, 3, 512, 7)
-        if not values or not status:
+        values = client.request(slave, 3, 0, 14)
+        status = client.request(slave, 3, 512, 1)
+        if not values or len(values) != 28 or not status or len(status) != 2:
             return None
         candidates = []
         for low_first in (False, True):
             try:
                 decoded = [decode_float_words(values[index:index + 4], low_first)
-                           for index in range(0, 32, 4)]
+                           for index in range(0, 28, 4)]
             except (ValueError, struct.error):
                 continue
             humidity, temperature = decoded[0], decoded[1]
@@ -188,14 +188,12 @@ def _probe_hmd65(port: str, slave: int, parity: str, stopbits: int):
         decoded, low_first = candidates[0]
         humidity, temperature = decoded[0], decoded[1]
         device_status = int.from_bytes(status[:2], "big", signed=True)
-        rh_status = int.from_bytes(status[10:12], "big", signed=True)
-        temperature_status = int.from_bytes(status[12:14], "big", signed=True)
-        if any(value < 0 or value > 0x1FF for value in (device_status, rh_status, temperature_status)):
+        if not 0 <= device_status <= 0x1FF:
             return None
         return ProbeResult(
             key="hmd65", port=port, slave_id=slave,
             serial_format=f"19200 8{parity}{stopbits}", confidence="high",
-            reason="All eight HMD65 measurement floats and its status layout matched.",
+            reason="Seven HMD65 measurements and device status matched expected ranges.",
             readings={
                 "Relative humidity": (round(humidity, 2), "%RH"),
                 "Temperature": (round(temperature, 2), "°C"),

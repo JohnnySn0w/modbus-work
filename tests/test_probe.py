@@ -1,6 +1,7 @@
 import math
 import struct
 import unittest
+from unittest.mock import patch, call
 
 from app.probe import (
     decode_float_words,
@@ -12,6 +13,19 @@ from app.probe import (
 
 
 class ProbeProtocolTests(unittest.TestCase):
+    def test_hmd65_discovery_reads_only_allowed_registers(self) -> None:
+        from app.probe import _probe_hmd65
+
+        humidity = struct.unpack(">f", bytes.fromhex("4248ffff"))[0]
+        values = struct.pack(">7f", humidity, 23.5, 8.5, 8.5, 1.0, 1.0, 8.5)
+        with patch("app.probe.ModbusClient") as client:
+            client.return_value.request.side_effect = [values, bytes(2)]
+            result = _probe_hmd65("COM41", 1, "N", 1)()
+            self.assertIsNotNone(result)
+            self.assertEqual(client.return_value.request.call_args_list,
+                             [call(1, 3, 0, 14), call(1, 3, 512, 1)])
+
+
     def test_known_modbus_request_crc(self) -> None:
         payload = bytes.fromhex("01 03 00 04 00 02")
         self.assertEqual(frame_with_crc(payload).hex(" "), "01 03 00 04 00 02 85 ca")

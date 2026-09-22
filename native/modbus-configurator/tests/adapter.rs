@@ -32,6 +32,13 @@ impl Bus for Fixture {
     fn request(&mut self, slave: u8, function: u8, addr: u16, count: u16) -> io::Result<Vec<u8>> {
         assert!([1, 127, 240].contains(&slave));
         assert!([3, 0x11].contains(&function));
+        if self.values.contains_key(&(3, 0, 14)) {
+            // HMD65 discovery and polling must not touch excluded registers.
+            for excluded in [14, 15, 142, 143, 513, 514, 517, 518] {
+                assert!(!(addr..addr + count).contains(&excluded));
+            }
+        }
+
         self.values
             .get(&(function, addr, count))
             .cloned()
@@ -154,7 +161,7 @@ fn ambiguous_hmd_byte_order_is_not_a_device_identity() {
             |_| {
                 opens += 1;
                 Ok(Box::new(Fixture {
-                    values: BTreeMap::from([((3, 0, 16), vec![0; 32]), ((3, 512, 7), vec![0; 14])]),
+                    values: BTreeMap::from([((3, 0, 14), vec![0; 28]), ((3, 512, 1), vec![0; 2])]),
                 }))
             },
             || Ok(())
@@ -299,20 +306,11 @@ fn hmd_and_wattnode_identification_decode_real_payloads_and_keep_register_errors
                 let mut values = BTreeMap::new();
                 if key == "hmd65" && opens == 2 {
                     let mut raw = vec![];
-                    for value in [
-                        f32::from_bits(0x4248ffff),
-                        23.5,
-                        8.5,
-                        8.5,
-                        1.0,
-                        1.0,
-                        8.5,
-                        1.0,
-                    ] {
+                    for value in [f32::from_bits(0x4248ffff), 23.5, 8.5, 8.5, 1.0, 1.0, 8.5] {
                         raw.extend(value.to_be_bytes());
                     }
-                    values.insert((3, 0, 16), raw);
-                    values.insert((3, 512, 7), vec![0; 14]);
+                    values.insert((3, 0, 14), raw);
+                    values.insert((3, 512, 1), vec![0; 2]);
                     values.insert((3, 0, 2), 50.0_f32.to_be_bytes().to_vec());
                     values.insert((3, 2, 2), f32::NAN.to_be_bytes().to_vec());
                     values.insert((3, 4, 2), vec![0]);

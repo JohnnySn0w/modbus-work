@@ -22,7 +22,7 @@ Devices shows current or retained data. Read now requests a manual read. Last-go
 
 ## History, settings and help
 
-The HMD65 Modbus Bridge profiles use one-based manual register numbers and exclude registers 514–515, 518 and 519. Each contains nine entries, including device status at 513. Reprogram an existing bridge with the updated profile to remove these entries from its reads. This convention applies to Modbus Bridge configuration files; direct Modbus requests and manufacturer reference addresses remain zero-based. Existing backups are preserved without conversion.
+The HMD65 Modbus Bridge profiles use one-based manual register numbers and exclude registers 514–515, 518 and 519. Each contains eight entries, including device status at 513. Reprogram an existing bridge with the updated profile to remove these entries from its reads. This convention applies to Modbus Bridge configuration files; direct Modbus requests and manufacturer reference addresses remain zero-based. Existing backups are preserved without conversion.
 
 History contains up to 50,000 point samples from this session. Each recorded register has its own graph, labeled by slave address and source. Different register settings remain separate. Axes show native value units and elapsed seconds. Failures leave gaps. Export a comma-separated values file (.csv) before closing if the history is needed later.
 
@@ -57,3 +57,5 @@ Firmware updating is not available yet. See [firmware plan](FIRMWARE-UPDATES.md)
 ## Basis of the guidance
 
 Modbus Bridge and Vaisala DPT146 instructions use recorded test results. Other device instructions are either explicitly attributed to manufacturer documentation or marked **TBD**. Documentation-based suggestions are not hardware verification. Historical notes and proposed test plans are not approved installation procedures.
+
+Enthalpy is excluded from both HMD65 profiles: registers 15–16 (metric) and 143–144 (non-metric). Adapter discovery reads only the seven metric measurements and device status at 513; it does not read the excluded status registers.

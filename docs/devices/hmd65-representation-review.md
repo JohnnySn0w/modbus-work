@@ -23,7 +23,7 @@ Device status is 513, error code is **514-515** (two words), RH status is 518, a
 
 Prefer native IEEE-754 float32 where available. It preserves the native representation and avoids the quantization and saturation of scaled integer registers. It does not improve sensor accuracy. Each float uses two Modbus words. Integer banks use a scale factor of 100 and can saturate at 32767.
 
-The application offers separate metric and non-metric configuration profiles. The display-unit controls and optional native-value comparison change presentation only; they do not rewrite registers or saved native data. HH word order remains unverified for HMD65 floating-point measurements. Registers 514-515, 518 and 519 are excluded from the supplied Modbus Bridge tables and direct adapter polling profiles. Both Modbus Bridge profiles use one-based manual register numbers and contain nine entries. This configuration convention does not change the manufacturer reference addresses or direct Modbus requests.
+The application offers separate metric and non-metric configuration profiles. The display-unit controls and optional native-value comparison change presentation only; they do not rewrite registers or saved native data. HH word order remains unverified for HMD65 floating-point measurements. Registers 514-515, 518 and 519 are excluded from the supplied Modbus Bridge tables and direct adapter polling profiles. Both Modbus Bridge profiles use one-based manual register numbers and contain eight entries. This configuration convention does not change the manufacturer reference addresses or direct Modbus requests.
 
 Source: https://docs.vaisala.com/r/M212264EN-B/en-US/GUID-BD253180-F696-448F-906C-0528DA9AED31
 
@@ -37,3 +37,5 @@ This adds a Modbus Bridge configuration candidate and reference/decoding support
 
 Source: https://www.analyticaltechnology.com/wp-content/uploads/2022/02/D12-F12-Modbus-Manual.pdf
 Reviewed local table: artifacts/register-tables/ati-badger-f12-d12-modbus-register-table.csv
+
+Enthalpy is excluded from both HMD65 profiles: registers 15–16 (metric) and 143–144 (non-metric). Adapter discovery reads only the seven metric measurements and device status at 513; it does not read the excluded status registers.
