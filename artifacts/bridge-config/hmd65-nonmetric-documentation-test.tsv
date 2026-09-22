@@ -8,5 +8,3 @@ Item	ID	Reg	Addr	Data	Word	Mult	Read
 7	1	Hold	141	F32	HH	1	Int
 8	1	Hold	143	F32	HH	1	Int
 9	1	Hold	513	S16	HH	1	Int
-10	1	Hold	518	S16	HH	1	Int
-11	1	Hold	519	S16	HH	1	Int

@@ -79,7 +79,7 @@ fn bundled_artifacts_have_expected_lifecycle_and_complete_point_mapping() {
     assert_eq!(profiles.len(), 5);
     assert_eq!(
         profiles.iter().map(|p| p.rows.len()).collect::<Vec<_>>(),
-        [8, 11, 12, 11, 13]
+        [8, 9, 12, 9, 13]
     );
     assert_eq!(profiles[0].info.status, Validation::Validated);
     assert!(
@@ -309,18 +309,18 @@ fn alternate_bank_and_gas_profile_preserve_wire_addresses_and_word_widths() {
 }
 
 #[test]
-fn hmd65_bridge_tables_use_manual_numbers_and_exclude_error_code() {
+fn hmd65_bridge_tables_use_manual_numbers_and_exclude_unwanted_status_registers() {
     for profile in catalog::bundled()
         .unwrap()
         .iter()
         .filter(|p| p.info.id.starts_with("hmd65"))
     {
-        assert_eq!(profile.rows.len(), 11);
+        assert_eq!(profile.rows.len(), 9);
         for (item, row) in &profile.rows {
             let address: u16 = row.split('\t').nth(3).unwrap().parse().unwrap();
             let register = profile.point_register(*item).unwrap();
             assert_eq!(address, register.range().unwrap().0 + 1);
-            assert!(![514, 515].contains(&address));
+            assert!(![514, 515, 518, 519].contains(&address));
             assert_ne!(register.name, "Error code");
         }
     }
