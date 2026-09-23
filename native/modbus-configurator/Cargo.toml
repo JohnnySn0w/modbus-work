@@ -28,3 +28,6 @@ strip = false
 debug-assertions = true
 overflow-checks = true
 panic = "unwind"
+
+[target.'cfg(windows)'.dev-dependencies]
+winit = { version = "=0.30.13", default-features = false }

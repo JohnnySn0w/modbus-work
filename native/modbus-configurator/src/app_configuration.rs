@@ -22,13 +22,7 @@ impl Configurator {
                     .to_string_lossy()
                     .into();
                 self.loaded_config = Some(table);
-                if self.multi_device {
-                    let recognized = self.loaded_config.as_deref().and_then(|table| {
-                        modbus_configurator::network::recognize(table, &self.profiles)
-                    });
-                    self.network_unrecognized = recognized.is_none();
-                    self.network_devices = recognized.unwrap_or_default();
-                }
+                self.network_initialized = false;
                 self.file_message = match saved {
                     Ok(()) => "Configuration loaded and remembered.".into(),
                     Err(e) => format!("Loaded for this session; could not remember selection: {e}"),
@@ -45,6 +39,18 @@ impl Configurator {
     pub(super) fn configuration_files(&mut self, ui: &mut egui::Ui) {
         use modbus_configurator::config_file as files;
         ui.heading("Configure Modbus Bridge");
+        // A disconnected result is retained for readings, but is not the current target.
+        let eui = self
+            .bridge_source
+            .as_ref()
+            .filter(|source| {
+                self.ports
+                    .iter()
+                    .any(|p| modbus_configurator::adapter::same_route(source, p))
+            })
+            .and(self.result.as_ref())
+            .and_then(|r| r.dev_eui.as_deref());
+        brand::bridge_eui(ui, eui);
         ui.weak("Sensor point tables").on_hover_text("Point-table programming and backups cover the sensor point table. Serial settings, radio settings and credentials are separate.");
         if (self.programming_blocked || self.technician.bridge_fault) && self.active.is_none() {
             ui.label("Polling is paused until the console and current point table can be checked.");
@@ -77,51 +83,14 @@ impl Configurator {
             "Confirmed Modbus Bridge: ENL-MOD-32 · firmware 3.6 · hardware revision not recorded",
         );
         ui.strong("1. Choose a point table");
-        self.configuration_mode(ui);
-        let network_valid = if self.multi_device {
-            self.network_configuration(ui)
-        } else {
-            true
-        };
-        if !self.multi_device {
-            ui.horizontal_wrapped(|ui| {
-                ui.label("Sensor type");
-                for index in 0..self.profiles.len() {
-                    if ui
-                        .selectable_label(
-                            self.catalog_view.selected == Some(index),
-                            &self.profiles[index].info.model,
-                        )
-                        .clicked()
-                    {
-                        self.catalog_view.selected = Some(index);
-                        self.loaded_config = Some(self.profiles[index].native_tsv.clone());
-                        self.config_source = self.profiles[index].info.model.clone();
-                        self.remember_selection();
-                    }
-                }
-                if ui.button("Open configuration file…").clicked()
-                    && let Some(path) = rfd::FileDialog::new()
-                        .add_filter("Modbus Bridge point table", &["tsv"])
-                        .pick_file()
-                {
-                    self.load_configuration(&path);
-                }
-            });
-        }
-        if !self.multi_device
-            && let Some(profile) = self
-                .catalog_view
-                .selected
-                .and_then(|i| self.profiles.get(i))
+        if ui.button("Open configuration file…").clicked()
+            && let Some(path) = rfd::FileDialog::new()
+                .add_filter("Modbus Bridge point table", &["tsv"])
+                .pick_file()
         {
-            ui.strong(format!(
-                "{} {}",
-                profile.info.manufacturer, profile.info.model
-            ));
-            crate::catalog_view::compatibility(ui, profile);
-            ui.add_space(8.0);
+            self.load_configuration(&path);
         }
+        let network_valid = self.network_configuration(ui);
         ui.horizontal_wrapped(|ui| {
             ui.label("Backup name");
             ui.add(
@@ -213,7 +182,7 @@ impl Configurator {
                 }
             });
         });
-        if network_valid && let Some(mut table) = self.loaded_config.clone() {
+        if network_valid && let Some(table) = self.loaded_config.clone() {
             ui.separator();
             ui.strong("2. Review changes");
             ui.label(format!(
@@ -221,40 +190,6 @@ impl Configurator {
                 self.config_source,
                 table.lines().skip(1).count()
             ));
-            let ids: std::collections::BTreeSet<_> = table
-                .lines()
-                .skip(1)
-                .filter_map(|r| r.split('\t').nth(1)?.parse::<u8>().ok())
-                .collect();
-            if !self.multi_device {
-                for from in ids.iter().copied() {
-                    ui.horizontal(|ui| {
-                        ui.label("Sensor slave address");
-                        let mut to = from;
-                        if ui
-                            .add(egui::DragValue::new(&mut to).range(1..=247))
-                            .changed()
-                        {
-                            if to != from && ids.contains(&to) {
-                                self.file_message =
-                                    "Each device needs a different slave address.".into();
-                                return;
-                            }
-                            match files::remap_slave(&table, from, to) {
-                                Ok(updated) => {
-                                    table = updated;
-                                    self.loaded_config = Some(table.clone());
-                                    self.remember_selection();
-                                }
-                                Err(error) => self.file_message = error.to_string(),
-                            }
-                        }
-                    });
-                }
-                ui.weak(
-                "Used by this point table. Set the physical sensor to the same address separately.",
-            );
-            }
             if let Some(index) = self.catalog_view.selected {
                 crate::brand::collapsing(ui, "Connection requirements", |ui| {
                     ui.label(&self.profiles[index].info.serial);

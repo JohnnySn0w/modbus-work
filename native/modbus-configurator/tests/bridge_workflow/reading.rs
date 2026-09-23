@@ -39,6 +39,7 @@ fn steady_polling_reuses_table_and_only_issues_read_commands() {
             )
             .unwrap();
         assert_eq!(r.successful_reads, Some(2));
+        assert_eq!(r.dev_eui.as_deref(), Some("000000000000CAFE"));
     }
     assert_eq!(exports, 1);
     assert_eq!(writes.lock().unwrap().len(), 8 + 20 * 2);
@@ -219,4 +220,35 @@ fn delayed_output_is_awaited_without_retrying_commands() {
         .unwrap();
     assert_eq!(result.successful_reads, Some(2));
     assert_eq!(writes.lock().unwrap().len(), 8);
+}
+
+#[test]
+fn banner_eui_accepts_separators_but_rejects_incomplete_or_non_hex_identifiers() {
+    use modbus_configurator::bridge::normalize_dev_eui;
+    for value in [
+        "00-00-00-00-00-00-ca-fe",
+        "00:00:00:00:00:00:ca:fe",
+        "000000000000cafe",
+        "00 00 00 00 00 00 ca fe",
+    ] {
+        assert_eq!(
+            normalize_dev_eui(value).as_deref(),
+            Some("000000000000CAFE")
+        );
+        let mut f = fixture();
+        f.initial = f.initial.replace("00-00-00-00-00-00-ca-fe", value);
+        let r = BridgeSession::new(Box::new(Script::new(f, 7)), timing())
+            .run(&identity(), false, &AtomicBool::new(false), |_| {})
+            .unwrap();
+        assert_eq!(r.dev_eui.as_deref(), Some("000000000000CAFE"));
+    }
+    for invalid in [
+        "",
+        "cafe",
+        "000000000000cafg",
+        "000000000000cafe00",
+        "serial=000000000000cafe",
+    ] {
+        assert!(normalize_dev_eui(invalid).is_none());
+    }
 }

@@ -419,7 +419,9 @@ fn adapter_page_displays_sensor_readings_and_retains_them_after_disconnect() {
 
 #[test]
 fn ati_register_rows_clear_the_full_wrapped_description() {
-    for width in [960.0, 1920.0] {
+    // Keep the description column visible after adding the receipt-age column.
+    // Smaller windows use the table horizontal scrollbar.
+    for width in [1120.0, 1920.0] {
         let mut a = app();
         a.technician.page = technician_view::Page::Registers("ati-f12".into());
         a.auto_paused = true;

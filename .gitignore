@@ -5,6 +5,7 @@ target/
 
 # Generated local builds, captures, and scratch work (source evidence lives in docs/).
 /tmp/
+/output/
 /artifacts/releases/
 /artifacts/review/
 /artifacts/archive/releases/

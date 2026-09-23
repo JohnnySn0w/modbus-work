@@ -81,6 +81,16 @@ impl Configurator {
                 ));
             }
         }
+        if (is_active || is_scan)
+            && matches!(
+                &event.kind,
+                EventKind::Error { .. }
+                    | EventKind::BridgeResult { .. }
+                    | EventKind::AdapterResult { .. }
+            )
+        {
+            self.technician.errors_acknowledged = false;
+        }
         self.record_service_activity(&event, is_active, is_scan);
         let quiet = is_active
             && self.auto_request
@@ -246,8 +256,17 @@ impl Configurator {
                                 && old.settings.slave == result.settings.slave
                         }) {
                             self.technician.adapter_times.clear();
+                            self.technician.adapter_received.clear();
                         }
                         for address in result.values.keys() {
+                            if result.errors.contains_key(address)
+                                || !result.values[address].is_finite()
+                            {
+                                continue;
+                            }
+                            self.technician
+                                .adapter_received
+                                .insert(*address, Instant::now());
                             self.technician.adapter_times.insert(*address, at.clone());
                         }
                         let received_fresh = !result.values.is_empty();
@@ -315,6 +334,7 @@ impl Configurator {
                     {
                         self.technician.bridge_times.clear();
                         self.technician.bridge_point_times.clear();
+                        self.technician.bridge_received.clear();
                     }
                     self.track_slave_failures(&result);
                     let at = modbus_configurator::last_good::timestamp();
@@ -330,6 +350,17 @@ impl Configurator {
                         self.fetched_at = Some(at.clone());
                     }
                     for reading in &result.readings {
+                        if !reading.value.is_finite()
+                            || result.exceptions.iter().any(|e| e.item == reading.item)
+                        {
+                            continue;
+                        }
+                        if self.technician.scan_seen.contains(&reading.item) {
+                            continue;
+                        }
+                        self.technician
+                            .bridge_received
+                            .insert(reading.item, Instant::now());
                         self.technician
                             .bridge_point_times
                             .insert(reading.item, at.clone());

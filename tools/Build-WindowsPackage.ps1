@@ -30,6 +30,12 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Could not locate the Rust toolchain.' }
     $readobj = Join-Path $sysroot 'lib/rustlib/x86_64-pc-windows-msvc/bin/llvm-readobj.exe'
     if (!(Test-Path -LiteralPath $readobj)) { throw 'Install llvm-tools-preview for this toolchain before packaging.' }
+    # IMAGE_SUBSYSTEM_WINDOWS_GUI (2), independent of diagnostic build settings.
+    $peBytes = [System.IO.File]::ReadAllBytes($exe)
+    $peOffset = [BitConverter]::ToInt32($peBytes, 60)
+    if ([BitConverter]::ToUInt16($peBytes, $peOffset + 24 + 68) -ne 2) {
+        throw 'The application must use the Windows GUI subsystem, not open a console.'
+    }
     $imports = & $readobj --coff-imports $exe
     if ($LASTEXITCODE -ne 0) { throw 'Dependency inspection failed.' }
     $dlls = @($imports | Select-String '^  Name: ' | ForEach-Object { $_.Line.Substring(8).Trim() } | Sort-Object -Unique)

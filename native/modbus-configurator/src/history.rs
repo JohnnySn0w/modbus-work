@@ -218,6 +218,7 @@ mod tests {
         };
         let mut h = History::default();
         let mut r = BridgeResult {
+            dev_eui: None,
             identity: crate::contract::Identity {
                 model: "x".into(),
                 firmware: "x".into(),

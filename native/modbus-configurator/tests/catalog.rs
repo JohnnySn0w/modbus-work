@@ -6,6 +6,7 @@ use modbus_configurator::{
 
 fn result(table: String) -> BridgeResult {
     BridgeResult {
+        dev_eui: None,
         identity: Identity {
             model: "ENL-MOD-32".into(),
             firmware: "3.6".into(),

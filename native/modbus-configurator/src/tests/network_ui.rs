@@ -222,13 +222,23 @@ fn saved_custom_type_is_reused_after_restart_on_a_partial_register_set() {
     let text = draw(&mut a, &ctx);
     for expected in [
         "DPT146 · slave 1",
-        "11.25 deg C",
+        "11.25 °C",
+        "Readings",
+        "Register table",
+        "Device manuals",
         "Custom profiles",
         "Save custom profile",
         "Load custom profile",
     ] {
         assert!(text.contains(expected), "Missing {expected}");
     }
+    ctx.memory_mut(|m| m.set_everything_is_visible(false));
+    draw(&mut a, &ctx);
+    click(&mut a, &ctx, "Register table");
+    assert!(a.technician.page == technician_view::Page::Registers("slave:1".into()));
+    let text = draw(&mut a, &ctx);
+    assert!(text.contains("Since last read"));
+    assert!(text.contains("11.25 deg C"));
     std::fs::remove_dir_all(root).unwrap();
 }
 
@@ -320,55 +330,42 @@ fn repeated_models_have_separate_readings_and_timestamps() {
 }
 
 #[test]
-fn network_mode_preserves_single_draft_and_blocks_duplicate_slaves() {
+fn unified_editor_starts_with_one_device_and_blocks_duplicate_slaves() {
     let mut a = app();
-    a.storage_root = Ok(std::env::temp_dir().join(format!("network-ui-{}", std::process::id())));
-    a.last_scan = Instant::now();
-    a.loaded_config = Some(a.profiles[0].native_tsv.clone());
-    let single = a.loaded_config.clone();
-    a.catalog_view.selected = Some(0);
+    let root = std::env::temp_dir().join(format!("network-ui-{}", std::process::id()));
+    a.storage_root = Ok(root.clone());
     a.technician.page = technician_view::Page::Configurations;
     let ctx = egui::Context::default();
-    ctx.style_mut(|style| style.animation_time = 0.0);
-    click(&mut a, &ctx, "Multi-device");
-    assert!(a.multi_device);
+    let text = draw(&mut a, &ctx);
+    assert!(!text.contains("Single device") && !text.contains("Multi-device"));
     assert_eq!(a.network_devices.len(), 1);
     click(&mut a, &ctx, "Add device");
     assert_eq!(a.network_devices.len(), 2);
     assert_ne!(a.network_devices[0].slave, a.network_devices[1].slave);
+    let before = a.loaded_config.clone();
     a.network_devices[1].slave = a.network_devices[0].slave;
-    let mut valid = true;
-    let _ = ctx.run(egui::RawInput::default(), |ctx| {
-        egui::CentralPanel::default().show(ctx, |ui| valid = a.network_configuration(ui));
-    });
-    assert!(!valid);
+    let text = draw(&mut a, &ctx);
+    assert!(text.contains("Each device needs a different slave address"));
+    assert_eq!(a.loaded_config, before);
     assert!(a.queued.is_none());
-    click(&mut a, &ctx, "Single device");
-    assert!(!a.multi_device);
-    assert_eq!(a.loaded_config, single);
-    assert_eq!(a.catalog_view.selected, Some(0));
-    std::fs::remove_dir_all(a.storage_root.unwrap()).unwrap();
+    std::fs::remove_dir_all(root).unwrap();
 }
 
 #[test]
-fn custom_network_requires_explicit_replacement_and_register_edits_remain_reviewable() {
+fn custom_table_populates_one_device_without_replacement_and_register_edits_stay_open() {
     let mut a = app();
     let root = std::env::temp_dir().join(format!("network-edit-ui-{}", std::process::id()));
     a.storage_root = Ok(root.clone());
-    a.last_scan = Instant::now();
-    a.loaded_config = Some("unrecognized imported table".into());
+    let original = a.profiles[0].native_tsv.replace("\t4\tF32", "\t1234\tF32");
+    a.loaded_config = Some(original.clone());
     a.technician.page = technician_view::Page::Configurations;
     let ctx = egui::Context::default();
     ctx.style_mut(|s| s.animation_time = 0.0);
-    click(&mut a, &ctx, "Multi-device");
-    assert!(a.network_unrecognized);
-    assert_eq!(
-        a.loaded_config.as_deref(),
-        Some("unrecognized imported table")
-    );
-    click(&mut a, &ctx, "Start new network");
-    assert!(!a.network_unrecognized);
-    click(&mut a, &ctx, "Add device");
+    let text = draw(&mut a, &ctx);
+    assert!(text.contains("Custom register set"));
+    assert!(!text.contains("mapped unambiguously"));
+    assert_eq!(a.loaded_config.as_ref(), Some(&original));
+    assert_eq!(a.network_devices.len(), 1);
     let count = a.network_devices[0].points.len();
     click(
         &mut a,
@@ -382,7 +379,10 @@ fn custom_network_requires_explicit_replacement_and_register_edits_remain_review
     click(&mut a, &ctx, "Select all");
     assert_eq!(a.network_devices[0].points.len(), count);
     click(&mut a, &ctx, "Remove device");
-    assert!(a.network_devices.is_empty());
+    assert_eq!(a.network_devices.len(), 1, "Keep the first entry available");
+    click(&mut a, &ctx, "Add device");
+    assert_eq!(a.network_devices.len(), 2);
+    assert!(a.loaded_config.as_ref().unwrap().contains("\t1234\tF32"));
     assert!(a.queued.is_none());
     std::fs::remove_dir_all(root).unwrap();
 }

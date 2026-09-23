@@ -18,13 +18,13 @@ impl TechnicianView {
             ..
         } = context;
         let mut actions = Vec::new();
-        let network = result.is_some_and(|r| {
-            network_readings::is_network(&r.native_tsv)
-                || !profiles.iter().any(|p| p.contains_points(r))
-        });
+        let network = result.is_some();
         ui.horizontal(|ui| {
             ui.heading("Devices");
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                if ui.button("Clear errors").on_hover_text("Acknowledge displayed errors. Logs and safety blocks remain; new errors appear again.").clicked() {
+                    actions.push(Action::ClearErrors);
+                }
                 if ui.button("Refresh").clicked() {
                     actions.push(Action::Refresh);
                 }
@@ -38,168 +38,292 @@ impl TechnicianView {
                 ui.label("Connect a Modbus Bridge or USB-COMi-TB to get started.");
             });
         }
-        for (interfaces, heading) in [(true, "Connections"), (false, "Sensors")] {
-            let in_group =
-                |key: &str| matches!(key, "bridge" | "adapter" | "synetica_usb") == interfaces;
-            if !nodes.iter().any(|(key, _)| in_group(key)) {
-                continue;
-            }
-            ui.strong(heading);
-            ui.add_space(8.0);
-            ui.horizontal_wrapped(|ui| {
-                for (key, connection) in nodes.iter().filter(|(key, _)| in_group(key)) {
-                    if let Some(device) = reference.devices.get(*key) {
-                        let response = ui.group(|ui| {
-                            ui.with_layout(egui::Layout::top_down(egui::Align::Min), |ui| {
-                                ui.set_width(285.0);
-                                ui.set_min_height(210.0);
-                                if *key == "bridge" {
-                                    let (label, warning) = if self.bridge_busy {
-                                        (
-                                            if self.bridge_polling {
-                                                "Polling"
-                                            } else {
-                                                "Communicating"
-                                            },
-                                            false,
-                                        )
-                                    } else if self.bridge_fault {
-                                        ("Not responding · check connection", true)
-                                    } else if self.bridge_connected {
-                                        ("Ready", false)
-                                    } else {
-                                        ("Disconnected", true)
-                                    };
-                                    crate::brand::badge(ui, label, warning);
-                                } else if !interfaces {
-                                    let slave = direct
-                                        .filter(|d| d.key == *key)
-                                        .map(|d| d.settings.slave)
-                                        .or_else(|| {
-                                            result.and_then(|r| {
-                                                r.native_tsv
-                                                    .lines()
-                                                    .nth(1)?
-                                                    .split('\t')
-                                                    .nth(1)?
-                                                    .parse::<u8>()
-                                                    .ok()
-                                            })
-                                        });
-                                    if let Some(slave) = slave {
-                                        crate::brand::badge(ui, &format!("Slave {slave}"), false);
-                                        if direct.is_none_or(|d| d.key != *key)
-                                            && let Some(result) = result
-                                        {
-                                            self.slave_health(ui, result, slave);
-                                        }
-                                    }
-                                }
-                                Self::icon(ui, device);
-                                ui.label(RichText::new(&device.name).strong().size(17.0));
-                                if matches!(*key, "dpt146" | "hmd65" | "wattnode" | "ati-f12")
-                                    && direct.is_none_or(|d| d.key != *key)
-                                {
-                                    ui.add(
+        // Keep transports beside their sensors; narrow windows can scroll horizontally.
+        let map_width = ui.available_width().max(650.0);
+        egui::ScrollArea::horizontal()
+            .id_salt("device-map")
+            .show(ui, |ui| {
+                ui.set_min_width(map_width);
+                let mut divider_x = None;
+                let map = ui.horizontal_top(|ui| {
+                    for (interfaces, heading) in [(true, "Connections"), (false, "Sensors")] {
+                        let in_group = |key: &str| {
+                            matches!(key, "bridge" | "adapter" | "synetica_usb") == interfaces
+                        };
+                        let column_width = if interfaces { 305.0 } else { map_width - 330.0 };
+                        ui.allocate_ui_with_layout(
+                            egui::vec2(column_width, 0.0),
+                            egui::Layout::top_down(egui::Align::Min),
+                            |ui| {
+                                ui.set_width(column_width);
+                                ui.strong(heading);
+                                ui.add_space(8.0);
+                                ui.horizontal_wrapped(|ui| {
+                                    for (key, connection) in
+                                        nodes.iter().filter(|(key, _)| in_group(key))
+                                    {
+                                        if let Some(device) = reference.devices.get(*key) {
+                                            let response = ui.group(|ui| {
+                                                ui.with_layout(
+                                                    egui::Layout::top_down(egui::Align::Min),
+                                                    |ui| {
+                                                        ui.set_width(285.0);
+                                                        ui.set_min_height(210.0);
+                                                        let view_device = ui
+                                                            .horizontal(|ui| {
+                                                                if *key == "bridge" {
+                                                                    let (label, warning) = if self
+                                                                        .bridge_busy
+                                                                    {
+                                                                        (
+                                                                            if self.bridge_polling {
+                                                                                "Polling"
+                                                                            } else {
+                                                                                "Communicating"
+                                                                            },
+                                                                            false,
+                                                                        )
+                                                                    } else if self.bridge_fault {
+                                                                        ("Not responding", true)
+                                                                    } else if self.bridge_connected
+                                                                    {
+                                                                        ("Ready", false)
+                                                                    } else {
+                                                                        ("Disconnected", true)
+                                                                    };
+                                                                    crate::brand::badge(
+                                                                        ui, label, warning,
+                                                                    );
+                                                                } else if !interfaces {
+                                                                    let slave = direct
+                                                                        .filter(|d| d.key == *key)
+                                                                        .map(|d| d.settings.slave)
+                                                                        .or_else(|| {
+                                                                            result?
+                                                                                .native_tsv
+                                                                                .lines()
+                                                                                .nth(1)?
+                                                                                .split('\t')
+                                                                                .nth(1)?
+                                                                                .parse::<u8>()
+                                                                                .ok()
+                                                                        });
+                                                                    if let Some(slave) = slave {
+                                                                        self.slave_card_badge(
+                                                                            ui,
+                                                                            result.filter(|_| {
+                                                                                direct.is_none_or(
+                                                                                    |d| {
+                                                                                        d.key
+                                                                                            != *key
+                                                                                    },
+                                                                                )
+                                                                            }),
+                                                                            slave,
+                                                                        );
+                                                                    }
+                                                                }
+                                                                ui.with_layout(
+                                                                    egui::Layout::right_to_left(
+                                                                        egui::Align::Center,
+                                                                    ),
+                                                                    |ui| ui.button("View device"),
+                                                                )
+                                                                .inner
+                                                            })
+                                                            .inner;
+                                                        if *key == "bridge" {
+                                                            crate::brand::bridge_eui(
+                                                                ui,
+                                                                result
+                                                                    .filter(|_| {
+                                                                        self.bridge_connected
+                                                                    })
+                                                                    .and_then(|r| {
+                                                                        r.dev_eui.as_deref()
+                                                                    }),
+                                                            );
+                                                        }
+                                                        Self::icon(ui, device);
+                                                        ui.label(
+                                                            RichText::new(&device.name)
+                                                                .strong()
+                                                                .size(17.0),
+                                                        );
+                                                        if matches!(
+                                                            *key,
+                                                            "dpt146"
+                                                                | "hmd65"
+                                                                | "wattnode"
+                                                                | "ati-f12"
+                                                        ) && direct.is_none_or(|d| d.key != *key)
+                                                        {
+                                                            ui.add(
                                         egui::Label::new(
                                             "Configured model · sensor identity unverified",
                                         )
                                         .wrap(),
                                     );
-                                }
-                                if matches!(
-                                    *key,
-                                    "bridge" | "dpt146" | "hmd65" | "wattnode" | "ati-f12"
-                                ) && direct.is_none_or(|d| d.key != *key)
-                                {
-                                    let profile = profiles
-                                        .iter()
-                                        .find(|p| reference::profile_matches(key, &p.info.id));
-                                    if profile.is_none_or(|p| {
-                                        result.is_some_and(|r| p.contains_points(r))
-                                    }) && let Some(notice) = &self.configuration_change
-                                    {
-                                        ui.add(
-                                            egui::Label::new(
-                                                RichText::new(notice).color(crate::brand::ORANGE),
-                                            )
-                                            .wrap(),
-                                        );
-                                    }
-                                    if let Some(warning) =
-                                        configuration_warning(profile, result, self.bridge_stale)
-                                    {
-                                        ui.add(
-                                            egui::Label::new(
-                                                RichText::new(warning).color(crate::brand::ORANGE),
-                                            )
-                                            .wrap(),
-                                        );
-                                    }
-                                }
-                                if *key == "synetica_usb" {
-                                    ui.weak("Not identified");
-                                }
-                                ui.add_space(12.0);
-                                if *key == "adapter" && ports.iter().any(is_synetica) {
-                                    ui.colored_label(
+                                                        }
+                                                        if matches!(
+                                                            *key,
+                                                            "dpt146"
+                                                                | "hmd65"
+                                                                | "wattnode"
+                                                                | "ati-f12"
+                                                        ) && direct.is_none_or(|d| d.key != *key)
+                                                        {
+                                                            let profile =
+                                                                profiles.iter().find(|p| {
+                                                                    reference::profile_matches(
+                                                                        key, &p.info.id,
+                                                                    )
+                                                                });
+                                                            if profile.is_none_or(|p| {
+                                                                result.is_some_and(|r| {
+                                                                    p.contains_points(r)
+                                                                })
+                                                            }) && let Some(notice) =
+                                                                &self.configuration_change
+                                                            {
+                                                                ui.add(
+                                                                    egui::Label::new(
+                                                                        RichText::new(notice)
+                                                                            .color(
+                                                                            crate::brand::ORANGE,
+                                                                        ),
+                                                                    )
+                                                                    .wrap(),
+                                                                );
+                                                            }
+                                                            if let Some(warning) =
+                                                                configuration_warning(
+                                                                    profile,
+                                                                    result,
+                                                                    self.bridge_stale,
+                                                                )
+                                                                .filter(|_| {
+                                                                    !self.errors_acknowledged
+                                                                })
+                                                            {
+                                                                ui.add(
+                                                                    egui::Label::new(
+                                                                        RichText::new(warning)
+                                                                            .color(
+                                                                            crate::brand::ORANGE,
+                                                                        ),
+                                                                    )
+                                                                    .wrap(),
+                                                                );
+                                                            }
+                                                        }
+                                                        if *key == "synetica_usb" {
+                                                            ui.weak("Not identified");
+                                                        }
+                                                        ui.add_space(12.0);
+                                                        if *key == "adapter"
+                                                            && ports.iter().any(is_synetica)
+                                                        {
+                                                            ui.colored_label(
                                         crate::brand::ORANGE,
                                         "Blocked · another Modbus master may be active",
                                     );
-                                    ui.weak(connection);
-                                } else {
-                                    ui.label(connection);
-                                }
-                                if matches!(
-                                    *key,
-                                    "dpt146" | "hmd65" | "wattnode" | "ati-f12" | "bridge"
-                                ) && self.bridge_stale
-                                {
-                                    ui.weak("Last good readings - stale");
-                                }
-                                let profile = profiles
-                                    .iter()
-                                    .find(|p| reference::profile_matches(key, &p.info.id));
-                                if let Some(registers) = reference.registers.get(*key) {
-                                    for register in registers
-                                        .iter()
-                                        .filter(|r| r.readout_label.is_some())
-                                        .take(3)
-                                    {
-                                        let live = direct
-                                            .filter(|d| d.key == *key)
-                                            .and_then(|d| {
-                                                d.values.get(&register.first_pdu()?).copied()
-                                            })
-                                            .or_else(|| value(profile, result, register));
-                                        if let Some(v) = live {
-                                            ui.label(format!(
-                                                "{}: {v:.2} {}",
-                                                register
-                                                    .readout_label
-                                                    .as_deref()
-                                                    .unwrap_or(&register.name),
-                                                register.unit
-                                            ));
+                                                            ui.weak(connection);
+                                                        } else {
+                                                            ui.label(connection);
+                                                        }
+                                                        if matches!(
+                                                            *key,
+                                                            "dpt146"
+                                                                | "hmd65"
+                                                                | "wattnode"
+                                                                | "ati-f12"
+                                                                | "bridge"
+                                                        ) && self.bridge_stale
+                                                        {
+                                                            ui.weak("Last good readings - stale");
+                                                        }
+                                                        let profile = profiles.iter().find(|p| {
+                                                            reference::profile_matches(
+                                                                key, &p.info.id,
+                                                            )
+                                                        });
+                                                        if let Some(registers) =
+                                                            reference.registers.get(*key)
+                                                        {
+                                                            for register in registers
+                                                                .iter()
+                                                                .filter(|r| {
+                                                                    r.readout_label.is_some()
+                                                                })
+                                                                .take(3)
+                                                            {
+                                                                let live = direct
+                                                                    .filter(|d| d.key == *key)
+                                                                    .and_then(|d| {
+                                                                        d.values
+                                                                            .get(
+                                                                                &register
+                                                                                    .first_pdu()?,
+                                                                            )
+                                                                            .copied()
+                                                                    })
+                                                                    .or_else(|| {
+                                                                        value(
+                                                                            profile, result,
+                                                                            register,
+                                                                        )
+                                                                    });
+                                                                if let Some(v) = live {
+                                                                    ui.label(format!(
+                                                                        "{}: {v:.2} {}",
+                                                                        register
+                                                                            .readout_label
+                                                                            .as_deref()
+                                                                            .unwrap_or(
+                                                                                &register.name
+                                                                            ),
+                                                                        register.unit
+                                                                    ));
+                                                                }
+                                                            }
+                                                        }
+                                                        view_device
+                                                    },
+                                                )
+                                                .inner
+                                            });
+                                            if response.inner.clicked() {
+                                                self.reference_context = false;
+                                                self.page = Page::Detail((*key).into());
+                                            }
                                         }
                                     }
+                                });
+                                if !interfaces
+                                    && network
+                                    && let Some(result) = result
+                                {
+                                    self.network_readings(ui, result, profiles);
                                 }
-                                ui.button("View device")
-                            })
-                            .inner
-                        });
-                        if response.inner.clicked() {
-                            self.reference_context = false;
-                            self.page = Page::Detail((*key).into());
+                            },
+                        );
+                        if interfaces {
+                            divider_x = Some(ui.cursor().left() + 4.0);
+                            ui.add_space(17.0);
                         }
                     }
+                });
+                if let Some(x) = divider_x {
+                    ui.painter().line_segment(
+                        [
+                            egui::pos2(x, map.response.rect.top()),
+                            egui::pos2(x, map.response.rect.bottom()),
+                        ],
+                        ui.visuals().widgets.noninteractive.bg_stroke,
+                    );
                 }
             });
-            ui.add_space(20.0);
-        }
-        if network && let Some(result) = result {
-            self.network_readings(ui, result, profiles);
-        }
         actions
     }
 

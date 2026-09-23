@@ -1589,6 +1589,7 @@ dependencies = [
  "serde_json",
  "serialport",
  "windows-sys 0.59.0",
+ "winit",
 ]
 
 [[package]]

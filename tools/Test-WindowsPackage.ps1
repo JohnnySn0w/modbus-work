@@ -15,6 +15,12 @@ Expand-Archive -LiteralPath $zip -DestinationPath (Join-Path $checkRoot 'extract
 $executables = @(Get-ChildItem -LiteralPath (Join-Path $checkRoot 'extracted') -Filter "Polygon Device Configurator.exe" -File -Recurse)
 if ($executables.Count -ne 1) { throw 'Package must contain exactly one Polygon Device Configurator.exe.' }
 $exe = $executables[0].FullName
+# IMAGE_SUBSYSTEM_WINDOWS_GUI (2), independent of diagnostic build settings.
+$peBytes = [System.IO.File]::ReadAllBytes($exe)
+$peOffset = [BitConverter]::ToInt32($peBytes, 60)
+if ([BitConverter]::ToUInt16($peBytes, $peOffset + 24 + 68) -ne 2) {
+    throw 'The application must use the Windows GUI subsystem, not open a console.'
+}
 $packageInfo = Get-Content -LiteralPath (Join-Path $executables[0].DirectoryName 'build-info.json') -Raw | ConvertFrom-Json
 if ((Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $packageInfo.exe_sha256) { throw 'Extracted executable checksum mismatch.' }
 if ($packageInfo.debug_symbols -ne 'full') { throw 'Package must include full release debug symbols.' }

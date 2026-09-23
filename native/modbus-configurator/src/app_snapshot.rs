@@ -38,6 +38,9 @@ impl Configurator {
         &mut self,
         mut result: modbus_configurator::bridge::BridgeResult,
     ) {
+        if !result.readings.is_empty() || !result.exceptions.is_empty() {
+            self.technician.errors_acknowledged = false;
+        }
         let source = self.ports.iter().find(|p| p.port == self.selected).cloned();
         let same = self
             .bridge_source
@@ -55,6 +58,7 @@ impl Configurator {
         if !same_table {
             self.technician.bridge_times.clear();
             self.technician.bridge_point_times.clear();
+            self.technician.bridge_received.clear();
             self.technician.slave_failures.clear();
         }
         if same && let Some(old) = &self.result {
@@ -75,7 +79,13 @@ impl Configurator {
         }
         for reading in &result.readings {
             // A partial report repeats earlier points; retain their original receipt time.
-            if self.technician.scan_seen.insert(reading.item) {
+            if reading.value.is_finite()
+                && !result.exceptions.iter().any(|e| e.item == reading.item)
+                && self.technician.scan_seen.insert(reading.item)
+            {
+                self.technician
+                    .bridge_received
+                    .insert(reading.item, Instant::now());
                 self.technician
                     .bridge_point_times
                     .insert(reading.item, at.clone());

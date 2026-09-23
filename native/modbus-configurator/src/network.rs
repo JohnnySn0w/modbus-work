@@ -1,6 +1,6 @@
 //! Compose sensor selections into one Modbus Bridge table without changing wire addresses.
 use crate::catalog::{Profile, table_rows};
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 /// One physical sensor, including repeated models at different slave addresses.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -8,6 +8,8 @@ pub struct Device {
     pub profile: usize,
     pub slave: u8,
     pub points: BTreeSet<u8>,
+    /// Original rows for an imported device without an unambiguous catalog match.
+    pub custom_rows: BTreeMap<u8, String>,
 }
 
 impl Device {
@@ -17,6 +19,7 @@ impl Device {
             profile,
             slave,
             points: profiles[profile].rows.keys().copied().collect(),
+            custom_rows: BTreeMap::new(),
         }
     }
 }
@@ -32,14 +35,19 @@ pub fn compose(devices: &[Device], profiles: &[Profile]) -> Result<String, Strin
         if !(1..=247).contains(&device.slave) || !slaves.insert(device.slave) {
             return Err("Each device needs a different slave address from 1 to 247.".into());
         }
-        let profile = profiles
-            .get(device.profile)
-            .ok_or("Unknown sensor model.")?;
+        let source_rows = if device.custom_rows.is_empty() {
+            &profiles
+                .get(device.profile)
+                .ok_or("Unknown sensor model.")?
+                .rows
+        } else {
+            &device.custom_rows
+        };
         if device.points.is_empty() {
             return Err("Select at least one register entry for each device.".into());
         }
         for point in &device.points {
-            let row = profile.rows.get(point).ok_or("Unknown register entry.")?;
+            let row = source_rows.get(point).ok_or("Unknown register entry.")?;
             let mut fields: Vec<String> = row.split('\t').map(str::to_owned).collect();
             fields[0] = (rows.len() + 1).to_string();
             fields[1] = device.slave.to_string();
@@ -104,6 +112,7 @@ pub fn recognize(table: &str, profiles: &[Profile]) -> Option<Vec<Device>> {
                     profile: index,
                     slave,
                     points,
+                    custom_rows: BTreeMap::new(),
                 })
             })
             .collect();
@@ -113,4 +122,39 @@ pub fn recognize(table: &str, profiles: &[Profile]) -> Option<Vec<Device>> {
         devices.push(candidates.into_iter().next()?);
     }
     Some(devices)
+}
+
+/// Load every slave as an editable entry without guessing a model or discarding custom rows.
+pub fn editable(table: &str, profiles: &[Profile]) -> Result<Vec<Device>, String> {
+    let rows = table_rows(table)?;
+    let mut groups: Vec<(u8, BTreeMap<u8, String>)> = Vec::new();
+    for (item, row) in rows {
+        let slave = row
+            .split('\t')
+            .nth(1)
+            .and_then(|s| s.parse::<u8>().ok())
+            .ok_or("Invalid slave address")?;
+        if let Some((_, entries)) = groups.iter_mut().find(|(id, _)| *id == slave) {
+            entries.insert(item, row);
+        } else {
+            groups.push((slave, BTreeMap::from([(item, row)])));
+        }
+    }
+    groups
+        .into_iter()
+        .map(|(slave, rows)| {
+            let subset = format!(
+                "Item\tID\tReg\tAddr\tData\tWord\tMult\tRead\r\n{}\r\n",
+                rows.values().cloned().collect::<Vec<_>>().join("\r\n")
+            );
+            Ok(recognize(&subset, profiles)
+                .and_then(|mut devices| devices.pop())
+                .unwrap_or_else(|| Device {
+                    profile: usize::MAX,
+                    slave,
+                    points: rows.keys().copied().collect(),
+                    custom_rows: rows,
+                }))
+        })
+        .collect()
 }

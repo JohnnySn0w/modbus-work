@@ -13,7 +13,7 @@ Devices shows current or retained data. Read now requests a manual read. Last-go
 ## Configure a Modbus Bridge
 
 1. Open Configuration and wait for a verified target. An orange banner identifies an unavailable target; hardware actions stay disabled.
-2. Select a sensor profile, Open configuration file, or a saved backup. Selection alone does not write.
+2. Configuration starts with one device entry. Choose its model and slave address, then use **Add device** for more sensors (up to 32 devices and 32 register entries total). There is no separate single-device mode. You can also open a configuration file or saved backup: each slave becomes an editable entry, with unmatched rows preserved as a custom register set. Selection alone does not write.
 3. Review changed/removed/added points and communication requirements. Edit Sensor slave address to match the physical sensor. Candidate profiles are not evidence of physical qualification. Use the separate RS-485 line settings editor for downstream baud, parity and framing; tab-separated configuration files (.tsv) do not contain those settings. See [Modbus Bridge line configuration](E5-LINE-CONFIGURATION.md).
 4. Program Modbus Bridge queues behind an active automatic read. The application reads the identity and current table again, requires a successfully saved backup, writes with acknowledgements and verifies exported contents.
 5. Inspect fresh readings after completion. On an interrupted or uncertain write, recover/check the console and review the saved backup before a restore. The application does not automatically restore an earlier configuration.
@@ -59,3 +59,11 @@ Firmware updating is not available yet. See [firmware plan](FIRMWARE-UPDATES.md)
 Modbus Bridge and Vaisala DPT146 instructions use recorded test results. Other device instructions are either explicitly attributed to manufacturer documentation or marked **TBD**. Documentation-based suggestions are not hardware verification. Historical notes and proposed test plans are not approved installation procedures.
 
 Enthalpy is excluded from both HMD65 profiles: registers 15–16 (metric) and 143–144 (non-metric). Adapter discovery reads only the seven metric measurements and device status at 513; it does not read the excluded status registers.
+
+Device details include every received register value. Live register tables highlight successful readings and show seconds since each register last succeeded; failed reads keep the prior value and increasing age. Registers without a successful reading have no age. When all entries for one slave fail, check power, wiring and serial settings as well as its register configuration.
+
+Use **Clear errors** beside **Refresh** to acknowledge displayed warnings and reset consecutive failure counts. This preserves diagnostic logs, last-good readings and safety blocks, and does not write to the instruments. New errors appear again when reported.
+
+The Modbus Bridge card, device details and Configuration heading show its LoRa EUI after the console banner is read. **Copy EUI** copies exactly 16 uppercase hexadecimal characters, without spaces or separators. This identifier is separate from the USB serial number. It remains unavailable until the current bridge supplies a valid identifier.
+
+Selecting a device type for a custom register set opens the normal device summary with its image and reading cards. **Register table** opens the detailed readings for that slave. Units apply only to entries matching the selected model's register encoding.

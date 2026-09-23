@@ -72,6 +72,7 @@ mod tests {
     #[test]
     fn failed_point_retains_value_but_a_real_zero_replaces_it() {
         let old = BridgeResult {
+            dev_eui: None,
             identity: Identity {
                 model: "ENL-MOD-32".into(),
                 firmware: "3.6".into(),

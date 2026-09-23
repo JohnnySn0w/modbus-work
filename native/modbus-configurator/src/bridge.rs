@@ -61,6 +61,9 @@ pub struct PointException {
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BridgeResult {
+    /// LoRa device identifier from the console banner, never the USB serial number.
+    #[serde(default)]
+    pub dev_eui: Option<String>,
     pub identity: Identity,
     pub native_tsv: String,
     pub readings: Vec<Reading>,
@@ -90,6 +93,7 @@ pub struct BridgeSession {
     parser: ConsoleParser,
     identity: Option<Identity>,
     login: Option<String>,
+    dev_eui: Option<String>,
     timing: Timing,
     initial_response: Duration,
     read_all_response: Duration,
@@ -156,6 +160,7 @@ impl BridgeSession {
             parser: ConsoleParser::default(),
             identity: None,
             login: None,
+            dev_eui: None,
             timing,
             initial_response: timing.response,
             read_all_response: Duration::from_secs(60),
@@ -297,11 +302,9 @@ impl BridgeSession {
         if let (Some(model), Some(firmware)) = (field("Model Number"), field("Firmware Ver")) {
             self.identity = Some(Identity { model, firmware });
         }
-        if let Some(eui) = field("DevEui") {
-            let normalized = eui.replace('-', "").to_ascii_lowercase();
-            if normalized.len() == 16 && normalized.bytes().all(|b| b.is_ascii_hexdigit()) {
-                self.login = Some(normalized[12..].into());
-            }
+        if let Some(eui) = field("DevEui").and_then(|value| normalize_dev_eui(&value)) {
+            self.login = Some(eui[12..].to_ascii_lowercase());
+            self.dev_eui = Some(eui);
         }
         Ok(())
     }
@@ -461,6 +464,7 @@ impl BridgeSession {
         self.send("X", cancel, deadline, self.timing.response)?;
         self.require(PromptState::ModbusMenu)?;
         let mut result = BridgeResult {
+            dev_eui: self.dev_eui.clone(),
             identity,
             native_tsv: format!(
                 "{HEADER}\r\n{}",
@@ -589,6 +593,7 @@ impl BridgeSession {
             self.send("X", cancel, deadline, self.timing.response)?;
             self.require(PromptState::ModbusMenu)?;
             Ok(BridgeResult {
+                dev_eui: current.dev_eui,
                 identity: current.identity,
                 native_tsv: actual,
                 readings: vec![],
@@ -635,4 +640,16 @@ impl BridgeSession {
         }
         self.run_with_export(expected, read_all, cancel, progress, exported)
     }
+}
+
+/// Accept a complete 64-bit identifier with conventional separators; reject malformed values.
+pub fn normalize_dev_eui(value: &str) -> Option<String> {
+    if !value
+        .chars()
+        .all(|c| c.is_ascii_hexdigit() || c.is_ascii_whitespace() || matches!(c, '-' | ':'))
+    {
+        return None;
+    }
+    let hex: String = value.chars().filter(|c| c.is_ascii_hexdigit()).collect();
+    (hex.len() == 16).then(|| hex.to_ascii_uppercase())
 }

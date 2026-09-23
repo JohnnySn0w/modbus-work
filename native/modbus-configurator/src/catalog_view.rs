@@ -184,6 +184,7 @@ mod tests {
             for (index, profile) in profiles.iter().enumerate() {
                 view.selected = Some(index);
                 let result = BridgeResult {
+                    dev_eui: None,
                     identity: modbus_configurator::contract::Identity {
                         model: "ENL-MOD-32".into(),
                         firmware: "3.6".into(),

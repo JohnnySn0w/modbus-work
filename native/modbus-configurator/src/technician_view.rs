@@ -2,6 +2,8 @@
 mod custom_profiles;
 mod device_health;
 mod device_pages;
+mod freshness;
+mod network_device;
 mod network_readings;
 mod overview;
 use eframe::egui::{self, Color32, RichText};
@@ -29,6 +31,7 @@ pub enum Page {
 #[derive(Clone)]
 pub enum Action {
     Refresh,
+    ClearErrors,
     BackupBridge,
     ReadBridge,
     ChooseConfig(String),
@@ -43,6 +46,9 @@ pub struct TechnicianView {
     pub bridge_busy: bool,
     pub bridge_polling: bool,
     pub bridge_fault: bool,
+    pub errors_acknowledged: bool,
+    pub bridge_received: std::collections::BTreeMap<u8, std::time::Instant>,
+    pub adapter_received: std::collections::BTreeMap<u16, std::time::Instant>,
     pub slave_failures: std::collections::BTreeMap<u8, u32>,
     pub scan_seen: std::collections::BTreeSet<u8>,
     pub configuration_change: Option<String>,
@@ -410,6 +416,7 @@ mod tests {
             .find(|p| p.point_register(1).is_some_and(|r| r.units == "deg C"))
             .unwrap();
         let mut result = BridgeResult {
+            dev_eui: None,
             identity: Identity {
                 model: "ENL-MOD-32".into(),
                 firmware: "3.6".into(),
@@ -455,6 +462,7 @@ mod tests {
             .find(|r| r.readout_label.as_deref() == Some("Temperature"))
             .unwrap();
         let mut result = BridgeResult {
+            dev_eui: None,
             identity: Identity {
                 model: "ENL-MOD-32".into(),
                 firmware: "3.6".into(),
@@ -478,6 +486,7 @@ mod tests {
         let reference = Reference::bundled().unwrap();
         let profiles = modbus_configurator::catalog::bundled().unwrap();
         let result = BridgeResult {
+            dev_eui: None,
             identity: Identity {
                 model: "ENL-MOD-32".into(),
                 firmware: "3.6".into(),

@@ -22,8 +22,7 @@ impl TechnicianView {
             .strip_prefix("slave:")
             .and_then(|id| id.parse::<u8>().ok())
         {
-            self.network_detail(ui, slave, result, profiles);
-            return actions;
+            return self.network_detail(ui, slave, result, profiles, reference, false);
         }
         let Some(device) = reference.devices.get(&key) else {
             return actions;
@@ -70,6 +69,14 @@ impl TechnicianView {
                 });
             });
             return actions;
+        }
+        if key == "bridge" {
+            crate::brand::bridge_eui(
+                ui,
+                result
+                    .filter(|_| self.bridge_connected)
+                    .and_then(|r| r.dev_eui.as_deref()),
+            );
         }
         if key == "adapter" && ports.iter().any(is_synetica) {
             crate::brand::attention(
@@ -135,7 +142,9 @@ impl TechnicianView {
             {
                 crate::brand::attention(ui, "Configuration changed", notice);
             }
-            if let Some(warning) = configuration_warning(profile, result, stale) {
+            if let Some(warning) =
+                configuration_warning(profile, result, stale).filter(|_| !self.errors_acknowledged)
+            {
                 crate::brand::attention(ui, "Check sensor configuration", &warning);
             }
             if matches!(key.as_str(), "dpt146" | "hmd65" | "wattnode" | "ati-f12")
@@ -149,13 +158,39 @@ impl TechnicianView {
             if direct.family_only {
                 ui.label("WND meter module identified. Confirm the enclosure model on its label.");
             }
-            if !direct.errors.is_empty() {
+            if !self.errors_acknowledged && !direct.errors.is_empty() {
                 crate::brand::collapsing(ui, "Register errors", |ui| {
                     for (address, error) in &direct.errors {
                         ui.label(format!("Register address {address}: {error}"));
                     }
                 });
             }
+        }
+        if direct.is_none()
+            && let Some(result) = result
+            && profile.is_some_and(|p| p.contains_points(result))
+            && let Some(slave) = result
+                .native_tsv
+                .lines()
+                .nth(1)
+                .and_then(|r| r.split('\t').nth(1))
+                .and_then(|s| s.parse().ok())
+        {
+            self.slave_health(ui, result, slave);
+        }
+        if let Some(direct) = direct
+            && !self.errors_acknowledged
+            && !direct.errors.is_empty()
+            && direct
+                .values
+                .keys()
+                .all(|address| direct.errors.contains_key(address))
+        {
+            crate::brand::attention(
+                ui,
+                "No successful register reads",
+                "Possible physical connection or serial line issue. Check device power, wiring, slave address, baud rate and parity.",
+            );
         }
         ui.add_space(16.0);
         ui.columns(2, |columns| {
@@ -177,12 +212,22 @@ impl TechnicianView {
         } else {
             "No readings yet"
         });
-        for readout in &reading_device.readouts {
-            let live_register = reference.registers.get(reading_key).and_then(|regs| {
+        let mut readouts: Vec<_> = reading_device.readouts.iter().map(|r| (r.label.clone(), r.unit.clone(), None)).collect();
+        if let Some(registers) = reference.registers.get(reading_key) {
+            for register in registers {
+                let live = direct.and_then(|d| d.values.get(&register.first_pdu()?).copied()).or_else(|| value(profile, result, register));
+                if live.is_some() && !readouts.iter().any(|(label, _, _)| register.readout_label.as_ref() == Some(label)) {
+                    readouts.push((register.name.clone(), register.unit.clone(), Some(register)));
+                }
+            }
+        }
+        for (label, unit, explicit_register) in readouts {
+            let readout = reference::Readout { label, unit };
+            let live_register = explicit_register.or_else(|| reference.registers.get(reading_key).and_then(|regs| {
                 regs.iter()
                     .find(|r| r.readout_label.as_deref() == Some(&readout.label) && value(profile, result, r).is_some())
                     .or_else(|| regs.iter().find(|r| r.readout_label.as_deref() == Some(&readout.label)))
-            });
+            }));
             let live = live_register.and_then(|r| {
                 direct
                     .and_then(|d| d.values.get(&r.first_pdu()?).copied())
@@ -410,6 +455,13 @@ impl TechnicianView {
             ..
         } = context;
         let actions = vec![];
+        if let Some(slave) = key
+            .strip_prefix("slave:")
+            .and_then(|id| id.parse::<u8>().ok())
+        {
+            return self.network_detail(ui, slave, result, profiles, reference, true);
+        }
+
         let Some(device) = reference.devices.get(&key) else {
             return actions;
         };
@@ -512,14 +564,16 @@ impl TechnicianView {
             });
         if let Some(registers) = reference.registers.get(&key) {
             // Keep technical columns readable; give wider windows to descriptive text.
-            let mut widths = [180.0, 65.0, 65.0, 95.0, 60.0, 80.0, 110.0, 160.0, 240.0];
+            let mut widths = [
+                180.0, 65.0, 65.0, 95.0, 60.0, 80.0, 100.0, 110.0, 160.0, 240.0,
+            ];
             let extra = (ui.available_width()
                 - widths.iter().sum::<f32>()
-                - ui.spacing().item_spacing.x * 8.0)
+                - ui.spacing().item_spacing.x * 9.0)
                 .max(0.0);
             widths[0] += extra * 0.15;
-            widths[7] += extra * 0.25;
-            widths[8] += extra * 0.60;
+            widths[8] += extra * 0.25;
+            widths[9] += extra * 0.60;
             egui::ScrollArea::horizontal()
                 .auto_shrink([false, true])
                 .show(ui, |ui| {
@@ -536,6 +590,7 @@ impl TechnicianView {
                                 "Data type / word order",
                                 "Access",
                                 "Readout",
+                                "Since last read",
                                 "Units",
                                 "Decoded meaning",
                                 "Description",
@@ -561,7 +616,11 @@ impl TechnicianView {
                                 .filter(|d| d.key == key)
                                 .and_then(|d| d.values.get(&register.first_pdu()?).copied())
                                 .or_else(|| value(profile, result, register));
-                            ui.horizontal_top(|ui| {
+                            let received = live.and_then(|_| {
+                                self.received_at(profile, direct.filter(|d| d.key == key), register)
+                            });
+                            let background = ui.painter().add(egui::Shape::Noop);
+                            let row = ui.horizontal_top(|ui| {
                                 for text in [
                                     &register.name,
                                     &register.logical,
@@ -610,11 +669,16 @@ impl TechnicianView {
                                     }))
                                     .wrap(),
                                 );
+                                register_cell(
+                                    ui,
+                                    widths[6],
+                                    egui::Label::new(freshness::age_text(ui, received)),
+                                );
                                 ui.allocate_ui_with_layout(
-                                    egui::vec2(widths[6], 0.0),
+                                    egui::vec2(widths[7], 0.0),
                                     egui::Layout::left_to_right(egui::Align::Center),
                                     |ui| {
-                                        ui.set_width(widths[6]);
+                                        ui.set_width(widths[7]);
                                         self.display_units(
                                             ui,
                                             &key,
@@ -629,17 +693,32 @@ impl TechnicianView {
                                 );
                                 register_cell(
                                     ui,
-                                    widths[7],
+                                    widths[8],
                                     egui::Label::new(register.decode(live.map(|v| v as i64)))
                                         .wrap(),
                                 )
                                 .on_hover_text(register.decode(None));
                                 register_cell(
                                     ui,
-                                    widths[8],
+                                    widths[9],
                                     egui::Label::new(&register.description).wrap(),
                                 );
                             });
+                            if self.reading_ok(
+                                profile,
+                                result,
+                                direct.filter(|d| d.key == key),
+                                register,
+                            ) {
+                                ui.painter().set(
+                                    background,
+                                    egui::Shape::rect_filled(
+                                        row.response.rect,
+                                        3.0,
+                                        crate::brand::CYAN.gamma_multiply(0.12),
+                                    ),
+                                );
+                            }
                             ui.add_space(6.0);
                         }
                     });

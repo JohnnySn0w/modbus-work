@@ -181,3 +181,27 @@ pub fn icon() -> egui::IconData {
         rgba: image.into_raw(),
     }
 }
+
+/// Display and copy only a validated LoRa device identifier.
+pub fn bridge_eui(ui: &mut egui::Ui, value: Option<&str>) {
+    let normalized = value.and_then(modbus_configurator::bridge::normalize_dev_eui);
+    ui.horizontal_wrapped(|ui| {
+        ui.label("LoRa EUI");
+        if let Some(eui) = normalized {
+            ui.add(egui::Label::new(egui::RichText::new(&eui).monospace()).selectable(true));
+            if ui.button("Copy EUI").clicked() {
+                ui.ctx().copy_text(eui.clone());
+                #[cfg(not(test))]
+                if let Err(error) =
+                    arboard::Clipboard::new().and_then(|mut clipboard| clipboard.set_text(eui))
+                {
+                    crate::diagnostic_log::write(&format!(
+                        "Native clipboard copy failed; using window clipboard: {error}"
+                    ));
+                }
+            }
+        } else {
+            ui.weak("Not available yet");
+        }
+    });
+}

@@ -1,5 +1,7 @@
 //! Shared offline GUI fixtures and interaction helpers.
 use super::*;
+#[path = "device_feedback.rs"]
+mod device_feedback;
 #[path = "line_ui.rs"]
 mod line_ui;
 #[path = "network_ui.rs"]
@@ -38,6 +40,7 @@ fn port() -> PortInfo {
 }
 pub(crate) fn read(app: &Configurator, value: f64) -> BridgeResult {
     BridgeResult {
+        dev_eui: None,
         identity: Identity {
             model: "ENL-MOD-32".into(),
             firmware: "3.6".into(),
@@ -171,3 +174,7 @@ mod presentation_tests;
 
 #[path = "gui_diagnostics.rs"]
 mod diagnostics_tests;
+
+#[cfg(windows)]
+#[path = "device_map_visual.rs"]
+mod device_map_visual;

@@ -194,6 +194,7 @@ mod tests {
         let sink = events.clone();
         session.observe_scan(move |result| sink.lock().unwrap().push(result));
         session.scan_table = Some(BridgeResult {
+            dev_eui: None,
             identity: Identity {
                 model: "ENL-MOD-32".into(),
                 firmware: "3.6".into(),

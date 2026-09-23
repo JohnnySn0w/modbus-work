@@ -104,3 +104,24 @@ fn capacity_and_custom_imports_fail_without_truncation() {
     assert!(recognize(&lines.join("\n"), &profiles).is_none());
     assert!(recognize("invalid", &profiles).is_none());
 }
+
+#[test]
+fn editable_custom_rows_round_trip_alongside_known_and_repeated_models() {
+    use modbus_configurator::network::editable;
+    let profiles = bundled().unwrap();
+    let devices = [Device::new(0, 3, &profiles), Device::new(0, 1, &profiles)];
+    let original = compose(&devices, &profiles).unwrap();
+    let custom = original.replacen("\t4\tF32", "\t1234\tF32", 1);
+    let mut entries = editable(&custom, &profiles).unwrap();
+    assert_eq!(entries.len(), 2);
+    assert_eq!(entries[0].slave, 3);
+    assert!(!entries[0].custom_rows.is_empty());
+    assert!(entries[1].custom_rows.is_empty());
+    assert_eq!(compose(&entries, &profiles).unwrap(), custom);
+    entries[0].slave = 9;
+    entries[0].points.remove(&2);
+    let edited = compose(&entries, &profiles).unwrap();
+    assert!(edited.contains("1\t9\tHold\t1234\tF32"));
+    assert_eq!(table_rows(&edited).unwrap().len(), 15);
+    assert!(editable("invalid", &profiles).is_err());
+}

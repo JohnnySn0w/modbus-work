@@ -131,6 +131,8 @@ fn navigation_and_configuration_buttons_change_state_and_copy_the_exact_table() 
     }
     for index in 0..a.profiles.len() {
         let label = a.profiles[index].info.model.clone();
+        let current = a.profiles[a.network_devices[0].profile].info.model.clone();
+        click(&mut a, &ctx, &current);
         click(&mut a, &ctx, &label);
         assert_eq!(
             a.loaded_config.as_ref(),

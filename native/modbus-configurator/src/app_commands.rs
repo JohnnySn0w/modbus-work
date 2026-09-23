@@ -25,6 +25,16 @@ impl Configurator {
     pub(super) fn handle_action(&mut self, action: technician_view::Action) {
         use technician_view::Action;
         match action {
+            Action::ClearErrors => {
+                self.technician.errors_acknowledged = true;
+                self.technician.slave_failures.clear();
+                if !self.programming_blocked && self.active.is_none() {
+                    self.status = "Errors acknowledged; new errors will appear again.".into();
+                }
+                self.record_activity(
+                    "Displayed errors acknowledged; logs and safety blocks retained.".into(),
+                );
+            }
             Action::Refresh => {
                 self.auto_paused = false;
                 self.last_fetch = Instant::now() - Duration::from_secs(5);

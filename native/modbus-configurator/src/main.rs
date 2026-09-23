@@ -1,4 +1,4 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+#![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 //! Native Windows entry point and shared application state.
 use eframe::egui;
 mod activity;
@@ -49,10 +49,9 @@ impl Default for Preferences {
 struct Configurator {
     communication_log: Vec<String>,
     diagnostic_report: Option<(String, String, Vec<diagnostic_checks::Finding>)>,
-    multi_device: bool,
     network_devices: Vec<modbus_configurator::network::Device>,
-    network_unrecognized: bool,
-    single_selection: Option<(Option<String>, String, Option<usize>)>,
+    network_table: Option<String>,
+    network_initialized: bool,
     line_settings: Option<modbus_configurator::bridge::LineSettings>,
     line_draft: Option<modbus_configurator::bridge::LineSettings>,
     line_applying: bool,
@@ -107,10 +106,9 @@ impl Configurator {
         Configurator {
             communication_log: Vec::new(),
             diagnostic_report: None,
-            multi_device: false,
             network_devices: Vec::new(),
-            network_unrecognized: false,
-            single_selection: None,
+            network_table: None,
+            network_initialized: false,
             line_settings: None,
             line_draft: None,
             line_applying: false,
