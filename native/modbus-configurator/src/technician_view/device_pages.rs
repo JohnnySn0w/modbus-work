@@ -27,6 +27,9 @@ impl TechnicianView {
         let Some(device) = reference.devices.get(&key) else {
             return actions;
         };
+        if key == "iaq_plus" {
+            return actions;
+        }
         self.header(
             ui,
             &device.name,
@@ -47,7 +50,9 @@ impl TechnicianView {
                 ui.add_space(16.0);
                 ui.vertical(|ui| {
                     ui.strong("Documentation");
-                    if reference.registers.contains_key(&key) && ui.button("Register map").clicked()
+                    if reference.registers.contains_key(&key)
+                        && key != "hmd65"
+                        && ui.button("Register map").clicked()
                     {
                         self.page = Page::Registers(key.clone());
                     }
@@ -465,6 +470,9 @@ impl TechnicianView {
         let Some(device) = reference.devices.get(&key) else {
             return actions;
         };
+        if key == "iaq_plus" {
+            return actions;
+        }
         self.header(
             ui,
             &format!(
@@ -479,6 +487,9 @@ impl TechnicianView {
             "",
             Page::Detail(key.clone()),
         );
+        if self.reference_context && key == "hmd65" {
+            return actions;
+        }
         ui.horizontal(|ui| {
             ui.label("Find");
             ui.text_edit_singleline(&mut self.search);

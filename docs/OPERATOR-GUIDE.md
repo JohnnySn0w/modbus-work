@@ -67,3 +67,5 @@ Use **Clear errors** beside **Refresh** to acknowledge displayed warnings and re
 The Modbus Bridge card, device details and Configuration heading show its LoRa EUI after the console banner is read. **Copy EUI** copies exactly 16 uppercase hexadecimal characters, without spaces or separators. This identifier is separate from the USB serial number. It remains unavailable until the current bridge supplies a valid identifier.
 
 Selecting a device type for a custom register set opens the normal device summary with its image and reading cards. **Register table** opens the detailed readings for that slave. Units apply only to entries matching the selected model's register encoding.
+
+Metric HMD65 profile selection and its metric register-reference section are hidden. Use the HMD65 non-metric profile for new configurations. Existing tables, saved backups and received readings remain readable without conversion. IAQ reference and troubleshooting sections are hidden.

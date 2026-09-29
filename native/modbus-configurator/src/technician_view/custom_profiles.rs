@@ -79,14 +79,19 @@ impl TechnicianView {
                     if self.saved_profiles.is_empty() {
                         ui.weak("No custom profiles saved.");
                     }
-                    for saved in &self.saved_profiles {
-                        let matching = saved.matches(table, slave);
+                    for saved in self
+                        .saved_profiles
+                        .iter()
+                        .filter(|p| crate::catalog_view::profile_enabled(&p.model_id))
+                    {
+                        let matching = saved.matches(table, slave)
+                            && crate::catalog_view::profile_enabled(&saved.model_id);
                         if ui
                             .add_enabled(matching, egui::Button::new(&saved.name))
                             .on_hover_text(if matching {
                                 "Apply this saved device type"
                             } else {
-                                "This profile uses a different register set"
+                                "This profile is inactive or uses a different register set"
                             })
                             .clicked()
                         {

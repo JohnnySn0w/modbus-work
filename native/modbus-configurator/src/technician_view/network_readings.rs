@@ -248,6 +248,7 @@ impl TechnicianView {
                     TypeChoice::Custom => CUSTOM,
                     TypeChoice::Profile(index) => profiles
                         .get(index)
+                        .filter(|p| crate::catalog_view::profile_enabled(&p.info.id))
                         .map_or(CUSTOM, |p| p.info.model.as_str()),
                 };
                 egui::ComboBox::from_id_salt(("session-type", slave))
@@ -259,7 +260,11 @@ impl TechnicianView {
                             "Use configured type",
                         );
                         ui.selectable_value(&mut choice, TypeChoice::Custom, CUSTOM);
-                        for (index, profile) in profiles.iter().enumerate() {
+                        for (index, profile) in profiles
+                            .iter()
+                            .enumerate()
+                            .filter(|(_, p)| crate::catalog_view::profile_enabled(&p.info.id))
+                        {
                             ui.selectable_value(
                                 &mut choice,
                                 TypeChoice::Profile(index),

@@ -3,6 +3,9 @@ use eframe::egui;
 use modbus_configurator::reference::Reference;
 
 pub fn show(ui: &mut egui::Ui, reference: &Reference, selected: &mut Option<String>) {
+    if selected.as_deref() == Some("iaq_plus") {
+        *selected = None;
+    }
     ui.heading("Troubleshooting");
     ui.label("Choose the application or a device for setup and troubleshooting guidance.");
     ui.add_space(12.0);
@@ -11,7 +14,7 @@ pub fn show(ui: &mut egui::Ui, reference: &Reference, selected: &mut Option<Stri
         for (key, device) in reference
             .devices
             .iter()
-            .filter(|(key, _)| key.as_str() != "synetica_usb")
+            .filter(|(key, _)| !matches!(key.as_str(), "synetica_usb" | "iaq_plus"))
         {
             ui.selectable_value(selected, Some(key.clone()), &device.name);
         }
@@ -19,6 +22,10 @@ pub fn show(ui: &mut egui::Ui, reference: &Reference, selected: &mut Option<Stri
     ui.add_space(20.0);
     if let Some(device) = selected.as_ref().and_then(|key| reference.devices.get(key)) {
         ui.heading(&device.name);
+        if device.key == "iaq_plus" {
+            ui.label("IAQ sensor support is inactive.");
+            return;
+        }
         if device.help_setup == ["TBD"] && device.help_troubleshooting == ["TBD"] {
             ui.label("• TBD");
             return;

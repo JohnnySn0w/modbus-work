@@ -70,10 +70,15 @@ impl Configurator {
                 }
             }
             Action::ChooseConfig(key) => {
+                let key = if key == "hmd65" {
+                    "hmd65-nonmetric"
+                } else {
+                    &key
+                };
                 self.catalog_view.selected = self
                     .profiles
                     .iter()
-                    .position(|p| p.info.id == modbus_configurator::reference::catalog_id(&key));
+                    .position(|p| p.info.id == modbus_configurator::reference::catalog_id(key));
                 if let Some(index) = self.catalog_view.selected {
                     self.loaded_config = Some(self.profiles[index].native_tsv.clone());
                     self.config_source = self.profiles[index].info.model.clone();

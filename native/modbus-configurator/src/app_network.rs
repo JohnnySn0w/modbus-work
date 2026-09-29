@@ -48,9 +48,9 @@ impl Configurator {
                         ui.strong(format!("Device {}", index + 1));
                         let old_profile = device.profile;
                         egui::ComboBox::from_id_salt("model")
-                            .selected_text(self.profiles.get(device.profile).map_or("Custom register set", |p| p.info.model.as_str()))
+                            .selected_text(self.profiles.get(device.profile).filter(|p| crate::catalog_view::profile_enabled(&p.info.id)).map_or("Custom register set", |p| p.info.model.as_str()))
                             .show_ui(ui, |ui| {
-                                for (key, profile) in self.profiles.iter().enumerate() {
+                                for (key, profile) in self.profiles.iter().enumerate().filter(|(_, p)| crate::catalog_view::profile_enabled(&p.info.id)) {
                                     ui.selectable_value(
                                         &mut device.profile,
                                         key,
@@ -68,7 +68,7 @@ impl Configurator {
                         }
                         ui.vertical(|ui| {
                             ui.set_width(270.0);
-                            if let Some(profile) = self.profiles.get(device.profile) {
+                            if let Some(profile) = self.profiles.get(device.profile).filter(|p| crate::catalog_view::profile_enabled(&p.info.id)) {
                                 crate::catalog_view::compatibility(ui, profile);
                             }
                         });

@@ -130,6 +130,9 @@ fn navigation_and_configuration_buttons_change_state_and_copy_the_exact_table() 
         assert!(a.technician.page == page, "{label}");
     }
     for index in 0..a.profiles.len() {
+        if !catalog_view::profile_enabled(&a.profiles[index].info.id) {
+            continue;
+        }
         let label = a.profiles[index].info.model.clone();
         let current = a.profiles[a.network_devices[0].profile].info.model.clone();
         click(&mut a, &ctx, &current);

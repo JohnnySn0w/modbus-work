@@ -92,9 +92,7 @@ fn reference_navigation_opens_registers_and_help_in_the_same_context() {
     use technician_view::Page;
     let mut a = app();
     let ctx = egui::Context::default();
-    for key in [
-        "dpt146", "hmd65", "wattnode", "iaq_plus", "adapter", "bridge",
-    ] {
+    for key in ["dpt146", "hmd65", "wattnode", "adapter", "bridge"] {
         a.technician.page = Page::References;
         let label = a.reference.devices[key].name.clone();
         click(&mut a, &ctx, &label);
@@ -113,7 +111,7 @@ fn reference_navigation_opens_registers_and_help_in_the_same_context() {
             "Troubleshooting steps"
         }));
         click(&mut a, &ctx, "‹ Device details");
-        if a.reference.registers.contains_key(key) {
+        if a.reference.registers.contains_key(key) && key != "hmd65" {
             click(&mut a, &ctx, "Register map");
             assert!(a.technician.page == Page::Registers(key.into()));
             let map_text = draw(&mut a, &ctx);
@@ -246,7 +244,7 @@ fn reference_cards_have_equal_widths_at_supported_window_sizes() {
                 _ => None,
             })
             .collect();
-        assert_eq!(cards.len(), 7, "{cards:?}");
+        assert_eq!(cards.len(), 6, "{cards:?}");
         for rect in &cards {
             assert!((rect.width() - cards[0].width()).abs() < 0.1);
             assert!(rect.right() <= width);
@@ -478,4 +476,25 @@ fn device_manuals_extract_as_pdf_files_offline() {
         }
     }
     std::fs::remove_dir_all(root).unwrap();
+}
+
+/// Hidden sensor sections are absent while the non-metric profile remains available.
+#[test]
+fn hidden_sensor_sections_are_absent() {
+    use technician_view::Page;
+    assert!(!catalog_view::profile_enabled("hmd65"));
+    assert!(!catalog_view::profile_enabled("iaq_plus"));
+    assert!(catalog_view::profile_enabled("hmd65-nonmetric"));
+    let mut a = app();
+    let ctx = egui::Context::default();
+    let label = a.reference.devices["iaq_plus"].name.clone();
+    a.technician.page = Page::References;
+    assert!(!draw(&mut a, &ctx).contains(&label));
+    a.technician.page = Page::Troubleshooting(None);
+    assert!(!draw(&mut a, &ctx).contains(&label));
+    a.technician.reference_context = true;
+    a.technician.page = Page::Detail("hmd65".into());
+    let text = draw(&mut a, &ctx);
+    assert!(!text.contains("Register map"));
+    assert!(text.contains("User guide (PDF)"));
 }

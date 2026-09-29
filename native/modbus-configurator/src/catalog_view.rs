@@ -12,6 +12,11 @@ pub struct CatalogView {
     only_points: bool,
 }
 
+/// Keep retired profiles readable in existing tables without offering new selections.
+pub fn profile_enabled(id: &str) -> bool {
+    !matches!(id, "hmd65" | "iaq_plus")
+}
+
 /// Show recorded compatibility without treating unknown versions as universal support.
 pub fn compatibility(ui: &mut egui::Ui, profile: &Profile) {
     ui.strong("Confirmed working variants");
@@ -37,7 +42,11 @@ pub fn compatibility(ui: &mut egui::Ui, profile: &Profile) {
 
 impl CatalogView {
     pub fn show(&mut self, ui: &mut egui::Ui, profiles: &[Profile], result: Option<&BridgeResult>) {
-        let Some(profile) = self.selected.and_then(|i| profiles.get(i)) else {
+        let Some(profile) = self
+            .selected
+            .and_then(|i| profiles.get(i))
+            .filter(|p| profile_enabled(&p.info.id))
+        else {
             return;
         };
         ui.separator();

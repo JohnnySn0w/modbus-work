@@ -264,7 +264,7 @@ impl TechnicianView {
                 ui.add_space(20.0);
                 let reference_width = (ui.available_width() - 12.0).max(0.0);
                 for key in [
-                    "bridge", "dpt146", "hmd65", "wattnode", "ati-f12", "iaq_plus", "adapter",
+                    "bridge", "dpt146", "hmd65", "wattnode", "ati-f12", "adapter",
                 ] {
                     let device = &reference.devices[key];
                     ui.group(|ui| {
@@ -280,7 +280,7 @@ impl TechnicianView {
                             "bridge" => "Live reads, point-table program and restore tested on firmware 3.6. Full power-cycle acceptance pending.",
                             "dpt146" => "Live reads verified through the Modbus Bridge and the USB Modbus adapter.",
                             "hmd65" | "wattnode" | "ati-f12" => "Modbus Bridge preset and direct adapter profile implemented. Hardware validation pending.",
-                            "iaq_plus" => "Reference only. Native IAQ identification, live reads and console backup are not implemented.",
+                            "iaq_plus" => "Inactive",
                             _ => "USB discovery and direct DPT146 reads verified. Polling is blocked while a Modbus Bridge interface is present.",
                         });
                     });
@@ -321,21 +321,7 @@ impl TechnicianView {
                     "Reference information only. Radio settings cannot be changed here.",
                     Page::Detail("iaq_plus".into()),
                 );
-                for region in reference.regions.values() {
-                    ui.group(|ui| {
-                        ui.strong(&region.display_name);
-                        ui.label(format!(
-                            "{} MHz · {}",
-                            region.frequency_mhz,
-                            if region.enabled {
-                                "Reference default"
-                            } else {
-                                "Not supported"
-                            }
-                        ));
-                        ui.label("Details").on_hover_text(&region.notes);
-                    });
-                }
+                ui.label("IAQ radio reference is inactive.");
             }
             Page::Configurations => {
                 self.header(
