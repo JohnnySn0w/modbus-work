@@ -114,7 +114,7 @@ impl TechnicianView {
                     ui.group(|ui| {
                         ui.with_layout(egui::Layout::top_down(egui::Align::Min), |ui| {
                             ui.set_width(card_width);
-                            let key = ["dpt146", "hmd65", "wattnode", "ati-f12"]
+                            let key = ["dpt146", "hmd65", "wattnode", "ati-f12", "u1000mkii-hm"]
                                 .into_iter()
                                 .find(|key| {
                                     profile.is_some_and(|p| {

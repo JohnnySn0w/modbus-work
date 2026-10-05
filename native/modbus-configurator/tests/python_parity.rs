@@ -56,7 +56,7 @@ fn python_device_actions_have_their_reference_data() {
     assert!(!reference.regions["eu868"].enabled);
     let ct = reference.registers["wattnode"]
         .iter()
-        .find(|r| r.name == "CT amps 1")
+        .find(|r| r.name == "[CONFIG] CT amps 1")
         .unwrap();
     assert_eq!(ct.access, "R/W");
 }

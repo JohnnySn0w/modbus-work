@@ -1,0 +1,16 @@
+register number,name,units,interpretation,decode,defaults
+1,Device ID,,,0x00AC = U1000MKII-FM or U1000MKII-HM,
+2,Status,,,0 = OK; nonzero = fault,
+3,System type,,,4 = heating; 12 = chiller,
+7 - 8,Measured velocity,m/s,IEEE-754 float32; most-significant byte first,,
+9 - 10,Measured flow,instrument units,IEEE-754 float32; units depend on instrument unit setting,,
+11 - 12,Calculated power,instrument units,IEEE-754 float32; kW in metric mode or BTU/s in imperial mode,,
+13 - 14,Calculated energy,instrument units,IEEE-754 float32; kWh in metric mode or BTU in imperial mode,,
+15 - 16,Hot temperature,instrument units,IEEE-754 float32; deg C in metric mode or deg F in imperial mode,,
+17 - 18,Cold temperature,instrument units,IEEE-754 float32; deg C in metric mode or deg F in imperial mode,,
+19 - 20,Differential temperature,instrument units,IEEE-754 float32; deg C in metric mode or deg F in imperial mode,,
+21 - 22,Volume total,instrument units,IEEE-754 float32; m3 in metric mode or US gal in imperial mode,,
+23,Instrument units,,,0 = metric; 1 = imperial,0
+24,Gain,dB,,,
+25,Signal-to-noise ratio,dB,,,
+26,Signal,%,,,

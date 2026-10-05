@@ -27,7 +27,7 @@
     "model": "HMD65",
     "manufacturer": "Vaisala",
     "status": "to-test",
-    "summary": "Eleven-entry Modbus Bridge configuration using one-based register numbers. Error-code registers 514-515 are excluded.",
+    "summary": "Seven-entry Modbus Bridge configuration using one-based register numbers. Wet-bulb temperature, enthalpy, error code and measurement-status registers are excluded.",
     "serial": "Candidate only: slave 1, 19200 baud, 8N1. Actual settings follow physical DIP switches. Float order HH is an unverified first candidate.",
     "help": [
       "Modbus Bridge tables use manual register numbers: metric measurements start at 1; non-metric measurements start at 129.",
@@ -49,13 +49,13 @@
     "model": "WND-M1-MB",
     "manufacturer": "Continental Control Systems",
     "status": "to-test",
-    "summary": "Twelve native-float points for WND-M1-MB. Model operation through Modbus Bridge is confirmed; tested hardware and firmware versions are not recorded. Firmware 1028 is a documentation reference, not a tested version.",
-    "serial": "Candidate only: slave 1, 19200 baud, 8N1; front-label communication options override these assumptions. Low-word-first values use HL.",
+    "summary": "Seventeen integer entries: non-resettable net energy, phase-to-neutral and phase-to-phase voltages, current, firmware, power failures, lifetime uptime and current scaling readbacks. Revised selection requires hardware verification.",
+    "serial": "Confirm the installed slave address, baud rate and parity. Two-word integer values use low-word-first order (HL).",
     "help": [
-      "Suggested: confirm the WND-M1-MB label and communication settings using WND-M1-MB-Ref-1.10.",
-      "Suggested: check CT primary ratings and electrical service mapping before interpreting current and power.",
-      "Suggested: compare native float readings and status with the WND-M1-MB reference manual.",
-      "Suggested: preserve existing calibration values; do not treat CurrentIntScale as milliamps."
+      "Suggested: confirm the WND-M1-MB label and serial settings against the manufacturer manual.",
+      "Integer voltage is in 0.1 V and energy is in 0.1 kWh.",
+      "Integer currents are counts. Read the current scale and current-transformer ratings before converting to amperes.",
+      "[CONFIG] marks writable meter settings. This bridge profile only reads them."
     ],
     "source": "artifacts/device-profiles/to-test/wattnode-wnd-m1-mb.yaml",
     "confirmed_variants": [
@@ -72,7 +72,7 @@
     "model": "HMD65 — non-metric float32",
     "manufacturer": "Vaisala",
     "status": "to-test",
-    "summary": "Eleven-entry Modbus Bridge configuration using one-based register numbers. Error-code registers 514-515 are excluded.",
+    "summary": "Seven-entry Modbus Bridge configuration using one-based register numbers. Wet-bulb temperature, enthalpy, error code and measurement-status registers are excluded.",
     "serial": "Candidate only: slave 1, 19200 baud, 8N1. Actual settings follow physical DIP switches. Float order HH is an unverified first candidate.",
     "help": [
       "Modbus Bridge tables use manual register numbers: metric measurements start at 1; non-metric measurements start at 129.",
@@ -91,10 +91,10 @@
   },
   {
     "id": "ati-f12",
-    "model": "ATI F12 — PAA",
+    "model": "ATI F12",
     "manufacturer": "ATI",
     "status": "to-test",
-    "summary": "ATI F12 transmitter hardware 1.01 and software 1.25 confirmed working through Modbus Bridge. The tested gas module is not recorded. This profile uses peracetic acid; confirm concentration units and range against the installed module.",
+    "summary": "Eight-entry gas-transmitter configuration. Transmitter hardware 1.01 and software 1.25 confirmed working through Modbus Bridge; confirm concentration units and range for the installed sensor module.",
     "serial": "Confirm installed address and format. Documentation defaults: slave 1, 9600 baud, 8N1. HL low-word-first float32.",
     "help": [
       "TBD"
@@ -108,5 +108,20 @@
         "evidence": "Operation through Modbus Bridge confirmed, 16 Sep 2026. Tested register selection not recorded."
       }
     ]
+  },
+  {
+    "id": "u1000mkii-hm",
+    "model": "U1000MKII-HM",
+    "manufacturer": "Micronics",
+    "status": "to-test",
+    "summary": "Fifteen-entry heat-meter configuration from manufacturer documentation. Hardware verification pending. Measurement units follow the instrument settings.",
+    "serial": "Documentation defaults: slave 1, 38400 baud, no parity, two stop bits. Confirm the installed settings. HH floating-point word order.",
+    "help": [
+      "Suggested: keep the instrument on its operating readout screen for Modbus communication.",
+      "Suggested: confirm metric or imperial mode on the instrument before interpreting flow, heat and volume readings.",
+      "Suggested: allow at least one second between requests."
+    ],
+    "source": "Micronics U1000MKII WM Issue 1.1, section 4.3",
+    "confirmed_variants": []
   }
 ]

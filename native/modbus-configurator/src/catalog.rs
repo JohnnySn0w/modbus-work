@@ -333,6 +333,13 @@ pub fn bundled() -> Result<Vec<Profile>, String> {
                 "../../../artifacts/bridge-config/ati-badger-f12-d12-documentation-test.tsv"
             ),
         ),
+        (
+            "u1000mkii-hm",
+            include_str!("../assets/u1000mkii-hm-registers.csv"),
+            include_str!(
+                "../../../artifacts/bridge-config/micronics-u1000mkii-hm-documentation-test.tsv"
+            ),
+        ),
     ];
     if metadata.len() != sources.len() {
         return Err("Catalog source count does not match metadata".into());

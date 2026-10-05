@@ -45,26 +45,28 @@ impl TechnicianView {
             .show(ui, |ui| {
                 ui.set_min_width(map_width);
                 let mut divider_x = None;
-                let map = ui.horizontal_top(|ui| {
-                    for (interfaces, heading) in [(true, "Connections"), (false, "Sensors")] {
-                        let in_group = |key: &str| {
-                            matches!(key, "bridge" | "adapter" | "synetica_usb") == interfaces
-                        };
-                        let column_width = if interfaces { 305.0 } else { map_width - 330.0 };
-                        ui.allocate_ui_with_layout(
-                            egui::vec2(column_width, 0.0),
-                            egui::Layout::top_down(egui::Align::Min),
-                            |ui| {
-                                ui.set_width(column_width);
-                                ui.strong(heading);
-                                ui.add_space(8.0);
-                                ui.horizontal_wrapped(|ui| {
-                                    for (key, connection) in
-                                        nodes.iter().filter(|(key, _)| in_group(key))
-                                    {
-                                        if let Some(device) = reference.devices.get(*key) {
-                                            let response = ui.group(|ui| {
-                                                ui.with_layout(
+                let map =
+                    ui.horizontal_top(|ui| {
+                        for (interfaces, heading) in [(true, "Connections"), (false, "Sensors")] {
+                            let in_group = |key: &str| {
+                                matches!(key, "bridge" | "adapter" | "synetica_usb") == interfaces
+                            };
+                            let column_width = if interfaces { 305.0 } else { map_width - 330.0 };
+                            ui.allocate_ui_with_layout(
+                                egui::vec2(column_width, 0.0),
+                                egui::Layout::top_down(egui::Align::Min),
+                                |ui| {
+                                    ui.set_width(column_width);
+                                    ui.strong(heading);
+                                    ui.add_space(8.0);
+                                    ui.horizontal_wrapped(|ui| {
+                                        for (key, connection) in
+                                            nodes.iter().filter(|(key, _)| in_group(key))
+                                        {
+                                            if let Some(device) = reference.devices.get(*key) {
+                                                let response =
+                                                    ui.group(|ui| {
+                                                        ui.with_layout(
                                                     egui::Layout::top_down(egui::Align::Min),
                                                     |ui| {
                                                         ui.set_width(285.0);
@@ -155,7 +157,7 @@ impl TechnicianView {
                                                             "dpt146"
                                                                 | "hmd65"
                                                                 | "wattnode"
-                                                                | "ati-f12"
+                                                                | "ati-f12" | "u1000mkii-hm"
                                                         ) && direct.is_none_or(|d| d.key != *key)
                                                         {
                                                             ui.add(
@@ -170,7 +172,7 @@ impl TechnicianView {
                                                             "dpt146"
                                                                 | "hmd65"
                                                                 | "wattnode"
-                                                                | "ati-f12"
+                                                                | "ati-f12" | "u1000mkii-hm"
                                                         ) && direct.is_none_or(|d| d.key != *key)
                                                         {
                                                             let profile =
@@ -237,7 +239,7 @@ impl TechnicianView {
                                                             "dpt146"
                                                                 | "hmd65"
                                                                 | "wattnode"
-                                                                | "ati-f12"
+                                                                | "ati-f12" | "u1000mkii-hm"
                                                                 | "bridge"
                                                         ) && self.bridge_stale
                                                         {
@@ -292,28 +294,28 @@ impl TechnicianView {
                                                     },
                                                 )
                                                 .inner
-                                            });
-                                            if response.inner.clicked() {
-                                                self.reference_context = false;
-                                                self.page = Page::Detail((*key).into());
+                                                    });
+                                                if response.inner.clicked() {
+                                                    self.reference_context = false;
+                                                    self.page = Page::Detail((*key).into());
+                                                }
                                             }
                                         }
+                                    });
+                                    if !interfaces
+                                        && network
+                                        && let Some(result) = result
+                                    {
+                                        self.network_readings(ui, result, profiles);
                                     }
-                                });
-                                if !interfaces
-                                    && network
-                                    && let Some(result) = result
-                                {
-                                    self.network_readings(ui, result, profiles);
-                                }
-                            },
-                        );
-                        if interfaces {
-                            divider_x = Some(ui.cursor().left() + 4.0);
-                            ui.add_space(17.0);
+                                },
+                            );
+                            if interfaces {
+                                divider_x = Some(ui.cursor().left() + 4.0);
+                                ui.add_space(17.0);
+                            }
                         }
-                    }
-                });
+                    });
                 if let Some(x) = divider_x {
                     ui.painter().line_segment(
                         [
@@ -361,7 +363,7 @@ impl TechnicianView {
                 },
             ));
             if known && !network {
-                for key in ["dpt146", "hmd65", "wattnode", "ati-f12"] {
+                for key in ["dpt146", "hmd65", "wattnode", "ati-f12", "u1000mkii-hm"] {
                     if profiles.iter().any(|p| {
                         reference::profile_matches(key, &p.info.id)
                             && result.is_some_and(|r| p.contains_points(r))
@@ -373,7 +375,7 @@ impl TechnicianView {
         }
         if !self.bridge_connected && result.is_some() {
             nodes.push(("bridge", format!("{result_port} - disconnected")));
-            for key in ["dpt146", "hmd65", "wattnode", "ati-f12"]
+            for key in ["dpt146", "hmd65", "wattnode", "ati-f12", "u1000mkii-hm"]
                 .into_iter()
                 .filter(|_| !network)
             {

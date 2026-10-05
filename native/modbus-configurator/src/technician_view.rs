@@ -264,7 +264,13 @@ impl TechnicianView {
                 ui.add_space(20.0);
                 let reference_width = (ui.available_width() - 12.0).max(0.0);
                 for key in [
-                    "bridge", "dpt146", "hmd65", "wattnode", "ati-f12", "adapter",
+                    "bridge",
+                    "dpt146",
+                    "hmd65",
+                    "wattnode",
+                    "ati-f12",
+                    "u1000mkii-hm",
+                    "adapter",
                 ] {
                     let device = &reference.devices[key];
                     ui.group(|ui| {
@@ -282,6 +288,7 @@ impl TechnicianView {
                             "hmd65" => "Non-metric Modbus Bridge profile available. Operation confirmed; complete register-set verification pending.",
                             "wattnode" => "Modbus Bridge and direct adapter support available. Bridge operation confirmed; complete register-set verification pending.",
                             "ati-f12" => "Modbus Bridge profile available. Transmitter hardware 1.01 / software 1.25 confirmed working. Direct adapter reads are unavailable.",
+                            "u1000mkii-hm" => "Documentation-based heat-meter profile. Hardware verification pending. Direct adapter reads are unavailable.",
                             "iaq_plus" => "Inactive",
                             _ => "USB discovery and direct DPT146 reads verified. Polling is blocked while a Modbus Bridge interface is present.",
                         });
@@ -332,7 +339,7 @@ impl TechnicianView {
                     "Choose a configuration to preview and export.",
                     Page::Overview,
                 );
-                for key in ["dpt146", "hmd65", "wattnode", "ati-f12"] {
+                for key in ["dpt146", "hmd65", "wattnode", "ati-f12", "u1000mkii-hm"] {
                     let device = &reference.devices[key];
                     let width = ui.available_width().min(560.0);
                     ui.group(|ui| {

@@ -11,34 +11,28 @@ register number,name,units,interpretation,decode,defaults
 1163 - 1164,Current 1,A,IEEE-754 float32; low 16-bit word first.,,
 1165 - 1166,Current 2,A,IEEE-754 float32; low 16-bit word first.,,
 1167 - 1168,Current 3,A,IEEE-754 float32; low 16-bit word first.,,
-1221,Integer frequency,0.01 Hz,,,
-1603,CT amps global,A,,,
-1604,CT amps 1,A,,,
-1605,CT amps 2,A,,,
-1606,CT amps 3,A,,,
-1607,CT directions,bitfield,,0x1 = reverse CT1 polarity; 0x2 = reverse CT2 polarity; 0x4 = reverse CT3 polarity,0 = all CTs normal
-1612,Gain adjust 1,1/10000,Gain multiplier = raw unsigned value / 10000.,,10000 (multiplier 1.0)
-1613,Gain adjust 2,1/10000,Gain multiplier = raw unsigned value / 10000.,,10000 (multiplier 1.0)
-1614,Gain adjust 3,1/10000,Gain multiplier = raw unsigned value / 10000.,,10000 (multiplier 1.0)
-1615,Phase adjust 1,0.001deg,,,-1000 (-1.000 deg)
-1616,Phase adjust 2,0.001deg,,,-1000 (-1.000 deg)
-1617,Phase adjust 3,0.001deg,,,-1000 (-1.000 deg)
-1622,Current integer scale,counts,For legacy integer current registers: current_A = raw_current * CT_rated_amps / CurrentIntScale. Documented default is 20000; native float current registers avoid this scale.,,20000 counts
-1624,Meter config 1,code,,,
-1625,Meter config 2,code,,,
-1626,Meter config 3,code,,,
+1603,[CONFIG] CT amps global,A,,,
+1607,[CONFIG] CT directions,bitfield,,0x1 = reverse CT1 polarity; 0x2 = reverse CT2 polarity; 0x4 = reverse CT3 polarity,0 = all CTs normal
+1612,[CONFIG] Gain adjust 1,1/10000,Gain multiplier = raw unsigned value / 10000.,,10000 (multiplier 1.0)
+1613,[CONFIG] Gain adjust 2,1/10000,Gain multiplier = raw unsigned value / 10000.,,10000 (multiplier 1.0)
+1614,[CONFIG] Gain adjust 3,1/10000,Gain multiplier = raw unsigned value / 10000.,,10000 (multiplier 1.0)
+1615,[CONFIG] Phase adjust 1,0.001deg,,,-1000 (-1.000 deg)
+1616,[CONFIG] Phase adjust 2,0.001deg,,,-1000 (-1.000 deg)
+1617,[CONFIG] Phase adjust 3,0.001deg,,,-1000 (-1.000 deg)
+1624,[CONFIG] Meter config 1,code,,,
+1625,[CONFIG] Meter config 2,code,,,
+1626,[CONFIG] Meter config 3,code,,,
 1628,Change counter,writes,,,
-1629 - 1630,Nominal CT volts 1,Vac,IEEE-754 float32; low 16-bit word first.,,0.33333 Vac
-1631 - 1632,Nominal CT volts 2,Vac,IEEE-754 float32; low 16-bit word first.,,0.33333 Vac
-1633 - 1634,Nominal CT volts 3,Vac,IEEE-754 float32; low 16-bit word first.,,0.33333 Vac
-1636,Connection type,code,,0 = custom mapping; 1 = wye; 2 = delta; 3 = branch circuits; 4 = house and inverter; 5 = line-to-line,
-1652,Address,,,,
-1653,Baud rate,code,,1 = 1200 baud; 2 = 2400 baud; 3 = 4800 baud; 4 = 9600 baud; 5 = 19200 baud; 6 = 38400 baud; 7 = 57600 baud; 8 = 76800 baud; 9 = 115200 baud,
-1654,Parity mode,code,,0 = 8N1; 1 = 8E1; 2 = 8N2,
-1655,Modbus mode,code,,0 = Modbus RTU,
+1629 - 1630,[CONFIG] Nominal CT volts 1,Vac,IEEE-754 float32; low 16-bit word first.,,0.33333 Vac
+1631 - 1632,[CONFIG] Nominal CT volts 2,Vac,IEEE-754 float32; low 16-bit word first.,,0.33333 Vac
+1633 - 1634,[CONFIG] Nominal CT volts 3,Vac,IEEE-754 float32; low 16-bit word first.,,0.33333 Vac
+1636,[CONFIG] Connection type,code,,0 = custom mapping; 1 = wye; 2 = delta; 3 = branch circuits; 4 = house and inverter; 5 = line-to-line,
+1652,[CONFIG] Address,,,,
+1653,[CONFIG] Baud rate,code,,1 = 1200 baud; 2 = 2400 baud; 3 = 4800 baud; 4 = 9600 baud; 5 = 19200 baud; 6 = 38400 baud; 7 = 57600 baud; 8 = 76800 baud; 9 = 115200 baud,
+1654,[CONFIG] Parity mode,code,,0 = 8N1; 1 = 8E1; 2 = 8N2,
+1655,[CONFIG] Modbus mode,code,,0 = Modbus RTU,
 1701 - 1702,Serial number,,Unsigned 32-bit value; low 16-bit word first. value = (second register << 16) | first register.,,
 1707,Model,code,,530 = WattNode Module,
-1708,Firmware version,,,,
 1709,Options,bitfield,,0x2 = even parity factory option; 0x4 = factory baud configured; 0x20 = CT amps factory configured; 0x200 = factory Modbus address configured; 0x400 = CT amps locked; 0x800 = configuration locked; 0x1000 = LEDs disabled; 0x2000 = no DIP-switch logic,0 = no option bits reported
 1716,Error status 1,,,,
 1717,Error status 2,,,,
@@ -55,3 +49,30 @@ register number,name,units,interpretation,decode,defaults
 1729,Factory baud,code,,1 = 1200 baud; 2 = 2400 baud; 3 = 4800 baud; 4 = 9600 baud; 5 = 19200 baud; 6 = 38400 baud; 7 = 57600 baud; 8 = 76800 baud; 9 = 115200 baud,
 1730,Factory parity,code,,0 = no factory parity override / 8N1; 1 = 8E1; 2 = 8N2,
 1737,Factory config lock,bool,,0 = configuration not factory locked; 1 = configuration factory locked,
+1205 - 1206,Lifetime net energy,0.1 kWh,Signed 32-bit integer; low 16-bit word first. Non-resettable total; multiply by 0.1 for kWh.,,
+1207 - 1208,Lifetime imported energy,0.1 kWh,Signed 32-bit integer; low 16-bit word first. Non-resettable total; multiply by 0.1 for kWh.,,
+1315 - 1316,Lifetime exported energy,0.1 kWh,Signed 32-bit integer; low 16-bit word first. Non-resettable total; multiply by 0.1 for kWh.,,
+1209,Active power total,power counts,Signed 16-bit integer. Watts = raw value multiplied by PowerIntScale (1609).,,
+1210,Active power 1,power counts,Signed 16-bit integer. Watts = raw value multiplied by PowerIntScale (1609).,,
+1211,Active power 2,power counts,Signed 16-bit integer. Watts = raw value multiplied by PowerIntScale (1609).,,
+1212,Active power 3,power counts,Signed 16-bit integer. Watts = raw value multiplied by PowerIntScale (1609).,,
+1213,Average phase-to-neutral voltage,0.1 V,Signed 16-bit integer. Multiply by 0.1 for volts.,,
+1214,Voltage AN,0.1 V,Signed 16-bit integer. Multiply by 0.1 for volts.,,
+1215,Voltage BN,0.1 V,Signed 16-bit integer. Multiply by 0.1 for volts.,,
+1216,Voltage CN,0.1 V,Signed 16-bit integer. Multiply by 0.1 for volts.,,
+1217,Average phase-to-phase voltage,0.1 V,Signed 16-bit integer. Multiply by 0.1 for volts.,,
+1218,Voltage AB,0.1 V,Signed 16-bit integer. Multiply by 0.1 for volts.,,
+1219,Voltage BC,0.1 V,Signed 16-bit integer. Multiply by 0.1 for volts.,,
+1220,Voltage CA,0.1 V,Signed 16-bit integer. Multiply by 0.1 for volts.,,
+1221,Integer frequency,0.1 Hz,Signed 16-bit integer. Multiply by 0.1 for hertz.,,
+1351,Current 1,current counts,"Signed 16-bit integer. Amperes = raw value multiplied by CT rated current 1 (1604), divided by CurrentIntScale (1622).",,
+1352,Current 2,current counts,"Signed 16-bit integer. Amperes = raw value multiplied by CT rated current 2 (1605), divided by CurrentIntScale (1622).",,
+1353,Current 3,current counts,"Signed 16-bit integer. Amperes = raw value multiplied by CT rated current 3 (1606), divided by CurrentIntScale (1622).",,
+1708,Firmware version,,Signed 16-bit integer. ,,
+1711,Power failure count,count,Signed 16-bit integer. ,,
+1705 - 1706,Lifetime operating time,s,Unsigned 32-bit integer; low 16-bit word first. Total operating seconds since factory calibration; low word first.,,
+1604,[CONFIG] CT rated current 1,A,Signed 16-bit integer. Readback only; configure the meter to match the installed current transformer.,,
+1605,[CONFIG] CT rated current 2,A,Signed 16-bit integer. Readback only; configure the meter to match the installed current transformer.,,
+1606,[CONFIG] CT rated current 3,A,Signed 16-bit integer. Readback only; configure the meter to match the installed current transformer.,,
+1609,Power integer scale,W/count,"Signed 16-bit integer. Readback of actual power multiplier, including automatic mode.",,
+1622,[CONFIG] Current integer scale,counts,Signed 16-bit integer. Divide raw current times rated current by this value; no fixed amps-per-count assumption.,,

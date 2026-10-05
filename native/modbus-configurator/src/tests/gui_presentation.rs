@@ -244,7 +244,7 @@ fn reference_cards_have_equal_widths_at_supported_window_sizes() {
                 _ => None,
             })
             .collect();
-        assert_eq!(cards.len(), 6, "{cards:?}");
+        assert_eq!(cards.len(), 7, "{cards:?}");
         for rect in &cards {
             assert!((rect.width() - cards[0].width()).abs() < 0.1);
             assert!(rect.right() <= width);
@@ -466,7 +466,13 @@ fn device_manuals_extract_as_pdf_files_offline() {
     let root = std::env::temp_dir().join(format!("manual-check-{}", std::process::id()));
     std::fs::create_dir_all(&root).unwrap();
     for key in [
-        "bridge", "dpt146", "hmd65", "wattnode", "ati-f12", "adapter",
+        "bridge",
+        "dpt146",
+        "hmd65",
+        "wattnode",
+        "ati-f12",
+        "u1000mkii-hm",
+        "adapter",
     ] {
         let manuals = modbus_configurator::reference::manuals(key);
         assert!(!manuals.is_empty());

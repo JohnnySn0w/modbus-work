@@ -13,7 +13,7 @@ impl TechnicianView {
         reference: &Reference,
     ) -> Vec<Action> {
         let mut actions = vec![];
-        let key = ["dpt146", "hmd65", "wattnode", "ati-f12"]
+        let key = ["dpt146", "hmd65", "wattnode", "ati-f12", "u1000mkii-hm"]
             .into_iter()
             .find(|key| reference::profile_matches(key, &profile.info.id))
             .unwrap_or("sensor");

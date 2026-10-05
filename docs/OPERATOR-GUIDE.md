@@ -39,7 +39,7 @@ Use **Custom profiles** to save a named interpretation for matching register set
 Metric HMD65 profile selection and its metric register-reference section are hidden. Use the HMD65 non-metric profile for new configurations. Existing tables, saved backups and received readings remain readable without conversion. IAQ reference and troubleshooting sections are hidden.
 
 
-The selectable HMD65 non-metric profile uses one-based manual register numbers in its bridge table. Its eight entries include status at 513 and wet-bulb temperature at 141–142. It excludes 514–515, 518, 519 and enthalpy at 143–144. Reprogram an existing bridge with the updated profile to remove these entries from its reads. This convention applies to Modbus Bridge configuration files; direct Modbus requests and manufacturer reference addresses remain zero-based. Existing backups are preserved without conversion.
+The selectable HMD65 non-metric profile uses one-based manual register numbers in its bridge table. Its seven entries include device status at 513. It excludes wet-bulb temperature at 141–142, enthalpy at 143–144, error code at 514–515 and measurement status at 518–519. Reprogram an existing bridge with the updated profile to remove these entries from its reads. This convention applies to Modbus Bridge configuration files; direct Modbus requests and manufacturer reference addresses remain zero-based. Existing backups are preserved without conversion.
 
 ## Back up, load and restore
 
@@ -77,3 +77,7 @@ Firmware updating is not available yet. See [firmware plan](FIRMWARE-UPDATES.md)
 Modbus Bridge and Vaisala DPT146 instructions use recorded test results. Other device instructions are either explicitly attributed to manufacturer documentation or marked **TBD**. Documentation-based suggestions are not hardware verification. Historical notes and proposed test plans are not approved installation procedures.
 
 See [terminology](TERMINOLOGY.md) for the distinction between an instrument register, a bridge entry, a profile and a backup.
+
+The ATI F12 profile contains eight entries: four fault/status masks, temperature, displayed gas concentration, concentration percentage of full scale and loop output. Concentration units depend on the installed sensor; the profile does not assume a particular gas. Existing backups keep their original entries until the bridge is reprogrammed.
+
+The WattNode bridge profile now uses 17 integer entries, including both voltage groups, non-resettable net energy and diagnostic/configuration readbacks. Values retain their native scale: 0.1 kWh or 0.1 V; current counts require the included scale and transformer ratings. See [WattNode integer profile](../artifacts/bridge-config/wattnode-wnd-m1-mb-documentation-test.md). The profile does not write current-transformer settings.

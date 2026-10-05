@@ -46,6 +46,12 @@ pub(super) fn extract_reference_artifact(
         "artifacts/bridge-config/ati-badger-f12-d12-documentation-test.tsv" => include_bytes!(
             "../../../artifacts/bridge-config/ati-badger-f12-d12-documentation-test.tsv"
         ),
+        "docs/reference/micronics-u1000mkii-wm-user-manual.pdf" => {
+            include_bytes!("../../../docs/reference/micronics-u1000mkii-wm-user-manual.pdf")
+        }
+        "artifacts/bridge-config/micronics-u1000mkii-hm-documentation-test.tsv" => include_bytes!(
+            "../../../artifacts/bridge-config/micronics-u1000mkii-hm-documentation-test.tsv"
+        ),
         _ => return Err(std::io::Error::other("Unknown bundled artifact")),
     };
     let unique = std::time::SystemTime::now()

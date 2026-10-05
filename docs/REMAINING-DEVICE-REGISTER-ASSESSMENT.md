@@ -9,7 +9,7 @@ These tables are documentation-derived starting points. They have not been bench
 | Device | Table status | Integration note |
 |---|---|---|
 | ATI / Badger Meter F12 or D12 | Bridge-readable numeric measurement and status registers captured | Text gas-name and unit fields are omitted because the bridge does not support ASCII values. Confirm gas-specific units from the instrument label and setup record. |
-| Micronics U1000MKII-HM | Bridge-readable numeric map captured | The three-word serial identifier is omitted because the bridge accepts only one, two, or four words. Modbus RTU defaults are address 1, 38400 baud, no parity, and 2 stop bits. Minimum poll interval is 1 second. |
+| Micronics U1000MKII-HM | Selectable 15-entry native profile; hardware verification pending | The three-word serial identifier is omitted because the bridge accepts only one, two, or four words. Modbus RTU defaults are address 1, 38400 baud, no parity, and 2 stop bits. Minimum poll interval is 1 second. |
 | Micronics U3000 / UF3300 | Operational and diagnostic subset captured | The supplied product reference resolves to UF3300 documentation. Confirm the exact nameplate model and manual revision before bench testing. |
 | Precision Digital PD2-6000 | Bridge-readable numeric readout, totalizer, and status blocks captured | The nonnumeric identification block is omitted. The full protocol manual contains a much larger configuration map. |
 | Seeed SenseCAP ONE S200 | Complete S200 wind-measurement map and common communications settings captured | Documentation lists S200 address 44 and 9600 8N1. Read measurements with function 04. |

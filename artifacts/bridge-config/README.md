@@ -1,4 +1,4 @@
-> Current runtime: native Rust supports five bundled profiles (DPT146, HMD65 metric, HMD65 non-metric, WND-M1-MB and ATI F12/PAA). DPT146 is locally validated; other profiles await hardware. TSVs do not contain serial framing or radio settings.
+> Current runtime: native Rust supports six bundled profiles (DPT146, HMD65 metric, HMD65 non-metric, WND-M1-MB, ATI F12 and U1000MKII-HM). DPT146 is locally validated; other profiles await hardware. TSVs do not contain serial framing or radio settings.
 
 # Polygon/Synetica Modbus Bridge configuration artifacts
 

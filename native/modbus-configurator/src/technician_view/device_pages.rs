@@ -109,7 +109,7 @@ impl TechnicianView {
         }) || match key.as_str() {
             "synetica_usb" => ports.iter().any(is_synetica),
             "bridge" => self.bridge_connected && result.is_some(),
-            "dpt146" | "hmd65" | "wattnode" | "ati-f12" => {
+            "dpt146" | "hmd65" | "wattnode" | "ati-f12" | "u1000mkii-hm" => {
                 self.bridge_connected
                     && profile.is_some_and(|p| result.is_some_and(|r| p.contains_points(r)))
             }
@@ -129,7 +129,10 @@ impl TechnicianView {
             reading_state(connected, stale, has_readings)
         } else if direct.is_some() {
             "Connected through USB adapter"
-        } else if matches!(key.as_str(), "dpt146" | "hmd65" | "wattnode" | "ati-f12") {
+        } else if matches!(
+            key.as_str(),
+            "dpt146" | "hmd65" | "wattnode" | "ati-f12" | "u1000mkii-hm"
+        ) {
             "Configured through Modbus Bridge · sensor identity unverified"
         } else if key == "synetica_usb" {
             "Connected · not identified"
@@ -139,7 +142,7 @@ impl TechnicianView {
         if direct.is_none()
             && matches!(
                 key.as_str(),
-                "bridge" | "dpt146" | "hmd65" | "wattnode" | "ati-f12"
+                "bridge" | "dpt146" | "hmd65" | "wattnode" | "ati-f12" | "u1000mkii-hm"
             )
         {
             if profile.is_none_or(|p| result.is_some_and(|r| p.contains_points(r)))
@@ -152,8 +155,10 @@ impl TechnicianView {
             {
                 crate::brand::attention(ui, "Check sensor configuration", &warning);
             }
-            if matches!(key.as_str(), "dpt146" | "hmd65" | "wattnode" | "ati-f12")
-                && profile.is_some_and(|p| result.is_some_and(|r| p.contains_points(r)))
+            if matches!(
+                key.as_str(),
+                "dpt146" | "hmd65" | "wattnode" | "ati-f12" | "u1000mkii-hm"
+            ) && profile.is_some_and(|p| result.is_some_and(|r| p.contains_points(r)))
             {
                 ui.add(egui::Label::new("The point table selects register addresses; it does not identify the attached sensor. Confirm the physical sensor matches this configured model, even when reads succeed.").wrap());
             }
@@ -411,7 +416,7 @@ impl TechnicianView {
                 self.page = Page::Configurations;
             }
         }
-        if ["dpt146", "hmd65", "wattnode", "ati-f12", "adapter"].contains(&key.as_str())
+        if ["dpt146", "hmd65", "wattnode", "ati-f12", "u1000mkii-hm", "adapter"].contains(&key.as_str())
             && columns[1]
                 .add_enabled(!busy && connected && !(key == "adapter" && ports.iter().any(is_synetica)), egui::Button::new("Read now"))
                 .clicked()

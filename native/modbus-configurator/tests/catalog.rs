@@ -77,10 +77,10 @@ fn complete_profile_subset_keeps_labels_but_does_not_claim_a_full_table_match() 
 #[test]
 fn bundled_artifacts_have_expected_lifecycle_and_complete_point_mapping() {
     let profiles = catalog::bundled().unwrap();
-    assert_eq!(profiles.len(), 5);
+    assert_eq!(profiles.len(), 6);
     assert_eq!(
         profiles.iter().map(|p| p.rows.len()).collect::<Vec<_>>(),
-        [8, 8, 12, 8, 13]
+        [8, 7, 17, 7, 8, 15]
     );
     assert_eq!(profiles[0].info.status, Validation::Validated);
     assert!(
@@ -96,7 +96,7 @@ fn bundled_artifacts_have_expected_lifecycle_and_complete_point_mapping() {
     assert_eq!(profiles[0].point_register(1).unwrap().name, "Temperature");
     assert_eq!(profiles[0].point_register(5).unwrap().units, "bara");
     assert_eq!(profiles[1].point_register(1).unwrap().units, "%RH");
-    assert_eq!(profiles[2].point_register(12).unwrap().units, "A");
+    assert_eq!(profiles[2].point_register(14).unwrap().units, "A");
 }
 
 #[test]
@@ -300,8 +300,8 @@ fn alternate_bank_and_gas_profile_preserve_wire_addresses_and_word_widths() {
     }
     assert!(!hmd.rows.values().any(|row| row.contains("\tS32\t")));
     let ati = &profiles[4];
-    assert_eq!(ati.point_register(8).unwrap().range().unwrap(), (42, 43));
-    assert!(ati.rows[&8].contains("\t42\tF32\tHL\t"));
+    assert_eq!(ati.point_register(6).unwrap().range().unwrap(), (42, 43));
+    assert!(ati.rows[&6].contains("\t42\tF32\tHL\t"));
     let reference = modbus_configurator::reference::Reference::bundled().unwrap();
     let fault = &reference.registers["ati-f12"][2];
     assert_eq!(fault.decode(Some(32)), "gas sensor removed");
@@ -316,14 +316,83 @@ fn hmd65_bridge_tables_use_manual_numbers_and_exclude_unwanted_status_registers(
         .iter()
         .filter(|p| p.info.id.starts_with("hmd65"))
     {
-        assert_eq!(profile.rows.len(), 8);
+        assert_eq!(profile.rows.len(), 7);
         for (item, row) in &profile.rows {
             let address: u16 = row.split('\t').nth(3).unwrap().parse().unwrap();
             let register = profile.point_register(*item).unwrap();
             assert_eq!(address, register.range().unwrap().0 + 1);
-            assert!(![15, 16, 143, 144, 514, 515, 518, 519].contains(&address));
+            assert!(![13, 14, 15, 16, 141, 142, 143, 144, 514, 515, 518, 519].contains(&address));
             assert_ne!(register.name, "Error code");
             assert_ne!(register.name, "Enthalpy");
         }
     }
+}
+/// The heat-meter profile keeps documented offsets and never assumes metric units.
+#[test]
+fn u1000_heat_meter_mapping_preserves_offsets_types_and_unit_dependency() {
+    let profiles = catalog::bundled().unwrap();
+    let profile = profiles
+        .iter()
+        .find(|p| p.info.id == "u1000mkii-hm")
+        .unwrap();
+    let reference = modbus_configurator::reference::Reference::bundled().unwrap();
+    let registers = &reference.registers["u1000mkii-hm"];
+    for (item, address) in [0, 1, 2, 6, 8, 10, 12, 14, 16, 18, 20, 22, 23, 24, 25]
+        .into_iter()
+        .enumerate()
+    {
+        let item = item as u8 + 1;
+        let register = profile.point_register(item).unwrap();
+        assert_eq!(register.range().unwrap().0, address);
+        assert_eq!(registers[usize::from(item - 1)].first_pdu(), Some(address));
+        assert!(profile.rows[&item].contains("\tHH\t1\tInt"));
+    }
+    assert_eq!(profile.point_register(5).unwrap().units, "instrument units");
+    assert_eq!(registers[11].decode(Some(1)), "Imperial");
+    assert!(profile.rows[&13].contains("\tS16\t"));
+    assert!(profile.info.confirmed_variants.is_empty());
+    let remapped =
+        modbus_configurator::config_file::remap_slave(&profile.native_tsv, 1, 7).unwrap();
+    assert!(profile.contains_points(&result(remapped)));
+}
+/// Selection changes preserve sequential bridge entries and integer wire encodings.
+#[test]
+fn revised_f12_and_wattnode_profiles_keep_requested_points_and_native_scales() {
+    let profiles = catalog::bundled().unwrap();
+    let f12 = &profiles[4];
+    let addresses = |profile: &Profile| {
+        profile
+            .rows
+            .values()
+            .map(|r| r.split('\t').nth(3).unwrap().parse::<u16>().unwrap())
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(addresses(f12), [32, 33, 34, 35, 40, 42, 44, 46]);
+    assert_eq!(f12.info.model, "ATI F12");
+    let watt = &profiles[2];
+    assert_eq!(
+        addresses(watt),
+        [
+            1204, 1213, 1214, 1215, 1217, 1218, 1219, 1350, 1351, 1352, 1707, 1710, 1704, 1603,
+            1604, 1605, 1621
+        ]
+    );
+    assert!(
+        watt.rows
+            .values()
+            .all(|r| !r.contains("F32") && r.contains("\t1\tInt"))
+    );
+    assert_eq!(watt.point_register(8).unwrap().units, "current counts");
+    assert_eq!(watt.point_register(4).unwrap().units, "0.1 V");
+    assert_eq!(watt.point_register(17).unwrap().units, "counts");
+    let reference = modbus_configurator::reference::Reference::bundled().unwrap();
+    for item in watt.rows.keys() {
+        let r = watt.point_register(*item).unwrap();
+        let view = reference.registers["wattnode"]
+            .iter()
+            .find(|v| v.first_pdu() == Some(r.range().unwrap().0))
+            .unwrap();
+        assert_eq!(view.unit, r.units);
+    }
+    assert!(watt.rows[&13].contains("\tU32\tHL\t"));
 }

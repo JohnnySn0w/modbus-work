@@ -128,7 +128,7 @@
       "subtitle": "Humidity and temperature transmitter",
       "kind": "humidity",
       "status": "Ready to test",
-      "description": "Eleven-entry Modbus Bridge configuration using one-based register numbers. Error-code registers 514-515 are excluded.",
+      "description": "Seven-entry Modbus Bridge configuration using one-based register numbers. Wet-bulb temperature, enthalpy, error code and measurement-status registers are excluded.",
       "color": "#73A942",
       "readouts": [
         {
@@ -165,24 +165,20 @@
       "subtitle": "Module for Modbus",
       "kind": "meter",
       "status": "Ready to test",
-      "description": "WND-M1-MB operation through Modbus Bridge is confirmed. Tested hardware and firmware versions are not recorded. Confirm current-transformer and service settings for the installation.",
+      "description": "Seventeen integer Modbus Bridge entries. Net energy cannot be reset. Current requires the included scaling readbacks; [CONFIG] marks writable meter settings; the Modbus Bridge reads them without changing them.",
       "color": "#E0A458",
       "readouts": [
         {
-          "label": "Total active power",
-          "unit": "W"
+          "label": "Lifetime net energy",
+          "unit": "0.1 kWh"
         },
         {
-          "label": "Total energy",
-          "unit": "kWh"
+          "label": "Current 1",
+          "unit": "current counts"
         },
         {
-          "label": "Line frequency",
-          "unit": "Hz"
-        },
-        {
-          "label": "Current transformer currents",
-          "unit": "A"
+          "label": "Voltage AB",
+          "unit": "0.1 V"
         }
       ],
       "artifact": "artifacts/device-profiles/to-test/wattnode-wnd-m1-mb.yaml",
@@ -274,8 +270,8 @@
     },
     "ati-f12": {
       "key": "ati-f12",
-      "name": "ATI F12 — peracetic acid",
-      "subtitle": "Toxic gas transmitter · peracetic acid sensor module",
+      "name": "ATI F12",
+      "subtitle": "Gas transmitter",
       "kind": "sensor",
       "status": "Ready to test",
       "description": "F12 transmitter hardware 1.01 and software 1.25 confirmed working through Modbus Bridge. The tested gas module is not recorded; confirm units and range for the installed module.",
@@ -298,6 +294,38 @@
       "detect_tokens": [],
       "help_setup": [
         "TBD"
+      ],
+      "help_troubleshooting": [
+        "TBD"
+      ]
+    },
+    "u1000mkii-hm": {
+      "key": "u1000mkii-hm",
+      "name": "Micronics U1000MKII-HM",
+      "subtitle": "Ultrasonic heat meter",
+      "kind": "sensor",
+      "status": "Hardware verification pending",
+      "description": "Fifteen-entry Modbus Bridge profile from manufacturer documentation. Flow, heat and volume units follow the instrument settings.",
+      "color": "#73A942",
+      "readouts": [
+        {
+          "label": "Measured velocity",
+          "unit": "m/s"
+        },
+        {
+          "label": "Measured flow",
+          "unit": "instrument units"
+        },
+        {
+          "label": "Calculated power",
+          "unit": "instrument units"
+        }
+      ],
+      "artifact": "artifacts/bridge-config/micronics-u1000mkii-hm-documentation-test.tsv",
+      "detect_tokens": [],
+      "help_setup": [
+        "Suggested: confirm the slave address, serial settings and metric or imperial mode on the instrument (U1000MKII WM Issue 1.1, section 4.3).",
+        "Suggested: keep the instrument on its operating readout screen and allow at least one second between requests."
       ],
       "help_troubleshooting": [
         "TBD"
@@ -974,7 +1002,7 @@
         "zero_meaning": null
       },
       {
-        "name": "CT amps global",
+        "name": "[CONFIG] CT amps global",
         "logical": "1603",
         "pdu": "1602",
         "data_type": "U16",
@@ -987,46 +1015,46 @@
         "zero_meaning": null
       },
       {
-        "name": "CT amps 1",
+        "name": "[CONFIG] CT amps 1",
         "logical": "1604",
         "pdu": "1603",
-        "data_type": "U16",
+        "data_type": "S16",
         "access": "R/W",
         "unit": "A",
-        "description": "Rated primary current for CT input 1.",
+        "description": "Signed 16-bit integer. Readback only; configure the meter to match the installed current transformer.",
         "readout_label": null,
         "enum_values": [],
         "bit_values": [],
         "zero_meaning": null
       },
       {
-        "name": "CT amps 2",
+        "name": "[CONFIG] CT amps 2",
         "logical": "1605",
         "pdu": "1604",
-        "data_type": "U16",
+        "data_type": "S16",
         "access": "R/W",
         "unit": "A",
-        "description": "Rated primary current for CT input 2.",
+        "description": "Signed 16-bit integer. Readback only; configure the meter to match the installed current transformer.",
         "readout_label": null,
         "enum_values": [],
         "bit_values": [],
         "zero_meaning": null
       },
       {
-        "name": "CT amps 3",
+        "name": "[CONFIG] CT amps 3",
         "logical": "1606",
         "pdu": "1605",
-        "data_type": "U16",
+        "data_type": "S16",
         "access": "R/W",
         "unit": "A",
-        "description": "Rated primary current for CT input 3.",
+        "description": "Signed 16-bit integer. Readback only; configure the meter to match the installed current transformer.",
         "readout_label": null,
         "enum_values": [],
         "bit_values": [],
         "zero_meaning": null
       },
       {
-        "name": "CT directions",
+        "name": "[CONFIG] CT directions",
         "logical": "1607",
         "pdu": "1606",
         "data_type": "U16",
@@ -1052,7 +1080,7 @@
         "zero_meaning": "all CTs normal"
       },
       {
-        "name": "Gain adjust 1",
+        "name": "[CONFIG] Gain adjust 1",
         "logical": "1612",
         "pdu": "1611",
         "data_type": "U16",
@@ -1065,7 +1093,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Gain adjust 2",
+        "name": "[CONFIG] Gain adjust 2",
         "logical": "1613",
         "pdu": "1612",
         "data_type": "U16",
@@ -1078,7 +1106,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Gain adjust 3",
+        "name": "[CONFIG] Gain adjust 3",
         "logical": "1614",
         "pdu": "1613",
         "data_type": "U16",
@@ -1091,7 +1119,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Phase adjust 1",
+        "name": "[CONFIG] Phase adjust 1",
         "logical": "1615",
         "pdu": "1614",
         "data_type": "S16",
@@ -1104,7 +1132,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Phase adjust 2",
+        "name": "[CONFIG] Phase adjust 2",
         "logical": "1616",
         "pdu": "1615",
         "data_type": "S16",
@@ -1117,7 +1145,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Phase adjust 3",
+        "name": "[CONFIG] Phase adjust 3",
         "logical": "1617",
         "pdu": "1616",
         "data_type": "S16",
@@ -1130,20 +1158,20 @@
         "zero_meaning": null
       },
       {
-        "name": "Current integer scale",
+        "name": "[CONFIG] Current integer scale",
         "logical": "1622",
         "pdu": "1621",
-        "data_type": "U16",
+        "data_type": "S16",
         "access": "R/W",
         "unit": "counts",
-        "description": "Full-scale count used by integer current registers; default 20000.",
+        "description": "Signed 16-bit integer. Divide raw current times rated current by this value; no fixed amps-per-count assumption.",
         "readout_label": null,
         "enum_values": [],
         "bit_values": [],
         "zero_meaning": null
       },
       {
-        "name": "Meter config 1",
+        "name": "[CONFIG] Meter config 1",
         "logical": "1624",
         "pdu": "1623",
         "data_type": "U16",
@@ -1156,7 +1184,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Meter config 2",
+        "name": "[CONFIG] Meter config 2",
         "logical": "1625",
         "pdu": "1624",
         "data_type": "U16",
@@ -1169,7 +1197,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Meter config 3",
+        "name": "[CONFIG] Meter config 3",
         "logical": "1626",
         "pdu": "1625",
         "data_type": "U16",
@@ -1195,7 +1223,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Nominal CT volts 1",
+        "name": "[CONFIG] Nominal CT volts 1",
         "logical": "1629–1630",
         "pdu": "1628–1629",
         "data_type": "F32 HL",
@@ -1208,7 +1236,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Nominal CT volts 2",
+        "name": "[CONFIG] Nominal CT volts 2",
         "logical": "1631–1632",
         "pdu": "1630–1631",
         "data_type": "F32 HL",
@@ -1221,7 +1249,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Nominal CT volts 3",
+        "name": "[CONFIG] Nominal CT volts 3",
         "logical": "1633–1634",
         "pdu": "1632–1633",
         "data_type": "F32 HL",
@@ -1234,7 +1262,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Connection type",
+        "name": "[CONFIG] Connection type",
         "logical": "1636",
         "pdu": "1635",
         "data_type": "U16",
@@ -1272,7 +1300,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Apply communication config",
+        "name": "[CONFIG] Apply communication config",
         "logical": "1651",
         "pdu": "1650",
         "data_type": "U16",
@@ -1298,7 +1326,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Address",
+        "name": "[CONFIG] Address",
         "logical": "1652",
         "pdu": "1651",
         "data_type": "U16",
@@ -1311,7 +1339,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Baud rate",
+        "name": "[CONFIG] Baud rate",
         "logical": "1653",
         "pdu": "1652",
         "data_type": "U16",
@@ -1361,7 +1389,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Parity mode",
+        "name": "[CONFIG] Parity mode",
         "logical": "1654",
         "pdu": "1653",
         "data_type": "U16",
@@ -1387,7 +1415,7 @@
         "zero_meaning": null
       },
       {
-        "name": "Modbus mode",
+        "name": "[CONFIG] Modbus mode",
         "logical": "1655",
         "pdu": "1654",
         "data_type": "U16",
@@ -1439,10 +1467,10 @@
         "name": "Firmware version",
         "logical": "1708",
         "pdu": "1707",
-        "data_type": "U16",
+        "data_type": "S16",
         "access": "R",
         "unit": "",
-        "description": "WND module firmware version in the 10xx family.",
+        "description": "Signed 16-bit integer. ",
         "readout_label": "Firmware",
         "enum_values": [],
         "bit_values": [],
@@ -1628,6 +1656,162 @@
             "configuration factory locked"
           ]
         ],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Lifetime net energy",
+        "logical": "1205–1206",
+        "pdu": "1204–1205",
+        "data_type": "S32 HL",
+        "access": "R",
+        "unit": "0.1 kWh",
+        "description": "Signed 32-bit integer; low 16-bit word first. Non-resettable total; multiply by 0.1 for kWh.",
+        "readout_label": "Lifetime net energy",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Voltage AN",
+        "logical": "1214",
+        "pdu": "1213",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "0.1 V",
+        "description": "Signed 16-bit integer. Multiply by 0.1 for volts.",
+        "readout_label": "Voltage AN",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Voltage BN",
+        "logical": "1215",
+        "pdu": "1214",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "0.1 V",
+        "description": "Signed 16-bit integer. Multiply by 0.1 for volts.",
+        "readout_label": "Voltage BN",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Voltage CN",
+        "logical": "1216",
+        "pdu": "1215",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "0.1 V",
+        "description": "Signed 16-bit integer. Multiply by 0.1 for volts.",
+        "readout_label": "Voltage CN",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Voltage AB",
+        "logical": "1218",
+        "pdu": "1217",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "0.1 V",
+        "description": "Signed 16-bit integer. Multiply by 0.1 for volts.",
+        "readout_label": "Voltage AB",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Voltage BC",
+        "logical": "1219",
+        "pdu": "1218",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "0.1 V",
+        "description": "Signed 16-bit integer. Multiply by 0.1 for volts.",
+        "readout_label": "Voltage BC",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Voltage CA",
+        "logical": "1220",
+        "pdu": "1219",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "0.1 V",
+        "description": "Signed 16-bit integer. Multiply by 0.1 for volts.",
+        "readout_label": "Voltage CA",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Current 1",
+        "logical": "1351",
+        "pdu": "1350",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "current counts",
+        "description": "Signed 16-bit integer. Amperes = raw value multiplied by CT rated current 1 (1604), divided by CurrentIntScale (1622).",
+        "readout_label": "Current 1",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Current 2",
+        "logical": "1352",
+        "pdu": "1351",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "current counts",
+        "description": "Signed 16-bit integer. Amperes = raw value multiplied by CT rated current 2 (1605), divided by CurrentIntScale (1622).",
+        "readout_label": "Current 2",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Current 3",
+        "logical": "1353",
+        "pdu": "1352",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "current counts",
+        "description": "Signed 16-bit integer. Amperes = raw value multiplied by CT rated current 3 (1606), divided by CurrentIntScale (1622).",
+        "readout_label": "Current 3",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Power failure count",
+        "logical": "1711",
+        "pdu": "1710",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "count",
+        "description": "Signed 16-bit integer. ",
+        "readout_label": "Power failure count",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Lifetime operating time",
+        "logical": "1705–1706",
+        "pdu": "1704–1705",
+        "data_type": "U32 HL",
+        "access": "R",
+        "unit": "s",
+        "description": "Unsigned 32-bit integer; low 16-bit word first. Total operating seconds since factory calibration; low word first.",
+        "readout_label": "Lifetime operating time",
+        "enum_values": [],
         "bit_values": [],
         "zero_meaning": null
       }
@@ -2104,6 +2288,221 @@
         "unit": "",
         "description": "IEEE-754 float32",
         "readout_label": null,
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      }
+    ],
+    "u1000mkii-hm": [
+      {
+        "name": "Device ID",
+        "logical": "40001",
+        "pdu": "0",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "",
+        "description": "0x00AC = U1000MKII-FM or U1000MKII-HM",
+        "readout_label": "Device ID",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Status",
+        "logical": "40002",
+        "pdu": "1",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "",
+        "description": "0 = OK; nonzero = fault",
+        "readout_label": "Status",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": "No fault reported"
+      },
+      {
+        "name": "System type",
+        "logical": "40003",
+        "pdu": "2",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "",
+        "description": "4 = heating; 12 = chiller",
+        "readout_label": "System type",
+        "enum_values": [
+          [
+            4,
+            "Heating"
+          ],
+          [
+            12,
+            "Chiller"
+          ]
+        ],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Measured velocity",
+        "logical": "40007–40008",
+        "pdu": "6–7",
+        "data_type": "F32 HH",
+        "access": "R",
+        "unit": "m/s",
+        "description": "IEEE-754 float32; most-significant byte first",
+        "readout_label": "Measured velocity",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Measured flow",
+        "logical": "40009–40010",
+        "pdu": "8–9",
+        "data_type": "F32 HH",
+        "access": "R",
+        "unit": "instrument units",
+        "description": "IEEE-754 float32; units depend on instrument unit setting",
+        "readout_label": "Measured flow",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Calculated power",
+        "logical": "40011–40012",
+        "pdu": "10–11",
+        "data_type": "F32 HH",
+        "access": "R",
+        "unit": "instrument units",
+        "description": "IEEE-754 float32; kW in metric mode or BTU/s in imperial mode",
+        "readout_label": "Calculated power",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Calculated energy",
+        "logical": "40013–40014",
+        "pdu": "12–13",
+        "data_type": "F32 HH",
+        "access": "R",
+        "unit": "instrument units",
+        "description": "IEEE-754 float32; kWh in metric mode or BTU in imperial mode",
+        "readout_label": "Calculated energy",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Hot temperature",
+        "logical": "40015–40016",
+        "pdu": "14–15",
+        "data_type": "F32 HH",
+        "access": "R",
+        "unit": "instrument units",
+        "description": "IEEE-754 float32; deg C in metric mode or deg F in imperial mode",
+        "readout_label": "Hot temperature",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Cold temperature",
+        "logical": "40017–40018",
+        "pdu": "16–17",
+        "data_type": "F32 HH",
+        "access": "R",
+        "unit": "instrument units",
+        "description": "IEEE-754 float32; deg C in metric mode or deg F in imperial mode",
+        "readout_label": "Cold temperature",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Differential temperature",
+        "logical": "40019–40020",
+        "pdu": "18–19",
+        "data_type": "F32 HH",
+        "access": "R",
+        "unit": "instrument units",
+        "description": "IEEE-754 float32; deg C in metric mode or deg F in imperial mode",
+        "readout_label": "Differential temperature",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Volume total",
+        "logical": "40021–40022",
+        "pdu": "20–21",
+        "data_type": "F32 HH",
+        "access": "R",
+        "unit": "instrument units",
+        "description": "IEEE-754 float32; m3 in metric mode or US gal in imperial mode",
+        "readout_label": "Volume total",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Instrument units",
+        "logical": "40023",
+        "pdu": "22",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "",
+        "description": "0 = metric; 1 = imperial",
+        "readout_label": "Instrument units",
+        "enum_values": [
+          [
+            0,
+            "Metric"
+          ],
+          [
+            1,
+            "Imperial"
+          ]
+        ],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Gain",
+        "logical": "40024",
+        "pdu": "23",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "dB",
+        "description": "",
+        "readout_label": "Gain",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Signal-to-noise ratio",
+        "logical": "40025",
+        "pdu": "24",
+        "data_type": "S16",
+        "access": "R",
+        "unit": "dB",
+        "description": "",
+        "readout_label": "Signal-to-noise ratio",
+        "enum_values": [],
+        "bit_values": [],
+        "zero_meaning": null
+      },
+      {
+        "name": "Signal",
+        "logical": "40026",
+        "pdu": "25",
+        "data_type": "U16",
+        "access": "R",
+        "unit": "%",
+        "description": "",
+        "readout_label": "Signal",
         "enum_values": [],
         "bit_values": [],
         "zero_meaning": null

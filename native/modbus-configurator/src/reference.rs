@@ -165,6 +165,10 @@ pub fn manuals(key: &str) -> &'static [(&'static str, &'static str)] {
             "F12/D operation manual — Rev K (PDF)",
             "docs/reference/ati-f12-operation-manual.pdf",
         )],
+        "u1000mkii-hm" => &[(
+            "U1000MKII WM user manual — Issue 1.1 (PDF)",
+            "docs/reference/micronics-u1000mkii-wm-user-manual.pdf",
+        )],
         "adapter" => &[(
             "Hardware and mode configuration (PDF)",
             "docs/reference/usb-comi-tb-manual.pdf",

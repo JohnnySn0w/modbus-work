@@ -59,5 +59,14 @@
     "sha256": "1bbd3f1bd2e3fe1d6e598309909b910cdb167b5ed53d68f90d2cd90a64ac29bc",
     "public_source_verified": "2026-09-10",
     "verification": "Public PDF opened with web reader; document edition and page count checked. SHA-256 identifies the local bundled file."
+  },
+  {
+    "file": "micronics-u1000mkii-wm-user-manual.pdf",
+    "source": "https://micronicsflowmeters.com/wp-content/uploads/2021/11/U1000MKII_WM_Issue_1.1.pdf",
+    "pages": 52,
+    "sha256": "a8ae6d6bad8cd51912c3cadd1c7b658a9c31003eb1a65a3e85b2e6d91533feda",
+    "retrieved": "2026-10-05",
+    "public_source_verified": "2026-10-05",
+    "verification": "Public manufacturer PDF; Issue 1.1. Hardware verification pending."
   }
 ]

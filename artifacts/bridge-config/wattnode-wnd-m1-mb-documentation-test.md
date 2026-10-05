@@ -1,13 +1,9 @@
-# WattNode WND-M1-MB documentation-derived Modbus Bridge test
+# WattNode WND-M1-MB integer bridge profile
 
-Status: **testable, not validated, not deployable**.
+The default table has 17 entries: non-resettable net energy; AN, BN, CN, AB, BC and CA voltages; three integer currents; firmware; power-failure count; lifetime operating seconds; three configured current-transformer ratings; and the current scale required to interpret the integer currents.
 
-Import candidate: `wattnode-wnd-m1-mb-documentation-test.tsv` for ENL-MOD-32 firmware 3.6.
+All bridge multipliers are 1. Energy is in 0.1 kWh and voltage in 0.1 V. Current is raw counts: amperes = value × the matching CtAmps1/2/3 (1604–1606) ÷ CurrentIntScale (1622). Never assume a fixed amps-per-count multiplier. Missing or zero current scale prevents conversion.
 
-The 12-point table uses native floating-point registers: total energy; total and per-element active power; phase-to-neutral voltages; frequency; and three CT currents. The WND-M1-MB manual specifies low 16-bit word first, represented by `HL` in the validated ENL-MOD-32 firmware 3.6 convention.
+Net energy is signed 32-bit, low-word-first. Lifetime operating time is unsigned 32-bit, low-word-first. [CONFIG] identifies writable meter settings. This bridge profile only reads those settings; it does not write them. Hardware verification of the revised selection is pending. Existing backups retain their original register selections.
 
-The file uses slave ID 1 as a placeholder. The module has no address/baud DIP switches and may be factory ordered with different communication options. Read the front-label option text and establish the actual address, baud, parity, and stop bits before import. For an unlabeled/default unit, make read-only first contact at 19200 8N1 using address 1, then address 127 as the bounded legacy-firmware fallback. Do not sweep the full address range on an operating bus.
-
-This measurement table does not require `CurrentIntScale` or `PowerIntScale`. CT ratings, voltage/CT mapping, and connection type still affect the physical measurements and must be read and verified.
-
-Initial testing is read-only. Do not zero energy or demand and do not modify CT, gain, phase, mapping, or communication registers during first contact.
+Source: bundled WND-M1-MB-Ref-1.10 manual, sections 3.4.6–3.4.9, 3.5 and 3.6. Register 1216 is C-to-neutral; 1218–1220 are AB/BC/CA.

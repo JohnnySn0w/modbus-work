@@ -1,6 +1,6 @@
 # Application support status
 
-Documentation and interface availability reviewed against source: 2026-09-29. This page summarizes current support; dated evidence records past observations, not current physical connectivity.
+Documentation and interface availability reviewed against source: 2026-10-05. This page summarizes current support; dated evidence records past observations, not current physical connectivity.
 
 ## Deliverable
 
@@ -13,8 +13,9 @@ Polygon Device Configurator is a Windows-first Rust/egui application. Use the ro
 | Modbus Bridge (Synetica ENL-MOD-32, firmware 3.6) | Persistent console, live reads, point-table backup/program/restore and readback | DPT146 program/restore and repeated reads passed; full power-loss persistence and overnight soak pending |
 | Vaisala DPT146 | Modbus Bridge profile and direct USB adapter reads | Both routes verified locally; real last-good values and timestamps retained |
 | Vaisala HMD65 | Non-metric float profile selectable; metric selection hidden; direct adapter support retained | Operation confirmed 2026-09-16; hardware/firmware versions and tested register selection not recorded |
-| WattNode WND-M1-MB | Native-float Modbus Bridge profile; direct adapter support | Operation confirmed 2026-09-16; hardware/firmware versions not recorded; CT/service mapping remains installation-specific |
-| ATI F12/PAA | Modbus Bridge profile, register map, fault decoding and product photo | Operation confirmed 2026-09-16; transmitter hardware 1.01 / software 1.25 confirmed; tested gas module not recorded; direct ATI adapter polling unimplemented |
+| WattNode WND-M1-MB | 17-entry integer Modbus Bridge profile with scaling readbacks; direct adapter support | Operation confirmed 2026-09-16; hardware/firmware versions not recorded; CT/service mapping remains installation-specific |
+| ATI F12 | Modbus Bridge profile, register map, fault decoding and product photo | Operation confirmed 2026-09-16; transmitter hardware 1.01 / software 1.25 confirmed; tested gas module not recorded; direct ATI adapter polling unimplemented |
+| Micronics U1000MKII-HM | Selectable 15-entry Modbus Bridge profile, register map and offline manual | Documentation-based; hardware verification pending; units follow the instrument; direct adapter polling unimplemented |
 | Synetica enLink IAQ Plus | Interface sections hidden; native support not implemented | Python console observations are historical; native readings and backup port pending |
 
 Last local hardware acceptance: Modbus Bridge hardware switch off with external supply retained, FTDI USB adapter on shared RS-485 wiring reading the DPT146, eight values and zero errors. This is a recorded bench state, not a live inventory. COM3/COM5 in evidence are observations, never defaults.
