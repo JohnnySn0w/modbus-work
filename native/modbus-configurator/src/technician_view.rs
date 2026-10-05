@@ -279,7 +279,9 @@ impl TechnicianView {
                         ui.weak(match key {
                             "bridge" => "Live reads, point-table program and restore tested on firmware 3.6. Full power-cycle acceptance pending.",
                             "dpt146" => "Live reads verified through the Modbus Bridge and the USB Modbus adapter.",
-                            "hmd65" | "wattnode" | "ati-f12" => "Modbus Bridge preset and direct adapter profile implemented. Hardware validation pending.",
+                            "hmd65" => "Non-metric Modbus Bridge profile available. Operation confirmed; complete register-set verification pending.",
+                            "wattnode" => "Modbus Bridge and direct adapter support available. Bridge operation confirmed; complete register-set verification pending.",
+                            "ati-f12" => "Modbus Bridge profile available. Transmitter hardware 1.01 / software 1.25 confirmed working. Direct adapter reads are unavailable.",
                             "iaq_plus" => "Inactive",
                             _ => "USB discovery and direct DPT146 reads verified. Polling is blocked while a Modbus Bridge interface is present.",
                         });

@@ -39,9 +39,11 @@ delete saved settings or backups.
 
 Current support:
 - Modbus Bridge firmware 3.6 and Vaisala DPT146 readings, programming and restore tested.
-- HMD65/WattNode presets and direct USB adapter reads implemented; hardware
-  qualification remains pending.
-- IAQ is reference-only. Firmware flashing and radio writes are unavailable.
+- HMD65 non-metric, WattNode and ATI F12 profiles are available. Operation through
+  the Modbus Bridge is confirmed; complete register-set qualification is pending.
+- Direct adapter reads support DPT146, HMD65 and WattNode, not ATI F12.
+- Metric HMD65 selections and IAQ sections are hidden. Firmware flashing and
+  radio writes are unavailable.
 - Full power-loss persistence and extended soak acceptance remain pending.
 
 This is a development release. See build-info.json for the executable hash and

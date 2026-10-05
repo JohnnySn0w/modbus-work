@@ -1,5 +1,6 @@
+# Configure Modbus Bridge measurements in DSP
 
-
+Use the setup steps below, then the standard single-device mapping tables at the end. Original embedded screenshots require their separate Obsidian attachments.
 
 Go to the device's page
 ![[Pasted image 20260924153248.png]]
@@ -33,15 +34,13 @@ Custom units allow free unit entry.
 
 ### Lookup Table
 ![[Pasted image 20260924153707.png]]
-For a lookup table, the goal is to map the expected values to more easily read labels. In the case of an error field, it may convert codes to error explanations. Another example would be the Wattnode-WND-M1's register 1607, which reads different polarity in one register, and this is denoted by a bit flip. Much easier to read "CT 1 parity reversed, others normal" than it is to read "0b100".
+For a lookup table, the goal is to map the expected values to more easily read labels. In the case of an error field, it may convert codes to error explanations. Another example would be the Wattnode-WND-M1's register 1607, which reads different polarity in one register, and this is denoted by a bit flip. Much easier to read "Current transformer 3 polarity reversed, others normal" than it is to read "0b100".
 
 ## Tips
 - For bridges that are running multiple slaves, it is useful to annotate the name of the register with the device type and slave ID like so:
 	- "HMD65 - 2 - \[register label]"
 
-HMD65
 
-F12 ATI
 
 
 ---
@@ -188,7 +187,7 @@ Voltage AN, BN and CN are phase-to-neutral values. Use the labels that match tho
 
 The standard profile contains numeric energy, power, voltage, frequency and current values. It does **not** include current-transformer direction register 1607, so no direction lookup is needed for this configuration.
 
-**Correction to the earlier lookup example:** direction mask 1 (`0b001`) reverses current transformer 1, mask 2 (`0b010`) reverses current transformer 2, and mask 4 (`0b100`) reverses current transformer 3. This indicates configured polarity reversal, not automatic detection of a physically reversed transformer. Multiple flags add together. See the [WattNode Module reference manual](https://ctlsys.com/wp-content/uploads/2017/08/WND-Module-Modbus-Ref-Manual.pdf).
+**Current-transformer direction reference:** direction mask 1 (`0b001`) reverses current transformer 1, mask 2 (`0b010`) reverses current transformer 2, and mask 4 (`0b100`) reverses current transformer 3. This indicates configured polarity reversal, not automatic detection of a physically reversed transformer. Multiple flags add together. See the [WattNode Module reference manual](https://ctlsys.com/wp-content/uploads/2017/08/WND-Module-Modbus-Ref-Manual.pdf).
 
 
 ### Final check

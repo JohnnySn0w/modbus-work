@@ -4,11 +4,11 @@
 |---|---|
 | Devices | Actual/previous equipment, transport, readings, timestamps and per-device details |
 | Configuration | Modbus Bridge target, selected point table, review, backup/program/save |
-| History | Session acquisitions, measurement selector, labeled chart and CSV export |
+| History | One graph per register and slave, native units, gaps and CSV export |
 | References | Supported model catalog, register definitions and offline manuals |
 | Troubleshooting | Application and device setup/troubleshooting guidance |
-| Settings | Theme, display units and automatic polling |
-| Diagnostics | USB inventory, explicit recovery and compact activity log |
+| Settings | Theme, display units, automatic polling and communication time limits |
+| Diagnostics | USB interfaces, explicit recovery, data checks, communication timeline and diagnostic export |
 
 Navigation remains outside page scrolling. Scrollbars fill the viewport width with independent content padding. Register columns keep shared widths and rows grow to the tallest wrapped cell. The bottom status bar stays fixed; automated poll progress does not move content or disable configuration selection. Explicit work queues behind polling.
 

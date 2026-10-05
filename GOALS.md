@@ -1,6 +1,6 @@
 # Development requirements
 
-Reviewed 2026-09-16. [Current support and evidence](CURRENT-STATUS.md) is the implementation handoff. A passing software test does not close a physical acceptance item.
+Reviewed 2026-09-29. [Current support and evidence](CURRENT-STATUS.md) is the implementation handoff. A passing software test does not close a physical acceptance item.
 
 ## Completed
 
@@ -24,7 +24,7 @@ Reviewed 2026-09-16. [Current support and evidence](CURRENT-STATUS.md) is the im
 - [ ] Broader unplug/replug, route changes, startup recovery and cancellation combinations. Basic adapter reads and handoff are already verified.
 - [ ] Clean second Windows PC package/driver acceptance.
 - [x] HMD65 operation confirmed; hardware and firmware versions not recorded.
-- [ ] Complete HMD65 metric/non-metric register-set and version coverage.
+- [ ] Complete selectable HMD65 non-metric register-set and version coverage. Metric profile re-enablement is outside current scope.
 - [x] WattNode WND-M1-MB operation confirmed; hardware and firmware versions not recorded.
 - [ ] WattNode complete register-set coverage and installation-specific current-transformer/service validation.
 - [x] ATI F12 transmitter hardware 1.01 / software 1.25 confirmed working.
@@ -34,7 +34,7 @@ Reviewed 2026-09-16. [Current support and evidence](CURRENT-STATUS.md) is the im
 
 - [ ] Work toward full coverage with lean behavioral tests; remaining native driver/dialog and state-machine branches are tracked in docs/RUST-COVERAGE.md.
 
-- [ ] Native IAQ Plus identification, readings and protected configuration-backup workflows.
+- [ ] Deferred: native IAQ Plus identification, readings and protected configuration-backup workflows; IAQ interface sections are hidden.
 - [ ] Additional Synetica model profiles and device-specific console behavior.
 - [ ] Direct ATI adapter identification/polling.
 - [ ] Firmware image and exact target model/revision; verified address/range and erase policy.

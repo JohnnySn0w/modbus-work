@@ -72,7 +72,7 @@
   {
     "path": "CURRENT-STATUS.md",
     "classification": "current guide or reference",
-    "reviewed": "2026-09-10"
+    "reviewed": "2026-09-29"
   },
   {
     "path": "docs/ARCHITECTURE.md",
@@ -87,7 +87,7 @@
   {
     "path": "docs/CONFIGURATION-UI-AUDIT.md",
     "classification": "current guide or reference",
-    "reviewed": "2026-09-10"
+    "reviewed": "2026-09-29"
   },
   {
     "path": "docs/DESIGN-DECISIONS.md",
@@ -162,12 +162,12 @@
   {
     "path": "docs/OPERATOR-GUIDE.md",
     "classification": "current guide or reference",
-    "reviewed": "2026-09-10"
+    "reviewed": "2026-09-29"
   },
   {
     "path": "docs/README.md",
     "classification": "current guide or reference",
-    "reviewed": "2026-09-10"
+    "reviewed": "2026-09-29"
   },
   {
     "path": "docs/reference/README.md",
@@ -182,7 +182,7 @@
   {
     "path": "docs/RUST-COVERAGE.md",
     "classification": "current guide or reference",
-    "reviewed": "2026-09-10"
+    "reviewed": "2026-09-29"
   },
   {
     "path": "docs/RUST-PARITY.md",
@@ -192,7 +192,7 @@
   {
     "path": "docs/UI-INFORMATION-ARCHITECTURE.md",
     "classification": "current guide or reference",
-    "reviewed": "2026-09-10"
+    "reviewed": "2026-09-29"
   },
   {
     "path": "docs/WATTNODE-TEST-READINESS.md",
@@ -202,7 +202,7 @@
   {
     "path": "GOALS.md",
     "classification": "current guide or reference",
-    "reviewed": "2026-09-10"
+    "reviewed": "2026-09-29"
   },
   {
     "path": "native/modbus-configurator/assets/branding/README.md",
@@ -217,16 +217,41 @@
   {
     "path": "native/modbus-configurator/README.md",
     "classification": "current guide or reference",
-    "reviewed": "2026-09-10"
+    "reviewed": "2026-09-29"
   },
   {
     "path": "PROJECT.md",
     "classification": "current guide or reference",
-    "reviewed": "2026-09-10"
+    "reviewed": "2026-09-29"
   },
   {
     "path": "README.md",
     "classification": "current guide or reference",
-    "reviewed": "2026-09-10"
+    "reviewed": "2026-09-29"
+  },
+  {
+    "path": "How do configure Modbus Bridge on DSP.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-29"
+  },
+  {
+    "path": "docs/MULTI-DEVICE-CONFIGURATION.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-29"
+  },
+  {
+    "path": "docs/PORTABLE-README.txt",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-29"
+  },
+  {
+    "path": "docs/DIAGNOSTICS.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-29"
+  },
+  {
+    "path": "docs/TERMINOLOGY.md",
+    "classification": "current guide or reference",
+    "reviewed": "2026-09-29"
   }
 ]
