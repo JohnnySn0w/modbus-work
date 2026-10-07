@@ -1,6 +1,99 @@
 //! Receipt ages and acknowledgement preserve evidence and hardware safety.
 use super::*;
 
+/// A failed poll must not discard a requested backup; preflight still checks the route.
+#[test]
+fn read_failure_retains_queued_work_and_only_marks_the_affected_transport_stale() {
+    let mut a = app();
+    start(&mut a);
+    a.auto_request = true;
+    a.technician.adapter_stale = false;
+    a.hardware(Operation::BridgeExport);
+    send(
+        &mut a,
+        EventKind::Error {
+            code: ErrorCode::Timeout,
+            message: "Read timed out".into(),
+            recoverable: true,
+        },
+    );
+    assert!(a.active.is_none() && a.queued.is_some());
+    assert!(a.technician.bridge_stale && !a.technician.adapter_stale);
+    assert!(!a.programming_blocked);
+    a.start_queued();
+    assert!(a.active.is_some() && a.queued.is_none());
+}
+
+/// Input validation and another application's port ownership do not invalidate readings.
+#[test]
+fn request_errors_do_not_invent_device_faults_or_poison_configuration() {
+    for code in [
+        ErrorCode::InvalidRequest,
+        ErrorCode::PortBusy,
+        ErrorCode::InventoryUnavailable,
+    ] {
+        let mut a = app();
+        start(&mut a);
+        a.technician.bridge_stale = false;
+        a.technician.adapter_stale = false;
+        send(
+            &mut a,
+            EventKind::Error {
+                code,
+                message: "Request could not start".into(),
+                recoverable: true,
+            },
+        );
+        assert!(a.active.is_none());
+        assert!(!a.technician.bridge_fault && !a.programming_blocked);
+        assert!(!a.technician.bridge_stale && !a.technician.adapter_stale);
+    }
+}
+
+/// Discovery retries must preserve queued intent and the foreground operation's status.
+#[test]
+fn discovery_failure_does_not_cancel_read_or_queued_action() {
+    let mut a = app();
+    start(&mut a);
+    a.auto_request = true;
+    a.hardware(Operation::BridgeExport);
+    a.status = "Reading".into();
+    a.scan_pending = Some(43);
+    a.handle_event(Event {
+        request_id: 43,
+        kind: EventKind::Error {
+            code: ErrorCode::InventoryUnavailable,
+            message: "Temporary discovery failure".into(),
+            recoverable: true,
+        },
+    });
+    assert_eq!(a.active, Some(42));
+    assert_eq!(a.status, "Reading");
+    assert!(a.queued.is_some() && a.scan_pending.is_none());
+    assert_eq!(a.ports.len(), 1);
+}
+
+/// An empty verified bridge remains a valid target for its first configuration.
+#[test]
+fn fresh_bridge_enables_first_configuration_without_a_recovery_warning() {
+    let mut a = app();
+    start(&mut a);
+    let mut result = read(&a, 21.0);
+    result.native_tsv = "Item\tID\tReg\tAddr\tData\tWord\tMult\tRead\r\n".into();
+    result.readings.clear();
+    result.exceptions.clear();
+    result.successful_reads = Some(0);
+    send(&mut a, EventKind::BridgeResult { result });
+    assert!(!a.programming_blocked && !a.technician.bridge_fault);
+    a.technician.page = technician_view::Page::Configurations;
+    let ctx = egui::Context::default();
+    let text = draw(&mut a, &ctx);
+    assert!(text.contains("No registers configured."), "{text}");
+    assert!(!text.contains("Check recovered console"), "{text}");
+    click(&mut a, &ctx, "Program Modbus Bridge");
+    assert!(a.programming && a.active.is_some());
+}
+
 #[test]
 fn clear_errors_preserves_values_logs_and_programming_lock_and_new_fault_reappears() {
     let mut a = app();
@@ -11,10 +104,12 @@ fn clear_errors_preserves_values_logs_and_programming_lock_and_new_fault_reappea
     a.auto_paused = true;
     a.technician.bridge_stale = true;
     a.technician.slave_failures.insert(1, 3);
+    a.technician.configuration_change = Some("Sensor profile changed".into());
     let logs = a.replay_log.len();
     a.handle_action(technician_view::Action::ClearErrors);
     assert!(a.technician.errors_acknowledged);
     assert!(a.technician.slave_failures.is_empty());
+    assert!(a.technician.configuration_change.is_none());
     assert!(a.programming_blocked && a.auto_paused && a.technician.bridge_stale);
     assert_eq!(a.result.as_ref().unwrap().readings[0].value, 21.0);
     assert!(a.replay_log.len() >= logs);

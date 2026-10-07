@@ -28,6 +28,7 @@ impl Configurator {
             Action::ClearErrors => {
                 self.technician.errors_acknowledged = true;
                 self.technician.slave_failures.clear();
+                self.technician.configuration_change = None;
                 if !self.programming_blocked && self.active.is_none() {
                     self.status = "Errors acknowledged; new errors will appear again.".into();
                 }
@@ -196,6 +197,8 @@ impl Configurator {
             return;
         }
         self.auto_request = false;
+        let previous_block = self.programming_blocked;
+        let previous_pause = self.auto_paused;
         self.line_applying = matches!(operation, Operation::BridgeLineSettings { .. });
         if matches!(
             operation,
@@ -215,5 +218,12 @@ impl Configurator {
         }
         .into();
         self.active = self.request(operation, true);
+        // No command was accepted, so no device write can be uncertain.
+        if self.active.is_none() {
+            self.programming = false;
+            self.line_applying = false;
+            self.programming_blocked = previous_block;
+            self.auto_paused = previous_pause;
+        }
     }
 }

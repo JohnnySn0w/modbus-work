@@ -69,6 +69,12 @@ impl Configurator {
                 p.port,
                 p.serial_number.as_deref().unwrap_or("serial unavailable")
             ));
+            if self.result.as_ref().is_some_and(|result| {
+                modbus_configurator::catalog::table_rows(&result.native_tsv)
+                    .is_ok_and(|rows| rows.is_empty())
+            }) {
+                ui.label("No registers configured. Choose a device and program its point table to begin reading.");
+            }
         } else {
             brand::attention(
                 ui,

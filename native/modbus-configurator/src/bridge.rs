@@ -456,11 +456,18 @@ impl BridgeSession {
         self.send("M", cancel, deadline, self.timing.response)?;
         self.require(PromptState::ImportExport)?;
         let count = export_count(self.parser.text())?;
-        self.send("E", cancel, deadline, self.timing.response)?;
-        self.require(PromptState::Continue)?;
-        let rows = parse_export(self.parser.text(), count)?;
-        self.send("", cancel, deadline, self.timing.response)?;
-        self.require(PromptState::ImportExport)?;
+        // A fresh bridge has no export payload. Its verified menu count is sufficient;
+        // requesting an export can otherwise wait for a continuation that never arrives.
+        let rows = if count == 0 {
+            BTreeMap::new()
+        } else {
+            self.send("E", cancel, deadline, self.timing.response)?;
+            self.require(PromptState::Continue)?;
+            let rows = parse_export(self.parser.text(), count)?;
+            self.send("", cancel, deadline, self.timing.response)?;
+            self.require(PromptState::ImportExport)?;
+            rows
+        };
         self.send("X", cancel, deadline, self.timing.response)?;
         self.require(PromptState::ModbusMenu)?;
         let mut result = BridgeResult {

@@ -208,6 +208,18 @@ fn switching_sensor_profile_warns_on_overview_and_configured_device_page() {
     let result = a.result.clone().unwrap();
     send(&mut a, EventKind::BridgeResult { result });
     assert!(a.technician.configuration_change.is_some());
+    a.handle_action(technician_view::Action::ClearErrors);
+    a.active = Some(42);
+    let result = a.result.clone().unwrap();
+    send(&mut a, EventKind::BridgeResult { result });
+    assert!(a.technician.configuration_change.is_none());
+    for page in [
+        technician_view::Page::Overview,
+        technician_view::Page::Detail("hmd65".into()),
+    ] {
+        a.technician.page = page;
+        assert!(!draw(&mut a, &ctx).contains("Sensor profile changed"));
+    }
 }
 
 #[test]

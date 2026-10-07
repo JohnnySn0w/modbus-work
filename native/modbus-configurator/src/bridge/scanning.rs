@@ -75,10 +75,13 @@ impl BridgeSession {
             .count();
         let rows = parse_export(&result.native_tsv, count)?;
         if count == 0 {
-            return Err(BridgeError::new(
-                ErrorCode::InvalidResponse,
-                "The Modbus Bridge has no configured points to read.",
-            ));
+            result.readings.clear();
+            result.exceptions.clear();
+            result.successful_reads = Some(0);
+            progress(
+                "Modbus Bridge connected; no registers configured. Choose a configuration to begin.",
+            );
+            return Ok(());
         }
         progress("Reading all configured Modbus points through the Modbus Bridge");
         let slaves: std::collections::BTreeSet<_> = rows

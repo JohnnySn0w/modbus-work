@@ -1,6 +1,72 @@
 //! Modbus Bridge reading scenarios using the shared scripted transport.
 use super::*;
 
+/// Fresh units skip empty export/read commands and retain a usable console session.
+#[test]
+fn fresh_bridge_can_poll_back_up_and_program_its_first_table() {
+    let (program, _, target) = programming_fixture();
+    let header = "Item\tID\tReg\tAddr\tData\tWord\tMult\tRead\r\n";
+    let mut f = fixture();
+    f.exchanges.truncate(3);
+    f.exchanges[2].1 = f.exchanges[2].1.replace("2/32", "0/32");
+    f.exchanges
+        .push(("X\r".into(), "Modbus Configuration Menu:\r\n".into()));
+    // Programming rechecks the empty table, then imports without deleting any rows.
+    f.exchanges
+        .push(("X\r".into(), "enLink Main Menu:\r\n".into()));
+    f.exchanges.extend(f.exchanges[1..4].to_vec());
+    f.exchanges.push((
+        "M\r".into(),
+        "Modbus Import/Export Menu:\r\nE - Export 0/32\r\n".into(),
+    ));
+    let imports: Vec<_> = program
+        .exchanges
+        .iter()
+        .enumerate()
+        .filter(|(_, (command, _))| command == "I\r")
+        .map(|(index, _)| index)
+        .collect();
+    f.exchanges.extend(program.exchanges[imports[1]..].to_vec());
+    let script = Script::new(f, 67);
+    let writes = script.writes.clone();
+    let mut session = BridgeSession::new(Box::new(script), timing());
+    let cancel = AtomicBool::new(false);
+    let mut backup = String::new();
+    for _ in 0..2 {
+        let result = session
+            .poll_with_export(
+                &identity(),
+                true,
+                &cancel,
+                |_| {},
+                |table| backup = table.into(),
+            )
+            .unwrap();
+        assert_eq!(result.native_tsv, header);
+        assert_eq!(result.successful_reads, Some(0));
+        assert!(result.readings.is_empty() && result.exceptions.is_empty());
+    }
+    assert_eq!(backup, header);
+    assert_eq!(*writes.lock().unwrap(), ["cafe\r", "C\r", "M\r", "X\r"]);
+    let mut saved = false;
+    let result = session
+        .program(
+            &identity(),
+            &target,
+            header,
+            &cancel,
+            |_| {},
+            |table| {
+                assert_eq!(table, header);
+                saved = true;
+                Ok(())
+            },
+        )
+        .unwrap();
+    assert!(saved);
+    assert_eq!(result.native_tsv, target);
+}
+
 #[test]
 fn captured_truncated_detailed_output_is_not_accepted_as_a_complete_read() {
     let mut f = fixture();

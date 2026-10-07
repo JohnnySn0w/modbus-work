@@ -22,6 +22,13 @@ Last local hardware acceptance: Modbus Bridge hardware switch off with external 
 
 ## Implemented operator behavior
 
+- USB discovery failures retain the last device list and do not interrupt active operations. Actual route changes still cancel affected work. Hardware requests recheck the route before proceeding.
+- Read failures retain queued manual actions for normal preflight checks. Identity failures, unsafe console states, cancellations and uncertain writes cancel queued work. A failure marks only the affected transport's readings stale.
+- Request validation failures and occupied ports release the request without declaring a device fault. Unaccepted commands do not leave programming controls locked.
+
+- A verified Modbus Bridge with zero configured registers remains available for backup and first-time programming. Empty tables skip export payload and measurement requests. This path is covered by scripted protocol and interface tests; fresh-unit hardware verification is pending.
+- Clear errors dismisses the stored sensor-profile-change warning while preserving diagnostic logs and programming safety blocks.
+
 - USB identities drive route selection. Automatic polling waits five seconds after completion, with failure backoff for recoverable errors; console timeouts pause polling; it is not a fixed 10-second sampling clock.
 - One persistent Modbus Bridge console handle; receive recovery reasserts unchanged serial settings, not a physical device reset or blind command resend.
 - Manual operations can queue behind background reads. Poll progress stays quiet; foreground/queued state uses a fixed bottom status bar.

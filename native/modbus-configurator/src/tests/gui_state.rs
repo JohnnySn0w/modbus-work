@@ -21,6 +21,13 @@ fn disconnected_programming_stays_blocked_after_late_error_and_replug() {
             request_id: 43,
             kind,
         });
+        if scan_error {
+            assert!(a.programming);
+            assert_eq!(a.active, Some(42));
+            assert_eq!(a.ports.len(), 1);
+            assert!(a.scan_pending.is_none());
+            continue;
+        }
         assert!(
             a.programming_blocked,
             "An interrupted program must stay blocked before its delayed completion arrives"

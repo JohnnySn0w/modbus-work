@@ -172,7 +172,24 @@ impl Configurator {
                 self.scan_pending = None;
             }
             EventKind::Error { message, code, .. } => {
-                if is_active || is_scan {
+                // Discovery failure is not evidence of removal. Keep active work and
+                // the last inventory; hardware requests independently recheck routes.
+                if is_scan {
+                    self.scan_pending = None;
+                    if self.active.is_none() {
+                        self.status = format!("USB discovery unavailable; retrying. {message}");
+                    }
+                    return;
+                }
+                if is_active
+                    && matches!(
+                        code,
+                        ErrorCode::ProgrammingUncertain
+                            | ErrorCode::IdentityMismatch
+                            | ErrorCode::UnsafeState
+                            | ErrorCode::Cancelled
+                    )
+                {
                     self.queued = None;
                 }
                 if is_active && self.programming {
@@ -186,17 +203,22 @@ impl Configurator {
                 if !is_active && !is_scan {
                     return;
                 }
-                if is_scan {
-                    self.interrupt_active();
-                    self.scan_pending = None;
-                    self.ports.clear();
-                }
                 if is_active {
                     self.active = None;
                     let bridge = self.ports.iter().any(|p| {
                         p.port == self.selected && modbus_configurator::adapter::is_bridge(p)
                     });
-                    if bridge {
+                    if bridge
+                        && matches!(
+                            code,
+                            ErrorCode::Timeout
+                                | ErrorCode::Transport
+                                | ErrorCode::InvalidResponse
+                                | ErrorCode::UnsafeState
+                                | ErrorCode::IdentityMismatch
+                                | ErrorCode::ProgrammingUncertain
+                        )
+                    {
                         self.technician.bridge_fault = true;
                     }
                     // Do not send new scans into a console that may still be retrying sensors.
@@ -221,8 +243,22 @@ impl Configurator {
                         modbus_configurator::history::now_ms(),
                     );
                 }
-                self.technician.bridge_stale = true;
-                self.technician.adapter_stale = true;
+                if matches!(
+                    code,
+                    ErrorCode::Timeout
+                        | ErrorCode::Transport
+                        | ErrorCode::InvalidResponse
+                        | ErrorCode::IdentityMismatch
+                        | ErrorCode::ProgrammingUncertain
+                ) {
+                    if self.ports.iter().any(|p| {
+                        p.port == self.selected && modbus_configurator::adapter::is_adapter(p)
+                    }) {
+                        self.technician.adapter_stale = true;
+                    } else {
+                        self.technician.bridge_stale = true;
+                    }
+                }
                 self.status = message;
             }
             EventKind::Backup { path, error } => {
